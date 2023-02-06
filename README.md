@@ -1,51 +1,72 @@
 # AmbiqSuiteSDK
-A copy of the AmbiqSuite SDK available on GitHub. Can be used to include AmbiqSuite as a submodule. Can be used to track issues with the SDK, however it is not maintained by AmbiqMicro so the issues may not be resolved upstream.
+
+A copy of the AmbiqSuite SDK available on GitHub. Can be used to include
+AmbiqSuite as a submodule. Can be used to track issues with the SDK, however it
+is not maintained by AmbiqMicro so the issues may not be resolved upstream.
 
 # Current Version
 2.4.2
 
 # Getting Started
 
-First make sure that the necessary tools are available at your command line. They are:
-- Git 
+First make sure that the necessary tools are available at your command line.
+They are:
+- Git
   - ```git```
-- Make 
-  - ```make```
-- ARM GCC 
-  - ```arm-none-eabi-xxx``` (preferably [8-2018-q4-major](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#panel2a) - there is a known problem with 8-2019-q3-update for example)
-- Python3 
+- ARM GCC
+  - ```arm-none-eabi-xxx``` (preferably newer than GCC 10)
+- Python3
   - ```python3```
+- Meson
+- pkgconf
 
-Then follow these steps
+The Meson build system uses cross files to describe cross compilation
+environments. This project includes a cross file that uses arm-none-eabi GCC
+tools to build the library. In order to install the statically-built library,
+meson must be provided a prefix directory where the library will be installed,
+along with pkgconf support files.
+
+Applications using this library must provide a cross file with a `[constant]`
+entry for the `prefix` variable, used by Meson's `pkgconf` support to determine
+where to find the pkgconf information.
+
+The following is an example on how to install the library:
 ```
 git clone --recursive https://github.com/sparkfun/AmbiqSuiteSDK
 cd AmbiqSuiteSDK
-cd boards_sfe/common/examples/{example}/gcc
-YOUR_BOARD=redboard_artemis_atp   # choose the bsp directory name of the board you want to use
-make BOARD=$YOUR_BOARD            # build project
-make BOARD=$YOUR_BOARD bootload         # equivalent to 'bootload_svl'
-make BOARD=$YOUR_BOARD bootload_svl     # bootloads using the SparkFun Variable Loader
-make BOARD=$YOUR_BOARD bootload_asb     # bootloads using the Ambiq Secure Bootloader - overwrites SparkFun Variable Loader
+mkdir build
+meson setup --prefix [custom-prefix] --cross-file ../redboard_artemis --buildtype release
+meson compile
+meson install
 ```
 
 # Advanced Usage
-All the convenient functionality that we've added to the AmbiqSuiteSDK comes from our [SparkFun AmbiqSuite Apollo3 BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs). That repo contains more [detailed documentation for advanced usage](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs#advanced-usage).
+All the convenient functionality that we've added to the AmbiqSuiteSDK comes
+from our [SparkFun AmbiqSuite Apollo3
+BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs). That repo
+contains more [detailed documentation for advanced
+usage](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs#advanced-usage).
 
 # Repository Structure
-In addition to including the [SparkFun BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs)This repo catalogs information about the AmbiqSuite SDK. Various branches serve different purposes:
+In addition to including the [SparkFun
+BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs)This repo
+catalogs information about the AmbiqSuite SDK. Various branches serve different
+purposes:
 
 ### Branch Purposes
 
 Pattern | Use | Addtl. info
 ---|---|---
 master | contains the most up-to-date version of the SDK along with all patches |
-mirror | mirrors latest SDK available from AmbiqMicro | 
-\*-archive | provides an archive of the SDK as released by AmbiqMicro at each version | 
+mirror | mirrors latest SDK available from AmbiqMicro |
+\*-archive | provides an archive of the SDK as released by AmbiqMicro at each version |
 \*-patch-\*description| provides a version of the SDK patched beyond AmbiqMicro release
 
 
 # Submodules
-Git submodules can be used to reuse code between repositories. Some special precautions can be necessary when working with them -- most notably the need to clone the contents of submodules explicitly. Here's how to do that:
+Git submodules can be used to reuse code between repositories. Some special
+precautions can be necessary when working with them -- most notably the need to
+clone the contents of submodules explicitly. Here's how to do that:
 
 - If you've already cloned a repo
   - ```git submodule update --init --recursive```

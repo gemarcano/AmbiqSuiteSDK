@@ -1,0 +1,27 @@
+[constants]
+prefix = '/usr/arm-none-eabi/'
+arch = 'arm-none-eabi-'
+
+[host_machine]
+system = 'none'
+cpu_family = 'arm'
+cpu = 'cortex-m4'
+endian = 'little'
+
+[binaries]
+c = arch + 'gcc'
+cpp = arch + 'g++'
+strip = arch + 'strip'
+pkgconfig = 'pkgconf'
+objcopy = arch + 'objcopy'
+
+[properties]
+sys_root = prefix
+pkg_config_libdir = prefix / 'lib/pkgconfig'
+
+[built-in options]
+c_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
+cpp_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
+c_link_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
+cpp_link_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
+default_library = 'static'
