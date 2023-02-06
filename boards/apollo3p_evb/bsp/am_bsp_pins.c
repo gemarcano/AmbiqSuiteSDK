@@ -6,7 +6,6 @@
 //! @brief BSP pin configuration definitions.
 //!
 //! @addtogroup BSP Board Support Package (BSP)
-//! @addtogroup apollo3_evb_bsp BSP for the Apollo3 Engineering Board
 //! @ingroup BSP
 //! @{
 //
