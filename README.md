@@ -35,7 +35,8 @@ The following is an example on how to install the library:
 git clone --recursive https://github.com/sparkfun/AmbiqSuiteSDK
 cd AmbiqSuiteSDK
 mkdir build
-meson setup --prefix [custom-prefix] --cross-file ../redboard_artemis --buildtype release
+cd build
+meson setup --prefix [custom-prefix] --cross-file ../redboard_artemis --buildtype release ../
 meson compile
 meson install
 ```
