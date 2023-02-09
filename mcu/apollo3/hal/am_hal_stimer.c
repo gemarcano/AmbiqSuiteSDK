@@ -347,6 +347,7 @@ void am_hal_stimer_capture_stop(uint32_t ui32CaptureNum)
 void
 am_hal_stimer_nvram_set(uint32_t ui32NvramNum, uint32_t ui32NvramVal)
 {
+    (void)ui32NvramVal;
     if ( ui32NvramNum > 3 )
     {
         return;

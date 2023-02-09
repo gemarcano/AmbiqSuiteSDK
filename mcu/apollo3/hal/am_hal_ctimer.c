@@ -259,6 +259,8 @@ __attribute__((naked))
 void
 am_hal_triple_read(uint32_t u32TimerAddr, uint32_t ui32Data[])
 {
+    (void)u32TimerAddr; // used in assembly, r0 due to ARM AAPCS
+    (void)ui32Data;        // used in assembly, r1 due to ARM AAPCS
     __asm
     (
         "   push    {r1, r4}\n"                 // Save r1=ui32Data, r4
@@ -1315,7 +1317,7 @@ am_hal_ctimer_output_config(uint32_t ui32TimerNumber,
     uint32_t ui32CtxOutcfgFnc, ui32CtxOutcfgMsk, ui32CfgShf;
     uint32_t ui32OutcfgValue;
 
-    am_hal_gpio_pincfg_t sPinCfg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    am_hal_gpio_pincfg_t sPinCfg = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     if ( (ui32PadNum > 49)  ||  (ui32TimerNumber > 7)   ||
          (eOutputType > AM_HAL_CTIMER_OUTPUT_FORCE1)    ||
@@ -1492,6 +1494,9 @@ void
 am_hal_ctimer_input_config(uint32_t ui32TimerNumber, uint32_t ui32TimerSegment,
                            uint32_t ui32TimerInputConfig)
 {
+    (void)ui32TimerNumber;
+    (void)ui32TimerSegment;
+    (void)ui32TimerInputConfig;
     //
     // Begin critical section.
     //

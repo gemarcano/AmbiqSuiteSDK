@@ -81,6 +81,9 @@ void __attribute__((weak))
 #endif
 am_hal_debug_error(const char *pcFile, uint32_t ui32Line, const char *pcMessage)
 {
+    (void)pcFile;
+    (void)ui32Line;
+    (void)pcMessage;
     //
     // Halt for analysis.
     //

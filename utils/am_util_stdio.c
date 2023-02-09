@@ -893,10 +893,16 @@ am_util_stdio_vsprintf(char *pcBuf, const char *pcFmt, va_list pArgs)
                 // the string is padded at the beginning with spaces.
                 //
                 ui32strlen = simple_strlen(pcStr);
+                // Gabriel Marcano: the way iWidth is handled feels like a bug
+                // Specifically, iWidth can be negative in this specific case.
+                // If it isn't, AND if it is smaller than ui32strlen, it is
+                // cleared. But if it is positive AND it is equal or larger
+                // than ui32strlen, it'll end up negated in a later check in
+                // this switch-case-- which really feels like a bug!
                 if ( iWidth > 0 )
                 {
                     // Pad the beginning of the string (right-aligned).
-                    if ( ui32strlen < iWidth )
+                    if ( ui32strlen < (unsigned)iWidth )
                     {
                         // String needs some padding.
                         iWidth -= ui32strlen;
@@ -918,12 +924,16 @@ am_util_stdio_vsprintf(char *pcBuf, const char *pcFmt, va_list pArgs)
                     ++ui32CharCnt;
                 }
 
+                // Gabriel Marcano: Specifically HERE: This feels like a bug!
+                // If iWidth is positive and larger than ui32strlen, it won't
+                // be cleared, and in this conditional it'll be negated! And
+                // then passed as a negative width to padbuffer!
                 if ( iWidth )
                 {
                     iWidth = -iWidth;
 
                     // Pad the end of the string (left-aligned).
-                    if ( ui32strlen < iWidth )
+                    if ( (int64_t)ui32strlen < iWidth )
                     {
                         // String needs some padding.
                         iWidth -= ui32strlen;
@@ -937,6 +947,7 @@ am_util_stdio_vsprintf(char *pcBuf, const char *pcFmt, va_list pArgs)
 
             case 'x':
                 bLower = true;
+                // fallthrough
             case 'X':
                 ui64Val = bLongLong ? va_arg(pArgs, uint64_t) :
                                       va_arg(pArgs, uint32_t);

@@ -149,6 +149,7 @@ __attribute__((naked))
 static void
 bl_run_main(uint32_t *vtor)
 {
+    (void)vtor; // Used in r0, per ARM AAPCS
     __asm
     (
         "   movw    r3, #0xED08\n\t"    // Store the vector table pointer of the new image into VTOR.

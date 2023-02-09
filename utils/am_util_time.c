@@ -64,13 +64,13 @@
 //
 // Numer of days in each month in a standard year.
 //
-const static uint32_t g_iDaysPerMonth[] =
+static const uint32_t g_iDaysPerMonth[] =
     {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 //
 // Weekday drift numbers for each month.
 //
-const static int g_iMonthOffsets[] =
+static const int g_iMonthOffsets[] =
     {4, 0, 0, 3, 5, 1, 3, 6, 2, 4, 0, 2};
 
 //*****************************************************************************
@@ -110,7 +110,7 @@ am_util_time_computeDayofWeek(int iYear, int iMonth, int iDay)
     // Make sure this day actually exists in this month. Make sure to include
     // an exception for leap years.
     //
-    if (iDay > g_iDaysPerMonth[iMonth - 1])
+    if ((unsigned)iDay > g_iDaysPerMonth[iMonth - 1])
     {
         if (iMonth == 2 && AM_UTIL_TIME_IS_LEAP_YEAR(iYear) && iDay == 29)
         {

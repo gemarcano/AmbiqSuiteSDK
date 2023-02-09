@@ -139,7 +139,7 @@ am_hal_tpiu_supported_port_width_get(void)
         // Check each bit for a '1'. When we find it, our current loop index
         // will be equal to the port width.
         //
-        if (ui32WidthValue == (0x1 << (i - 1)))
+        if (ui32WidthValue == (0x1u << (i - 1)))
         {
             return i;
         }

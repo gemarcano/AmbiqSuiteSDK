@@ -53,7 +53,7 @@
 #include <stdbool.h>
 #include "am_mcu_apollo.h"
 
-#define AM_HAL_IOS_MAX_SW_FIFO_SIZE 1023
+#define AM_HAL_IOS_MAX_SW_FIFO_SIZE 1023u
 #define AM_HAL_MAGIC_IOS            0x123456
 #define AM_HAL_IOS_CHK_HANDLE(h)    ((h) && ((am_hal_handle_prefix_t *)(h))->s.bInit && (((am_hal_handle_prefix_t *)(h))->s.magic == AM_HAL_MAGIC_IOS))
 

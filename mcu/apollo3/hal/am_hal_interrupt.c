@@ -201,6 +201,7 @@ am_hal_interrupt_master_set(uint32_t ui32InterruptState)
 void __attribute__((naked))
 am_hal_interrupt_master_set(uint32_t ui32InterruptState)
 {
+    (void)ui32InterruptState; // Used by r0, per ARM AAPCS
     __asm("    msr     PRIMASK, r0");
     __asm("    bx lr");
 }

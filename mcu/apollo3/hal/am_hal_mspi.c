@@ -606,7 +606,7 @@ mspi_fifo_read(uint32_t ui32Module, uint32_t *pui32Data,
         //
         // If we had leftover bytes, copy them out one byte at a time.
         //
-        for ( int j = 0; j < ui32Leftovers; j++ )
+        for ( unsigned j = 0; j < ui32Leftovers; j++ )
         {
             pui8Data[j] = sTempBuffer.bytes[j];
         }
@@ -1296,11 +1296,14 @@ mspi_device_configure(void *pHandle, uint32_t ui32MSPIDevice)
 
 static void mspi_dummy_callback(void *pCallbackCtxt, uint32_t status)
 {
+    (void)pCallbackCtxt;
+    (void)status;
     // Dummy - Do nothing
 }
 
 static void mspi_seq_loopback(void *pCallbackCtxt, uint32_t status)
 {
+    (void)status;
     // Reset the state to allow serving callbacks for next set
     am_hal_mspi_state_t *pMSPIState = (am_hal_mspi_state_t *)pCallbackCtxt;
     pMSPIState->ui32NumCQEntries = pMSPIState->ui32NumTransactions + 1;
@@ -3367,6 +3370,7 @@ uint32_t am_hal_mspi_highprio_transfer(void *pHandle,
                                        am_hal_mspi_callback_t pfnCallback,
                                        void *pCallbackCtxt)
 {
+    (void)eMode;
     am_hal_mspi_state_t           *pMSPIState = (am_hal_mspi_state_t *)pHandle;
     uint32_t                      ui32Status = AM_HAL_STATUS_SUCCESS;
 

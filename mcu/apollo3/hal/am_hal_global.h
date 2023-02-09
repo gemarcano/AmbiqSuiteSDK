@@ -99,7 +99,7 @@ extern "C"
 #define STRINGIZE_VAL2(n)                   #n
 
 #ifdef __GNUC__
-#define COMPILER_VERSION                    ("GCC " __VERSION__)
+#define COMPILER_VERSION                    "GCC " __VERSION__
 #elif defined(__ARMCC_VERSION)
 #define COMPILER_VERSION                    ("ARMCC " STRINGIZE_VAL(__ARMCC_VERSION))
 #elif defined(__KEIL__)

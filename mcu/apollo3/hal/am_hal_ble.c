@@ -1336,6 +1336,7 @@ am_hal_ble_trim_set(void *pHandle, uint32_t ui32BleCoreAddress, uint32_t ui32Tri
 uint32_t
 am_hal_ble_default_trim_set_ramcode(void *pHandle)
 {
+    (void)pHandle; // unused
     uint32_t ui32TrimValue;
     uint32_t ui32TrimValueSwapped;
     uint32_t *pRamCode;

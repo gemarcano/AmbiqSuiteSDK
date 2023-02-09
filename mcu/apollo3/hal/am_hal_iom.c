@@ -701,7 +701,7 @@ uint64_t iom_get_interface_clock_cfg(uint32_t ui32FreqHz, uint32_t ui32Phase )
     ui32TotPer = i32Div / ui32Denom;
     ui32TotPer += (i32Div % ui32Denom) ? 1 : 0;
     ui32v1 = 31 - AM_INSTR_CLZ(ui32TotPer);     // v1 = log2(TotPer)
-    ui32Fsel = (ui32v1 > 7) ? ui32v1 + i32N - 7 : i32N;
+    ui32Fsel = (ui32v1 > 7) ? ui32v1 + i32N - 7 : (uint32_t)i32N;
     ui32Fsel++;
 
     if ( ui32Fsel > 7 )
@@ -972,11 +972,14 @@ am_hal_iom_CQDisable(void *pHandle)
 
 static void iom_dummy_callback(void *pCallbackCtxt, uint32_t status)
 {
+    (void)pCallbackCtxt;
+    (void)status;
     // Dummy - Do nothing
 }
 
 static void iom_seq_loopback(void *pCallbackCtxt, uint32_t status)
 {
+    (void)status;
     // Reset the state to allow serving callbacks for next set
     am_hal_iom_state_t *pIOMState = (am_hal_iom_state_t *)pCallbackCtxt;
     pIOMState->ui32NumPendTransactions = pIOMState->ui32NumSeqTransactions + 1;

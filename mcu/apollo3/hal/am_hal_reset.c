@@ -119,6 +119,7 @@ am_hal_reset_configure(am_hal_reset_configure_e eConfigure)
 uint32_t
 am_hal_reset_control(am_hal_reset_control_e eControl, void *pArgs)
 {
+    (void)pArgs;
     switch ( eControl )
     {
         case AM_HAL_RESET_CONTROL_SWPOR:
@@ -287,6 +288,7 @@ uint32_t
 am_hal_reset_interrupt_status_get(bool bEnabledOnly,
                                   uint32_t *pui32IntStatus)
 {
+    (void)bEnabledOnly;
     if ( pui32IntStatus == NULL )
     {
         return AM_HAL_STATUS_INVALID_ARG;

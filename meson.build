@@ -20,7 +20,7 @@ devices_src = files([
 
 utils_src = files([
   'utils/am_util_ble.c',
-  'utils/am_util_debug.c',
+  #'utils/am_util_debug.c', # this file is empty?
   'utils/am_util_delay.c',
   #'utils/am_util_faultisr.c',
   'utils/am_util_id.c',
