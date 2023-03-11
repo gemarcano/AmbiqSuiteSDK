@@ -521,7 +521,7 @@ uint32_t am_hal_bootloader_exit(uint32_t *pImage)
     if ( MCUCTRL->SHADOWVALID_b.INFO0_VALID  &&
          MCUCTRL->BOOTLOADER_b.PROTLOCK )
     {
-        am_hal_security_128bkey_t keyVal;
+        am_hal_security_128bkey_t keyVal = {0};
         uint32_t *pCustKey = (uint32_t *)0x50021A00;
         bool bLockStatus;
 
