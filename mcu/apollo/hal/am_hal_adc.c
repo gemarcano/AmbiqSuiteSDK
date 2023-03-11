@@ -110,8 +110,6 @@ static union
 void
 am_hal_adc_config(am_hal_adc_config_t *psConfig)
 {
-    __asm("");
-
     //
     // Set general ADC configuration parameters.
     //
