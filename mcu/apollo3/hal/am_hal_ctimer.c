@@ -260,7 +260,9 @@ void
 am_hal_triple_read(uint32_t u32TimerAddr, uint32_t ui32Data[])
 {
     (void)u32TimerAddr; // used in assembly, r0 due to ARM AAPCS
-    (void)ui32Data;        // used in assembly, r1 due to ARM AAPCS
+    (void)ui32Data;     // used in assembly, r1 due to ARM AAPCS
+    // This function is primarily used to work around an errata:
+    // Errata ERR004: CTIMER; CTIMER read data may be incorrect
     __asm
     (
         "   push    {r1, r4}\n"                 // Save r1=ui32Data, r4
