@@ -34,6 +34,7 @@ rba_atp_src = files([
   'boards_sfe/redboard_artemis_atp/bsp/am_bsp.c',
   'boards_sfe/redboard_artemis_atp/bsp/am_bsp_pins.c',
   'boards_sfe/common/tools_sfe/templates/startup_gcc.c',
+  'boards_sfe/common/tools_sfe/templates/startup_gcc.S',
 ])
 
 apollo3_src = files([
@@ -894,13 +895,14 @@ c_args = [
   '-DWSF_TRACE_ENABLED', '-DWSF_TRACE_ENABLED', '-DAM_PART_APOLLO3',
   '-DPART_APOLLO3', '-mthumb', '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16',
   '-mfloat-abi=hard', '-std=c17', '-ffunction-sections', '-Wall', '-Wextra',
-  '-pedantic',
+  '-pedantic', '-fno-delete-null-pointer-checks',
 ]
 
 link_args = [
   '--specs=nosys.specs', '--specs=nano.specs', '-mthumb',
   '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '-nostartfiles',
-  '-static', '-Wl,--gc-sections', '-fno-exceptions'
+  '-static', '-Wl,--gc-sections', '-fno-exceptions',
+  '-fno-delete-null-pointer-checks',
 ]
 
 lib = library(
