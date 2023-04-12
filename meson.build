@@ -76,8 +76,8 @@ apollo3_src = files([
 rba_atp_includes = [
   'boards_sfe/redboard_artemis_atp/bsp/',
   'mcu/apollo3/',
-  'mcu/apollo/hal',
-  'mcu/apollo/regs',
+  'mcu/apollo3/hal',
+  'mcu/apollo3/regs',
 ]
 
 sdk_includes = [
