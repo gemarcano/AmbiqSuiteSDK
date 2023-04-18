@@ -1,6 +1,7 @@
 [constants]
 prefix = '/usr/arm-none-eabi/'
 arch = 'arm-none-eabi-'
+common_flags = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '--sysroot=' + prefix]
 
 [host_machine]
 system = 'none'
@@ -20,8 +21,8 @@ sys_root = prefix
 pkg_config_libdir = prefix / 'lib/pkgconfig'
 
 [built-in options]
-c_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
-cpp_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
-c_link_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
-cpp_link_args = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard' ]
+c_args = common_flags
+cpp_args = common_flags
+c_link_args = common_flags
+cpp_link_args = common_flags
 default_library = 'static'
