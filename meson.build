@@ -1,5 +1,10 @@
 project('ambiqsdk', 'c',
-  default_options: ['b_lto=false', 'b_staticpic=false'],
+  default_options: [
+    'b_lto=true',
+    'b_staticpic=false',
+    'c_std=c17',
+    'warning_level=3',
+  ],
   license: ['AM-BSD-3-Clause'],
   version: files('VERSION.txt'))
 
@@ -890,19 +895,20 @@ header_files = files([
 
 install_headers(header_files, subdir: 'ambiq', preserve_path: true)
 
+# Most of these arguments were taken from the SDK Makefiles.
+#
+# -fno-delete-null-pointer-checks is required since the Apollo3 has a register
+# at address 0x0
+
 c_args = [
   '-DAM_CUSTOM_BDADDR', '-DAM_PACKAGE_BGA', '-DWSF_TRACE_ENABLED',
   '-DWSF_TRACE_ENABLED', '-DWSF_TRACE_ENABLED', '-DAM_PART_APOLLO3',
-  '-DPART_APOLLO3', '-mthumb', '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16',
-  '-mfloat-abi=hard', '-std=c17', '-ffunction-sections', '-Wall', '-Wextra',
-  '-pedantic', '-fno-delete-null-pointer-checks',
+  '-DPART_APOLLO3', '-mthumb', '-fno-delete-null-pointer-checks',
 ]
 
 link_args = [
-  '--specs=nosys.specs', '--specs=nano.specs', '-mthumb',
-  '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '-nostartfiles',
-  '-static', '-Wl,--gc-sections', '-fno-exceptions',
-  '-fno-delete-null-pointer-checks',
+  '--specs=nano.specs', '-mthumb', '-nostartfiles', '-Wl,--gc-sections',
+  '-fno-exceptions', '-fno-delete-null-pointer-checks',
 ]
 
 lib = library(
