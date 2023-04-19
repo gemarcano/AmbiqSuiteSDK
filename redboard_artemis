@@ -1,7 +1,7 @@
 [constants]
 prefix = '/usr/arm-none-eabi/'
 arch = 'arm-none-eabi-'
-common_flags = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '--sysroot=' + prefix]
+common_flags = [ '-mcpu=cortex-m4', '-mfpu=fpv4-sp-d16', '-mfloat-abi=hard', '--sysroot=' + prefix, '--specs=nosys.specs' ]
 
 [host_machine]
 system = 'none'
