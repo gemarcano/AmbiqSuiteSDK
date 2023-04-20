@@ -348,11 +348,11 @@ am_hal_pwrctrl_periph_enabled(am_hal_pwrctrl_periph_e ePeripheral,
     switch ( ePeripheral )
     {
         case AM_HAL_PWRCTRL_PERIPH_NONE:
-        case AM_HAL_PWRCTRL_PERIPH_SCARD:
             break;
         case AM_HAL_PWRCTRL_PERIPH_IOS:
         case AM_HAL_PWRCTRL_PERIPH_UART0:
         case AM_HAL_PWRCTRL_PERIPH_UART1:
+        case AM_HAL_PWRCTRL_PERIPH_SCARD:
             ui32Mask = PWRCTRL_DEVPWRSTATUS_HCPA_Msk;
             break;
         case AM_HAL_PWRCTRL_PERIPH_IOM0:
