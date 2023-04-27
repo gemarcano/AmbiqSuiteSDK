@@ -42,6 +42,13 @@ rba_atp_src = files([
   'boards_sfe/common/tools_sfe/templates/startup_gcc.S',
 ])
 
+rba_src = files([
+  'boards_sfe/redboard_artemis/bsp/am_bsp.c',
+  'boards_sfe/redboard_artemis/bsp/am_bsp_pins.c',
+  'boards_sfe/common/tools_sfe/templates/startup_gcc.c',
+  'boards_sfe/common/tools_sfe/templates/startup_gcc.S',
+])
+
 apollo3_src = files([
   'mcu/apollo3/hal/am_hal_adc.c',
   'mcu/apollo3/hal/am_hal_ble.c',
@@ -85,6 +92,13 @@ rba_atp_includes = [
   'mcu/apollo3/regs',
 ]
 
+rba_includes = [
+  'boards_sfe/redboard_artemis/bsp/',
+  'mcu/apollo3/',
+  'mcu/apollo3/hal',
+  'mcu/apollo3/regs',
+]
+
 sdk_includes = [
   'utils/',
   'devices/',
@@ -92,8 +106,11 @@ sdk_includes = [
   'CMSIS/ARM/Include',
 ]
 
-includes_str = rba_atp_includes + sdk_includes
-includes = include_directories(includes_str)
+rba_atp_includes_str = rba_atp_includes + sdk_includes
+rba_atp_includes = include_directories(rba_atp_includes_str)
+
+rba_includes_str = rba_includes + sdk_includes
+rba_includes = include_directories(rba_includes_str)
 
 header_files = files([
   'ambiq_ble/apps/amdtpc/amdtp_api.h',
@@ -902,28 +919,48 @@ install_headers(header_files, subdir: 'ambiq', preserve_path: true)
 
 c_args = [
   '-DAM_CUSTOM_BDADDR', '-DAM_PACKAGE_BGA', '-DWSF_TRACE_ENABLED',
-  '-DWSF_TRACE_ENABLED', '-DWSF_TRACE_ENABLED', '-DAM_PART_APOLLO3',
-  '-DPART_APOLLO3', '-mthumb', '-fno-delete-null-pointer-checks',
+  '-DAM_PART_APOLLO3', '-DPART_APOLLO3', '-fno-delete-null-pointer-checks',
 ]
 
 link_args = [
-  '--specs=nano.specs', '-mthumb', '-nostartfiles', '-Wl,--gc-sections',
+  '--specs=nano.specs', '-nostartfiles', '-Wl,--gc-sections',
   '-fno-exceptions', '-fno-delete-null-pointer-checks',
 ]
 
-lib = library(
+rba_atp_lib = library(
   'rba_atp', apollo3_src + rba_atp_src + utils_src + devices_src,
-  include_directories: includes,
+  include_directories: rba_atp_includes,
+  c_args: c_args,
+  link_args: link_args,
+  install: true,
+)
+
+rba_lib = library(
+  'rba', apollo3_src + rba_src + utils_src + devices_src,
+  include_directories: rba_atp_includes,
   c_args: c_args,
   link_args: link_args,
   install: true,
 )
 
 pkg = import('pkgconfig')
-pkg_subdirs = ['ambiq']
 
 # Make sure to append 'ambiq' as we install headers in the ambiq subdir
-foreach inc : includes_str
+pkg_subdirs = ['ambiq']
+foreach inc : rba_atp_includes_str
   pkg_subdirs += 'ambiq' / inc
 endforeach
-pkg.generate(lib, subdirs: pkg_subdirs)
+pkg.generate(rba_atp_lib,
+  subdirs: pkg_subdirs,
+  extra_cflags: c_args
+)
+
+# Make sure to append 'ambiq' as we install headers in the ambiq subdir
+pkg_subdirs = ['ambiq']
+foreach inc : rba_includes_str
+  pkg_subdirs += 'ambiq' / inc
+endforeach
+pkg.generate(rba_lib,
+  subdirs: pkg_subdirs,
+  extra_cflags: c_args
+)
