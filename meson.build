@@ -8,47 +8,6 @@ project('ambiqsdk', 'c',
   license: ['AM-BSD-3-Clause'],
   version: files('VERSION.txt'))
 
-devices_src = files([
-  'devices/am_devices_button.c',
-  #'devices/am_devices_da14581.c',
-  #'devices/am_devices_em9304.c',
-  #'devices/am_devices_fireball.c',
-  'devices/am_devices_led.c',
-  #'devices/am_devices_mb85rc256v.c',
-  #'devices/am_devices_mb85rs1mt.c',
-  #'devices/am_devices_mspi_atxp032.c',
-  #'devices/am_devices_mspi_psram_aps6404l.c',
-  #'devices/am_devices_mspi_rm67162.c',
-  #'devices/am_devices_mspi_s25fs064s.c',
-  #'devices/am_devices_spiflash.c',
-])
-
-utils_src = files([
-  'utils/am_util_ble.c',
-  #'utils/am_util_debug.c', # this file is empty?
-  'utils/am_util_delay.c',
-  #'utils/am_util_faultisr.c',
-  'utils/am_util_id.c',
-  #'utils/am_util_regdump.c',
-  'utils/am_util_stdio.c',
-  'utils/am_util_string.c',
-  'utils/am_util_time.c',
-])
-
-rba_atp_src = files([
-  'boards_sfe/redboard_artemis_atp/bsp/am_bsp.c',
-  'boards_sfe/redboard_artemis_atp/bsp/am_bsp_pins.c',
-  'boards_sfe/common/tools_sfe/templates/startup_gcc.c',
-  'boards_sfe/common/tools_sfe/templates/startup_gcc.S',
-])
-
-rba_src = files([
-  'boards_sfe/redboard_artemis/bsp/am_bsp.c',
-  'boards_sfe/redboard_artemis/bsp/am_bsp_pins.c',
-  'boards_sfe/common/tools_sfe/templates/startup_gcc.c',
-  'boards_sfe/common/tools_sfe/templates/startup_gcc.S',
-])
-
 apollo3_src = files([
   'mcu/apollo3/hal/am_hal_adc.c',
   'mcu/apollo3/hal/am_hal_ble.c',
@@ -84,33 +43,6 @@ apollo3_src = files([
   'mcu/apollo3/hal/am_hal_uart.c',
   'mcu/apollo3/hal/am_hal_wdt.c',
 ])
-
-rba_atp_includes = [
-  'boards_sfe/redboard_artemis_atp/bsp/',
-  'mcu/apollo3/',
-  'mcu/apollo3/hal',
-  'mcu/apollo3/regs',
-]
-
-rba_includes = [
-  'boards_sfe/redboard_artemis/bsp/',
-  'mcu/apollo3/',
-  'mcu/apollo3/hal',
-  'mcu/apollo3/regs',
-]
-
-sdk_includes = [
-  'utils/',
-  'devices/',
-  'CMSIS/AmbiqMicro/Include',
-  'CMSIS/ARM/Include',
-]
-
-rba_atp_includes_str = rba_atp_includes + sdk_includes
-rba_atp_includes = include_directories(rba_atp_includes_str)
-
-rba_includes_str = rba_includes + sdk_includes
-rba_includes = include_directories(rba_includes_str)
 
 header_files = files([
   'ambiq_ble/apps/amdtpc/amdtp_api.h',
@@ -910,13 +842,84 @@ header_files = files([
   'utils/am_util_time.h',
 ])
 
+# Install ALL headers under the `ambiq` folder, regardless of what boards are
+# being configured
 install_headers(header_files, subdir: 'ambiq', preserve_path: true)
+
+devices_src = files([
+  'devices/am_devices_button.c',
+  #'devices/am_devices_da14581.c',
+  #'devices/am_devices_em9304.c',
+  #'devices/am_devices_fireball.c',
+  'devices/am_devices_led.c',
+  #'devices/am_devices_mb85rc256v.c',
+  #'devices/am_devices_mb85rs1mt.c',
+  #'devices/am_devices_mspi_atxp032.c',
+  #'devices/am_devices_mspi_psram_aps6404l.c',
+  #'devices/am_devices_mspi_rm67162.c',
+  #'devices/am_devices_mspi_s25fs064s.c',
+  #'devices/am_devices_spiflash.c',
+])
+
+utils_src = files([
+  'utils/am_util_ble.c',
+  #'utils/am_util_debug.c', # this file is empty?
+  'utils/am_util_delay.c',
+  #'utils/am_util_faultisr.c',
+  'utils/am_util_id.c',
+  #'utils/am_util_regdump.c',
+  'utils/am_util_stdio.c',
+  'utils/am_util_string.c',
+  'utils/am_util_time.c',
+])
+
+sdk_includes = [
+  'utils/',
+  'devices/',
+  'CMSIS/AmbiqMicro/Include',
+  'CMSIS/ARM/Include',
+]
+
+# Support building multiple boards. Every board should have an entry in the
+# `boards` list describing it.
+boards = [
+  { 'path': 'boards_sfe/redboard_artemis_atp', 'name': 'ambiq_rba_atp'},
+  { 'path': 'boards_sfe/redboard_artemis', 'name': 'ambiq_rba'},
+  { 'path': 'boards_sfe/redboard_artemis_nano', 'name': 'ambiq_rba_nano'},
+  { 'path': 'boards_sfe/artemis_thing_plus', 'name': 'ambiq_a_tp'},
+  { 'path': 'boards_sfe/artemis_module', 'name': 'ambiq_module'},
+  { 'path': 'boards_sfe/artemis_dk', 'name': 'ambiq_dk'},
+]
+
+# For boards_sfe, they are all very similar, so leverage some looping to set up
+# their entries
+_boards = []
+foreach board : boards
+  src = files([
+    board['path'] + '/bsp/am_bsp.c',
+    board['path'] + '/bsp/am_bsp_pins.c',
+    'boards_sfe/common/tools_sfe/templates/startup_gcc.c',
+    'boards_sfe/common/tools_sfe/templates/startup_gcc.S',
+  ])
+
+  includes = [
+    board['path'] + '/bsp/',
+    'mcu/apollo3/',
+    'mcu/apollo3/hal',
+    'mcu/apollo3/regs',
+  ]
+
+  includes_str = includes + sdk_includes
+  includes = include_directories(includes_str)
+  board += {'sources': src, 'includes': includes, 'includes_str': includes_str}
+  _boards += [board]
+endforeach
+boards = _boards
 
 # Most of these arguments were taken from the SDK Makefiles.
 #
 # -fno-delete-null-pointer-checks is required since the Apollo3 has a register
 # at address 0x0
-
 c_args = [
   '-DAM_CUSTOM_BDADDR', '-DAM_PACKAGE_BGA', '-DWSF_TRACE_ENABLED',
   '-DAM_PART_APOLLO3', '-DPART_APOLLO3', '-fno-delete-null-pointer-checks',
@@ -927,40 +930,25 @@ link_args = [
   '-fno-exceptions', '-fno-delete-null-pointer-checks',
 ]
 
-rba_atp_lib = library(
-  'rba_atp', apollo3_src + rba_atp_src + utils_src + devices_src,
-  include_directories: rba_atp_includes,
-  c_args: c_args,
-  link_args: link_args,
-  install: true,
-)
+# Finally, we should have all of the information required to build all of the libraries:
+foreach board : boards
+  lib = library(
+    board['name'], apollo3_src + board['sources'] + utils_src + devices_src,
+    include_directories: board['includes'],
+    c_args: c_args,
+    link_args: link_args,
+    install: true,
+  )
 
-rba_lib = library(
-  'rba', apollo3_src + rba_src + utils_src + devices_src,
-  include_directories: rba_atp_includes,
-  c_args: c_args,
-  link_args: link_args,
-  install: true,
-)
+  pkg = import('pkgconfig')
 
-pkg = import('pkgconfig')
-
-# Make sure to append 'ambiq' as we install headers in the ambiq subdir
-pkg_subdirs = ['ambiq']
-foreach inc : rba_atp_includes_str
-  pkg_subdirs += 'ambiq' / inc
+  # Make sure to append 'ambiq' as we install headers in the ambiq subdir
+  pkg_subdirs = ['ambiq']
+  foreach inc : board['includes_str']
+    pkg_subdirs += 'ambiq' / inc
+  endforeach
+  pkg.generate(lib,
+    subdirs: pkg_subdirs,
+    extra_cflags: c_args
+  )
 endforeach
-pkg.generate(rba_atp_lib,
-  subdirs: pkg_subdirs,
-  extra_cflags: c_args
-)
-
-# Make sure to append 'ambiq' as we install headers in the ambiq subdir
-pkg_subdirs = ['ambiq']
-foreach inc : rba_includes_str
-  pkg_subdirs += 'ambiq' / inc
-endforeach
-pkg.generate(rba_lib,
-  subdirs: pkg_subdirs,
-  extra_cflags: c_args
-)
