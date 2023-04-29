@@ -1,11 +1,14 @@
-# AmbiqSuiteSDK
+# AmbiqSuiteSDK for the Apollo 3
 
-A copy of the AmbiqSuite SDK available on GitHub. Can be used to include
-AmbiqSuite as a submodule. Can be used to track issues with the SDK, however it
-is not maintained by AmbiqMicro so the issues may not be resolved upstream.
+This is a fork of the AmbiqSuiteSDK made available by Sparkfun, with support
+for their RedBoard and Artemis Apollo3 module. This fork adds support for
+building the SDK using meson.
 
-# Current Version
+# Current SDK Version
 2.4.2
+
+There are newer SDK versions available upstream for the Apollo3 (3.0.0 appears
+to be the latest).
 
 # Getting Started
 
@@ -32,8 +35,10 @@ where to find the pkgconf information.
 
 The following is an example on how to install the library:
 ```
-git clone --recursive https://github.com/sparkfun/AmbiqSuiteSDK
+git clone --recursive https://github.com/gemarcano/AmbiqSuiteSDK
 cd AmbiqSuiteSDK
+git checkout meson
+git submodule update
 mkdir build
 cd build
 meson setup --prefix [custom-prefix] --cross-file ../redboard_artemis --buildtype release ../
