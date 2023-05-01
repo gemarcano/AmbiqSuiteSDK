@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -77,24 +77,6 @@
 
 // Max time to wait when attempting to pause the command queue
 #define AM_HAL_MSPI_MAX_PAUSE_DELAY     (100*1000) // 100ms
-
-//
-// MSPI interface mode and chip enable selection.
-// This is an internal extension to am_hal_mspi_device_e
-//
-typedef enum
-{
-  AM_HAL_MSPI_FLASH_DUAL_CE0_1_1_2 = AM_HAL_MSPI_FLASH_QUADPAIRED_SERIAL + 1,
-  AM_HAL_MSPI_FLASH_DUAL_CE1_1_1_2,
-  AM_HAL_MSPI_FLASH_DUAL_CE0_1_2_2,
-  AM_HAL_MSPI_FLASH_DUAL_CE1_1_2_2,
-  AM_HAL_MSPI_FLASH_QUAD_CE0_1_1_4,
-  AM_HAL_MSPI_FLASH_QUAD_CE1_1_1_4,
-  AM_HAL_MSPI_FLASH_QUAD_CE0_1_4_4,
-  AM_HAL_MSPI_FLASH_QUAD_CE1_1_4_4,
-  AM_HAL_MSPI_FLASH_SERIAL_CE0_3WIRE,
-  AM_HAL_MSPI_FLASH_SERIAL_CE1_3WIRE,
-} mspi_device_e;
 
 //
 // Command Queue entry structure for DMA transfer.
@@ -181,13 +163,13 @@ typedef struct
     uint32_t    regCQCFG;
     uint32_t    regCQADDR;
     uint32_t    regCQPAUSE;
-    uint32_t    regCQFLAGS;
     uint32_t    regCQCURIDX;
     uint32_t    regCQENDIDX;
     uint32_t    regINTEN;
-    // TODO: May be no need to preserve these values, as they are constants anyways?
+    uint32_t    regCQFLAGS;
     uint32_t    regDMABCOUNT;
     uint32_t    regDMATHRESH;
+    uint32_t    regTHRESHOLD;
 } am_hal_mspi_register_state_t;
 
 //
@@ -299,7 +281,7 @@ typedef struct
 // Global Variables.
 //
 //*****************************************************************************
-am_hal_mspi_state_t             g_MSPIState[AM_REG_MSPI_NUM_MODULES];
+static am_hal_mspi_state_t  g_MSPIState[AM_REG_MSPI_NUM_MODULES];
 
 
 #if !MSPI_USE_CQ
@@ -351,7 +333,7 @@ build_dma_cmdlist(am_hal_mspi_state_t *pMSPIState,
             //
             // Perform some sanity checks on the transaction.
             //
-            if (pPIOTrans->ui32NumBytes > 65535)
+            if (pPIOTrans->ui32NumBytes > AM_HAL_MSPI_MAX_TRANS_SIZE)
             {
               return AM_HAL_STATUS_OUT_OF_RANGE;
             }
@@ -385,7 +367,7 @@ build_dma_cmdlist(am_hal_mspi_state_t *pMSPIState,
             //
             // Perform some sanity checks on the transaction.
             //
-            if (pDMATrans->ui32TransferCount > 65535)
+            if (pDMATrans->ui32TransferCount > AM_HAL_MSPI_MAX_TRANS_SIZE)
             {
               return AM_HAL_STATUS_OUT_OF_RANGE;
             }
@@ -1009,130 +991,8 @@ mspi_add_hp_transaction(void *pHandle,
 
 #endif
 
+
 //*****************************************************************************
-//
-//! @brief Determine the virtual device configuration
-//!
-//! @param handle       - handle for the interface.
-//! @param eMSPIDevice  - external device configuration for MSPI
-//!
-//! @return virtual device value.
-//
-//
-//*****************************************************************************
-//
-// MSPI interface mode and chip enable selection.
-// This is an internal extension to am_hal_mspi_device_e
-//
-static uint32_t
-mspi_virtual_device(mspi_device_info_t *pMSPIDeviceInfo, uint32_t *pVirtDevice)
-{
-    //
-    // Check that the Device Config is in the proper range.
-    //
-    if (pMSPIDeviceInfo->eDeviceConfig > AM_HAL_MSPI_FLASH_MAX)
-    {
-        return AM_HAL_STATUS_INVALID_ARG;
-    }
-
-    switch(pMSPIDeviceInfo->eXipMixedMode)
-    {
-        case AM_HAL_MSPI_XIPMIXED_NORMAL:
-        {
-            // if Serial CE0 or CE1, check for separate I/O.
-            if ( (AM_HAL_MSPI_FLASH_SERIAL_CE0 == pMSPIDeviceInfo->eDeviceConfig) ||
-                 (AM_HAL_MSPI_FLASH_SERIAL_CE1 == pMSPIDeviceInfo->eDeviceConfig) )
-            {
-                // if serial mode, but not separate I/O , then calculate 3WIRE mode value.
-                if (!pMSPIDeviceInfo->bSeparateIO)
-                {
-                    *pVirtDevice = (uint32_t)pMSPIDeviceInfo->eDeviceConfig +
-                    AM_HAL_MSPI_FLASH_SERIAL_CE0_3WIRE -
-                    AM_HAL_MSPI_FLASH_SERIAL_CE0;
-                    return AM_HAL_STATUS_SUCCESS;
-                }
-                else
-                {
-                    // Otherwise return the original eDeviceConfig.
-                    *pVirtDevice = pMSPIDeviceInfo->eDeviceConfig;
-                    return AM_HAL_STATUS_SUCCESS;
-                }
-            }
-            else
-            {
-                // Otherwise return the original eDeviceConfig.
-                *pVirtDevice = pMSPIDeviceInfo->eDeviceConfig;
-                return AM_HAL_STATUS_SUCCESS;
-            }
-        }
-        break;
-
-        case AM_HAL_MSPI_XIPMIXED_D2:
-            if ( (AM_HAL_MSPI_FLASH_SERIAL_CE0 == pMSPIDeviceInfo->eDeviceConfig) ||
-                 (AM_HAL_MSPI_FLASH_SERIAL_CE1 == pMSPIDeviceInfo->eDeviceConfig) )
-            {
-                *pVirtDevice = (uint32_t)pMSPIDeviceInfo->eDeviceConfig +
-                AM_HAL_MSPI_FLASH_DUAL_CE0_1_1_2 -
-                AM_HAL_MSPI_FLASH_SERIAL_CE0;
-                return AM_HAL_STATUS_SUCCESS;
-            }
-            else
-            {
-                return AM_HAL_STATUS_INVALID_ARG;
-            }
-            break;
-
-        case AM_HAL_MSPI_XIPMIXED_AD2:
-            if ( (AM_HAL_MSPI_FLASH_SERIAL_CE0 == pMSPIDeviceInfo->eDeviceConfig) ||
-                 (AM_HAL_MSPI_FLASH_SERIAL_CE1 == pMSPIDeviceInfo->eDeviceConfig) )
-            {
-                *pVirtDevice = (uint32_t)pMSPIDeviceInfo->eDeviceConfig +
-                AM_HAL_MSPI_FLASH_DUAL_CE0_1_2_2 -
-                AM_HAL_MSPI_FLASH_SERIAL_CE0;
-                return AM_HAL_STATUS_SUCCESS;
-            }
-            else
-            {
-                return AM_HAL_STATUS_INVALID_ARG;
-            }
-            break;
-
-        case AM_HAL_MSPI_XIPMIXED_D4:
-            if ( (AM_HAL_MSPI_FLASH_SERIAL_CE0 == pMSPIDeviceInfo->eDeviceConfig) ||
-                 (AM_HAL_MSPI_FLASH_SERIAL_CE1 == pMSPIDeviceInfo->eDeviceConfig) )
-            {
-                *pVirtDevice = (uint32_t)pMSPIDeviceInfo->eDeviceConfig +
-                AM_HAL_MSPI_FLASH_QUAD_CE0_1_1_4 -
-                AM_HAL_MSPI_FLASH_SERIAL_CE0;
-                return AM_HAL_STATUS_SUCCESS;
-            }
-            else
-            {
-                return AM_HAL_STATUS_INVALID_ARG;
-            }
-            break;
-
-        case AM_HAL_MSPI_XIPMIXED_AD4:
-            if ( (AM_HAL_MSPI_FLASH_SERIAL_CE0 == pMSPIDeviceInfo->eDeviceConfig) ||
-                 (AM_HAL_MSPI_FLASH_SERIAL_CE1 == pMSPIDeviceInfo->eDeviceConfig) )
-            {
-                *pVirtDevice = (uint32_t)pMSPIDeviceInfo->eDeviceConfig +
-                AM_HAL_MSPI_FLASH_QUAD_CE0_1_4_4 -
-                AM_HAL_MSPI_FLASH_SERIAL_CE0;
-                return AM_HAL_STATUS_SUCCESS;
-            }
-            else
-            {
-                return AM_HAL_STATUS_INVALID_ARG;
-            }
-            break;
-
-        default:
-            return AM_HAL_STATUS_INVALID_ARG;
-    }
-}
-
-  //*****************************************************************************
 //
 //! @brief Configure the device config, seperate I/O, mixed mode, and internal
 //!        PADs based on the virtual device configuration passed in.
@@ -1155,134 +1015,133 @@ mspi_device_configure(void *pHandle, uint32_t ui32MSPIDevice)
         case AM_HAL_MSPI_FLASH_SERIAL_CE0:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 1;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x103;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL0;
             break;
         case AM_HAL_MSPI_FLASH_SERIAL_CE1:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 1;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x130;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL1;
             break;
         case AM_HAL_MSPI_FLASH_DUAL_CE0:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_DUAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x103;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL0;
             break;
         case AM_HAL_MSPI_FLASH_DUAL_CE1:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_DUAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x130;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL1;
             break;
         case AM_HAL_MSPI_FLASH_QUAD_CE0:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_QUAD0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x10F;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_QUAD0;
             break;
         case AM_HAL_MSPI_FLASH_QUAD_CE1:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_QUAD1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x1F0;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_QUAD1;
             break;
         case AM_HAL_MSPI_FLASH_OCTAL_CE0:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_OCTAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x1FF;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_OCTAL;
             break;
         case AM_HAL_MSPI_FLASH_OCTAL_CE1:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_OCTAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x1FF;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_OCTAL;
             break;
         case AM_HAL_MSPI_FLASH_QUADPAIRED:
         case AM_HAL_MSPI_FLASH_QUADPAIRED_SERIAL:
             return AM_HAL_STATUS_INVALID_ARG;
-            break;
         case AM_HAL_MSPI_FLASH_DUAL_CE0_1_1_2:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 1;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_D2;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x103;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL0;
             break;
         case AM_HAL_MSPI_FLASH_DUAL_CE1_1_1_2:
             MSPIn(ui32Module)->CFG_b.DEVCFG = MSPI_CFG_DEVCFG_SERIAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 1;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_D2;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x130;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL1;
             break;
         case AM_HAL_MSPI_FLASH_DUAL_CE0_1_2_2:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 3;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_AD2;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x103;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL0;
             break;
         case AM_HAL_MSPI_FLASH_DUAL_CE1_1_2_2:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 3;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_AD2;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x130;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL1;
             break;
         case AM_HAL_MSPI_FLASH_QUAD_CE0_1_1_4:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 5;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_D4;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x10F;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_QUAD0;
             break;
         case AM_HAL_MSPI_FLASH_QUAD_CE1_1_1_4:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 5;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_D4;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x1F0;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_QUAD1;
             break;
         case AM_HAL_MSPI_FLASH_QUAD_CE0_1_4_4:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 7;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_AD4;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x10F;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_QUAD0;
             break;
         case AM_HAL_MSPI_FLASH_QUAD_CE1_1_4_4:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 7;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_AD4;
             MSPIn(ui32Module)->PADCFG           = 0;
-            MSPIn(ui32Module)->PADOUTEN         = 0x1F0;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_QUAD1;
             break;
         case AM_HAL_MSPI_FLASH_SERIAL_CE0_3WIRE:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL0;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
             // Enable both D0 and D1 - as D1 might be getting used for DCX
-            MSPIn(ui32Module)->PADOUTEN         = 0x103;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL0;
             break;
         case AM_HAL_MSPI_FLASH_SERIAL_CE1_3WIRE:
             MSPIn(ui32Module)->CFG_b.DEVCFG     = MSPI_CFG_DEVCFG_SERIAL1;
             MSPIn(ui32Module)->CFG_b.SEPIO      = 0;
-            MSPIn(ui32Module)->FLASH_b.XIPMIXED = 0;
+            MSPIn(ui32Module)->FLASH_b.XIPMIXED = MSPI_FLASH_XIPMIXED_NORMAL;
             MSPIn(ui32Module)->PADCFG           = 0;
             // Enable both D0 and D1 - as D1 might be getting used for DCX
-            MSPIn(ui32Module)->PADOUTEN         = 0x130;
+            MSPIn(ui32Module)->PADOUTEN         = MSPI_PADOUTEN_OUTEN_SERIAL1;
             break;
         default:
             break;
@@ -1656,22 +1515,6 @@ am_hal_mspi_device_configure(void *pHandle,
     MSPIn(ui32Module)->MSPICFG_b.IOMSEL = 7;
 
     {
-      mspi_device_info_t    MSPIDeviceInfo;
-      uint32_t              ui32DeviceConfig;
-      uint32_t              ui32Status;
-
-      //
-      // Determine the virtual device configuration.
-      //
-      MSPIDeviceInfo.eDeviceConfig  = pConfig->eDeviceConfig;
-      MSPIDeviceInfo.eXipMixedMode  = pConfig->eXipMixedMode;
-      MSPIDeviceInfo.bSeparateIO    = pConfig->bSeparateIO;
-      ui32Status = mspi_virtual_device(&MSPIDeviceInfo, &ui32DeviceConfig);
-      if (AM_HAL_STATUS_SUCCESS != ui32Status)
-      {
-        return ui32Status;
-      }
-
       //
       // Configure the MSPI for a specific device configuration.
       // This function sets the following registers/fields:
@@ -1681,7 +1524,7 @@ am_hal_mspi_device_configure(void *pHandle,
       //    PADCFG
       //    PADOUTEN
       //
-      mspi_device_configure(pHandle, ui32DeviceConfig);
+      mspi_device_configure(pHandle, pConfig->eDeviceConfig);
     }
 
     //
@@ -1897,23 +1740,11 @@ uint32_t am_hal_mspi_control(void *pHandle,
             {
               return AM_HAL_STATUS_INVALID_ARG;
             }
-            if (pMSPIState->prefix.s.bEnable)
-            {
-              return AM_HAL_STATUS_IN_USE;
-            }
 #endif // AM_HAL_DISABLE_API_VALIDATION
             {
-              uint32_t  ui32DeviceConfig;
-              uint32_t  ui32Status;
+              am_hal_mspi_device_e  deviceConfig;
 
-              //
-              // Determine the virtual device configuration.
-              //
-              ui32Status = mspi_virtual_device((mspi_device_info_t *)pConfig, &ui32DeviceConfig);
-              if (AM_HAL_STATUS_SUCCESS != ui32Status)
-              {
-                return ui32Status;
-              }
+              deviceConfig = *((am_hal_mspi_device_e *)pConfig);
 
               //
               // Configure the MSPI for a specific device configuration.
@@ -1924,11 +1755,38 @@ uint32_t am_hal_mspi_control(void *pHandle,
               //    PADCFG
               //    PADOUTEN
               //
-              ui32Status = mspi_device_configure(pHandle, ui32DeviceConfig);
+              ui32Status = mspi_device_configure(pHandle, deviceConfig);
               if (AM_HAL_STATUS_SUCCESS != ui32Status)
               {
                 return ui32Status;
               }
+            }
+            break;
+
+        case AM_HAL_MSPI_REQ_CLOCK_CONFIG:
+            {
+                am_hal_mspi_clock_e  eClockFreq;
+                eClockFreq = *((am_hal_mspi_clock_e *)pConfig);
+                //
+                // Set the clock divisor to get the desired MSPI clock frequency.
+                //
+                MSPIn(ui32Module)->MSPICFG_b.CLKDIV = eClockFreq;
+                //
+                // Adjust the clock edge configuration depending upon the clock frequency.
+                //
+                if ( eClockFreq == AM_HAL_MSPI_CLK_48MHZ )
+                {
+                    MSPIn(ui32Module)->MSPICFG_b.TXNEG = 1;
+                    MSPIn(ui32Module)->MSPICFG_b.RXNEG = 0;
+                    MSPIn(ui32Module)->MSPICFG_b.RXCAP = 1;
+                }
+                else
+                {
+                    MSPIn(ui32Module)->MSPICFG_b.TXNEG = 0;
+                    MSPIn(ui32Module)->MSPICFG_b.RXNEG = 0;
+                    MSPIn(ui32Module)->MSPICFG_b.RXCAP = 1;
+                }
+                pMSPIState->eClockFreq = eClockFreq;
             }
             break;
 
@@ -2746,12 +2604,10 @@ uint32_t am_hal_mspi_status_get(void *pHandle,
     //
     // Get the Command Complete status.
     //
-    // TODO: Need to implement.
 
     //
     // Get the FIFO status.
     //
-    // TODO: Need to implement.
 
     //
     //  Get the DMA status.
@@ -2763,13 +2619,11 @@ uint32_t am_hal_mspi_status_get(void *pHandle,
     //
     // Get the CQ status.
     //
-    // TODO: Need to implement.
     pStatus->ui32NumCQEntries = pMSPIState->ui32NumCQEntries;
 
     //
     // Get the scrambling status.
     //
-    // TODO: Need to implement.
 
     //
     // Return the status.
@@ -2927,11 +2781,11 @@ uint32_t am_hal_mspi_interrupt_service(void *pHandle, uint32_t ui32IntStatus)
 #endif // AM_HAL_DISABLE_API_VALIDATION
 
     ui32Module = pMSPIState->ui32Module;
+
     //
     // Add a delay to help make the service function work.
-    // TODO - why do we need this?
     //
-//    am_hal_flash_delay(FLASH_CYCLES_US(10));
+    // am_hal_flash_delay(FLASH_CYCLES_US(10));
 
 #if MSPI_USE_CQ
     if (pMSPIState->bHP)
@@ -2959,8 +2813,9 @@ uint32_t am_hal_mspi_interrupt_service(void *pHandle, uint32_t ui32IntStatus)
             //
             if (!(pMSPIState->ui32TxnInt & AM_HAL_MSPI_INT_CMDCMP))
             {
-                // TODO - We are waiting for CMDCMP indefinetely in the ISR
-                // May need to re-evaluate
+                //
+                //
+                //
                 while (!MSPIn(ui32Module)->INTSTAT_b.CMDCMP);
             }
             pMSPIState->ui32TxnInt |= MSPIn(ui32Module)->INTSTAT;
@@ -3149,7 +3004,6 @@ uint32_t am_hal_mspi_interrupt_service(void *pHandle, uint32_t ui32IntStatus)
             //
             if (!(pMSPIState->ui32TxnInt & AM_HAL_MSPI_INT_CMDCMP))
             {
-                // TODO - We are waiting for CMDCMP indefinetely in the ISR
                 // May need to re-evaluate
                 while (!MSPIn(ui32Module)->INTSTAT_b.CMDCMP);
             }
@@ -3275,8 +3129,8 @@ uint32_t am_hal_mspi_power_control(void *pHandle,
                 MSPIn(pMSPIState->ui32Module)->CQCURIDX   = pMSPIState->registerState.regCQCURIDX;
                 MSPIn(pMSPIState->ui32Module)->CQENDIDX   = pMSPIState->registerState.regCQENDIDX;
                 MSPIn(pMSPIState->ui32Module)->INTEN      = pMSPIState->registerState.regINTEN;
+                MSPIn(pMSPIState->ui32Module)->THRESHOLD   = pMSPIState->registerState.regTHRESHOLD;
 
-                // TODO: May be we can just set these values, as they are constants anyways?
                 MSPIn(pMSPIState->ui32Module)->DMABCOUNT  = pMSPIState->registerState.regDMABCOUNT;
                 MSPIn(pMSPIState->ui32Module)->DMATHRESH  = pMSPIState->registerState.regDMATHRESH;
 
@@ -3284,10 +3138,16 @@ uint32_t am_hal_mspi_power_control(void *pHandle,
                 // We can try to restore the SWFlags here. Hardware flags depend on external conditions
                 // and hence can not be restored (assuming the external conditions remain the same, it should be set automatically.
                 MSPIn(pMSPIState->ui32Module)->CQSETCLEAR = AM_HAL_MSPI_SC_SET(pMSPIState->registerState.regCQFLAGS & 0xFF);
+
                 //
                 // Set the CQCFG last
                 //
-                MSPIn(pMSPIState->ui32Module)->CQCFG      = pMSPIState->registerState.regCQCFG;
+                MSPIn(pMSPIState->ui32Module)->CQCFG      = pMSPIState->registerState.regCQCFG & ~_VAL2FLD(MSPI_CQCFG_CQEN, MSPI_CQCFG_CQEN_EN);
+
+                if (pMSPIState->registerState.regCQCFG & _VAL2FLD(MSPI_CQCFG_CQEN, MSPI_CQCFG_CQEN_EN))
+                {
+                    mspi_cq_enable(pMSPIState);
+                }
 
                 pMSPIState->registerState.bValid = false;
             }
@@ -3315,17 +3175,25 @@ uint32_t am_hal_mspi_power_control(void *pHandle,
                 pMSPIState->registerState.regSCRAMBLING = MSPIn(pMSPIState->ui32Module)->SCRAMBLING;
                 pMSPIState->registerState.regCQADDR     = MSPIn(pMSPIState->ui32Module)->CQADDR;
                 pMSPIState->registerState.regCQPAUSE    = MSPIn(pMSPIState->ui32Module)->CQPAUSE;
-                pMSPIState->registerState.regCQFLAGS    = MSPIn(pMSPIState->ui32Module)->CQFLAGS;
                 pMSPIState->registerState.regCQCURIDX   = MSPIn(pMSPIState->ui32Module)->CQCURIDX;
                 pMSPIState->registerState.regCQENDIDX   = MSPIn(pMSPIState->ui32Module)->CQENDIDX;
                 pMSPIState->registerState.regINTEN      = MSPIn(pMSPIState->ui32Module)->INTEN;
+                pMSPIState->registerState.regCQFLAGS    = MSPIn(pMSPIState->ui32Module)->CQFLAGS;
+                pMSPIState->registerState.regTHRESHOLD  = MSPIn(pMSPIState->ui32Module)->THRESHOLD;
 
-                // TODO: May be no need to store these values, as they are constants anyways?
                 pMSPIState->registerState.regDMABCOUNT  = MSPIn(pMSPIState->ui32Module)->DMABCOUNT;
                 pMSPIState->registerState.regDMATHRESH  = MSPIn(pMSPIState->ui32Module)->DMATHRESH;
 
-                pMSPIState->registerState.regCQCFG      = MSPIn(pMSPIState->ui32Module)->CQCFG;
-                pMSPIState->registerState.bValid        = true;
+                //
+                // Set the CQCFG last
+                //
+                pMSPIState->registerState.regCQCFG    = MSPIn(pMSPIState->ui32Module)->CQCFG;
+                pMSPIState->registerState.bValid      = true;
+
+                if (MSPIn(pMSPIState->ui32Module)->CQCFG & _VAL2FLD(MSPI_CQCFG_CQEN, MSPI_CQCFG_CQEN_EN))
+                {
+                    mspi_cq_disable(pMSPIState);
+                }
             }
 
             //

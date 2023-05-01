@@ -10,7 +10,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -130,10 +130,14 @@ amdtps_conn_update(dmEvt_t *pMsg)
     hciLeConnUpdateCmplEvt_t *evt = (hciLeConnUpdateCmplEvt_t*) pMsg;
 
     APP_TRACE_INFO1("connection update status = 0x%x", evt->status);
-    APP_TRACE_INFO1("handle = 0x%x", evt->handle);
-    APP_TRACE_INFO1("connInterval = 0x%x", evt->connInterval);
-    APP_TRACE_INFO1("connLatency = 0x%x", evt->connLatency);
-    APP_TRACE_INFO1("supTimeout = 0x%x", evt->supTimeout);
+
+    if (evt->status == 0)
+    {
+        APP_TRACE_INFO1("handle = 0x%x", evt->handle);
+        APP_TRACE_INFO1("connInterval = 0x%x", evt->connInterval);
+        APP_TRACE_INFO1("connLatency = 0x%x", evt->connLatency);
+        APP_TRACE_INFO1("supTimeout = 0x%x", evt->supTimeout);
+    }
 }
 
 static void amdtpsSetupToSend(void)
@@ -255,7 +259,6 @@ amdtpsHandleValueCnf(attEvt_t *pMsg)
             // process next data
             AmdtpSendPacketHandler(&amdtpsCb.core);
 #ifdef AMDTPS_TXTEST
-            // fixme when last packet, continue to send next one.
             if (amdtpsCb.core.txState == AMDTP_STATE_WAITING_ACK)
             {
                 uint8_t temp[3];

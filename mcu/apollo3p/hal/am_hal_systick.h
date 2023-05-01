@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_SYSTICK_H
@@ -69,8 +69,8 @@ extern uint32_t am_hal_systick_int_status_get(void);
 extern void am_hal_systick_reset(void);
 extern void am_hal_systick_load(uint32_t ui32LoadVal);
 extern uint32_t am_hal_systick_count(void);
-extern uint32_t am_hal_systick_wait_ticks(uint32_t u32Ticks);
-extern uint32_t am_hal_systick_delay_us(uint32_t u32NumUs);
+extern uint32_t am_hal_systick_wait_ticks(uint32_t ui32Ticks);
+extern uint32_t am_hal_systick_delay_us(uint32_t ui32NumUs);
 
 #ifdef __cplusplus
 }

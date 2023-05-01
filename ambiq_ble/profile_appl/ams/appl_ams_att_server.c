@@ -9,7 +9,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -1538,7 +1538,6 @@ void appl_handle_find_info_response (UCHAR * list, UINT16 length, UCHAR type)
         }
         else
         {
-            /* TODO: Check if this is correct interpretaion */
             APPL_TRC ("List of handles corrosponding to the Req UUID:\n");
 
             for ( index = 0; index < length; index += index )

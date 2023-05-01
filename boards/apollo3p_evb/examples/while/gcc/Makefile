@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := while
@@ -83,21 +83,22 @@ else
 
 DEFINES = -DPART_$(PART)
 DEFINES+= -DAM_PACKAGE_BGA
+DEFINES+= -DAM_PRINTF_BUFSIZE=256
 DEFINES+= -DAM_PART_APOLLO3P
 DEFINES+= -Dgcc
 
-INCLUDES = -I../../../../..
-INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
-INCLUDES+= -I../../../bsp
-INCLUDES+= -I../../../../../devices
-INCLUDES+= -I../../../../../CMSIS/ARM/Include
-INCLUDES+= -I../src
-INCLUDES+= -I../../../../../utils
+INCLUDES = -I../../../bsp
 INCLUDES+= -I../../../../../mcu/apollo3p
+INCLUDES+= -I../../../../../devices
+INCLUDES+= -I../src
+INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
+INCLUDES+= -I../../../../..
+INCLUDES+= -I../../../../../utils
+INCLUDES+= -I../../../../../CMSIS/ARM/Include
 
-VPATH = ../../../../../utils
+VPATH = ../../../../../devices
+VPATH+=:../../../../../utils
 VPATH+=:../src
-VPATH+=:../../../../../devices
 
 SRC = while.c
 SRC += am_util_faultisr.c
@@ -113,8 +114,8 @@ OBJS+= $(ASRC:%.s=$(CONFIG)/%.o)
 DEPS = $(CSRC:%.c=$(CONFIG)/%.d)
 DEPS+= $(ASRC:%.s=$(CONFIG)/%.d)
 
-LIBS = ../../../bsp/gcc/bin/libam_bsp.a
-LIBS += ../../../../../mcu/apollo3p/hal/gcc/bin/libam_hal.a
+LIBS = ../../../../../mcu/apollo3p/hal/gcc/bin/libam_hal.a
+LIBS += ../../../bsp/gcc/bin/libam_bsp.a
 
 CFLAGS = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
 CFLAGS+= -ffunction-sections -fdata-sections -fomit-frame-pointer
@@ -161,6 +162,7 @@ $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
 	@echo " Copying $(COMPILERNAME) $@..." ;\
 	$(CP) $(CPFLAGS) $< $@ ;\
 	$(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	@$(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
 
 clean:
 	@echo "Cleaning..." ;\
@@ -170,11 +172,11 @@ clean:
 
 $(CONFIG)/%.d: ;
 
-../../../bsp/gcc/bin/libam_bsp.a:
-	$(MAKE) -C ../../../bsp
-
 ../../../../../mcu/apollo3p/hal/gcc/bin/libam_hal.a:
 	$(MAKE) -C ../../../../../mcu/apollo3p/hal
+
+../../../bsp/gcc/bin/libam_bsp.a:
+	$(MAKE) -C ../../../bsp
 
 # Automatically include any generated dependencies
 -include $(DEPS)

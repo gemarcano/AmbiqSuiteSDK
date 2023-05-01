@@ -3,7 +3,6 @@
 */
 /*
     Author : Shay Gal-On, EEMBC
-    Legal : TODO!
 */
 #include <stdio.h>
 #include <stdlib.h>

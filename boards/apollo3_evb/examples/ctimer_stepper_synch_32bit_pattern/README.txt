@@ -12,9 +12,9 @@ Purpose:
 ========
 This example demonstrates how to create arbitrary patterns on multiple
 CTimers.  TMR0 A is used to create base timing for the patterns.  TMR0 B
-and TMR1 A/B are configured to trigger on TMR0 with separate counting 
-patterns.  All timers are configured to run and then synchronized off of 
-the global timer enable.  
+and TMR1 A/B are configured to trigger on TMR0 with separate counting
+patterns.  All timers are configured to run and then synchronized off of
+the global timer enable.
 
 Printing takes place over the ITM at 1M Baud.
 

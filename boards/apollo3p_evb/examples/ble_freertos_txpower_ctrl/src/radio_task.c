@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -159,11 +159,18 @@ void radio_timer_handler(void);
 void
 button_handler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 {
+    uint32_t ui32ButtonTimer = 10 * 1000;
+
+#if AM_BSP_NUM_BUTTONS
+    ui32ButtonTimer = 10;
+#endif
+
     //
     // Restart the button timer.
     //
-    WsfTimerStartMs(&ButtonTimer, 10);
+    WsfTimerStartMs(&ButtonTimer, ui32ButtonTimer);
 
+#if AM_BSP_NUM_BUTTONS
     //
     // Every time we get a button timer tick, check all of our buttons.
     //
@@ -175,13 +182,18 @@ button_handler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
     if ( am_devices_button_released(am_bsp_psButtons[0]) )
     {
         AppUiBtnTest(APP_UI_BTN_1_SHORT);
+#endif
 
-        HciVsA3_SetRfPowerLevelEx(tx_power_level);
+        HciVscSetRfPowerLevelEx(tx_power_level);
 
         switch ( tx_power_level )
         {
             case TX_POWER_LEVEL_MINUS_10P0_dBm:
                 am_util_debug_printf("Current Tx Power is -10.0 dBm\n");
+                tx_power_level = TX_POWER_LEVEL_MINUS_5P0_dBm;
+                break;
+            case TX_POWER_LEVEL_MINUS_5P0_dBm:
+                am_util_debug_printf("Current Tx Power is -5.0 dBm\n");
                 tx_power_level = TX_POWER_LEVEL_0P0_dBm;
                 break;
             case TX_POWER_LEVEL_0P0_dBm:
@@ -196,6 +208,7 @@ button_handler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
                 am_util_debug_printf("Invalid Tx power level\n");
                 break;
         }
+#if AM_BSP_NUM_BUTTONS
     }
 
     if ( am_devices_button_released(am_bsp_psButtons[1]) )
@@ -220,6 +233,7 @@ button_handler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
             am_util_debug_printf("Transmitter test started\n");
         }
     }
+#endif
 }
 
 //*****************************************************************************
@@ -230,11 +244,12 @@ button_handler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
 void
 setup_buttons(void)
 {
+#if AM_BSP_NUM_BUTTONS
     //
     // Enable the buttons for user interaction.
     //
     am_devices_button_array_init(am_bsp_psButtons, AM_BSP_NUM_BUTTONS);
-
+#endif
     //
     // Start a timer.
     //
@@ -337,15 +352,6 @@ am_uart_isr(void)
     //
     ui32Status = UARTn(0)->MIS;
     UARTn(0)->IEC = ui32Status;
-
-    //
-    // Allow the HCI driver to respond to the interrupt.
-    //
-    //HciDrvUartISR(ui32Status);
-
-    // Signal radio task to run
-
-    WsfTaskSetReady(0, 0);
 }
 
 //*****************************************************************************
@@ -358,10 +364,6 @@ am_ble_isr(void)
 {
 
     HciDrvIntService();
-
-    // Signal radio task to run
-
-    WsfTaskSetReady(0, 0);
 }
 
 /*************************************************************************************************/
@@ -393,10 +395,7 @@ RadioTaskSetup(void)
 
     NVIC_SetPriority(BLE_IRQn, NVIC_configMAX_SYSCALL_INTERRUPT_PRIORITY);
 
-    //
-    // Boot the radio.
-    //
-    HciDrvRadioBoot(1);
+
 }
 
 //*****************************************************************************
@@ -413,11 +412,22 @@ RadioTask(void *pvParameters)
     //
     am_util_debug_printf("Starting wicentric trace:\n\n");
 #endif
+    //
+    // Boot the radio.
+    //
+    HciDrvRadioBoot(1);
+
 
     //
     // Initialize the main ExactLE stack.
     //
     exactle_stack_init();
+
+    // uncomment the following to set custom Bluetooth address here
+    // {
+    //     uint8_t bd_addr[6] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
+    //     HciVscSetCustom_BDAddr(&bd_addr);
+    // }
 
     //
     // Prep the buttons for use

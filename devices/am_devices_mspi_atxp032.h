@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -61,7 +61,8 @@ extern "C"
 #define AM_DEVICES_MSPI_ATXP032_PAGE_PROGRAM      0x02
 #define AM_DEVICES_MSPI_ATXP032_READ              0x03
 #define AM_DEVICES_MSPI_ATXP032_WRITE_DISABLE     0x04
-#define AM_DEVICES_MSPI_ATXP032_READ_STATUS       0x05
+#define AM_DEVICES_MSPI_ATXP032_READ_STATUS       0x65
+#define AM_DEVICES_MSPI_ATXP032_READ_STATUS_BYTE1 0x05
 #define AM_DEVICES_MSPI_ATXP032_WRITE_ENABLE      0x06
 #define AM_DEVICES_MSPI_ATXP032_FAST_READ         0x0B
 #define AM_DEVICES_MSPI_ATXP032_READ_4B           0x13
@@ -105,15 +106,16 @@ extern "C"
 #define AM_DEVICES_ATXP032_UNPROTECT_SECTOR     0x39
 #define AM_DEVICES_ATXP032_WRITE_STATUS_CTRL    0x71
 #define AM_DEVICES_ATXP032_ENTER_OCTAL_MODE     0xE8
+#define AM_DEVICES_ATXP032_ECHO_WITH_INVSERSION 0xA5
 #define AM_DEVICES_ATXP032_RETURN_TO_SPI_MODE   0xFF
 //*****************************************************************************
 //
 // Device specific definitions for the flash size information
 //
 //*****************************************************************************
-#define AM_DEVICES_MSPI_ATXP032_PAGE_SIZE       0x100    //256 bytes, minimum program unit
-//#define AM_DEVICES_MSPI_ATXP032_SECTOR_SIZE     0x10000   //64K bytes
-#define AM_DEVICES_MSPI_ATXP032_SECTOR_SIZE     0x1000   //4K bytes
+#define AM_DEVICES_MSPI_ATXP032_PAGE_SIZE       0x100     //256 bytes, minimum program unit
+#define AM_DEVICES_MSPI_ATXP032_SECTOR_SIZE     0x10000   //64K bytes
+//#define AM_DEVICES_MSPI_ATXP032_SECTOR_SIZE     0x1000   //4K bytes
 #define AM_DEVICES_MSPI_ATXP032_MAX_BLOCKS      256
 #define AM_DEVICES_MSPI_ATXP032_MAX_SECTORS     256      // Sectors within 4-byte address range.
 
@@ -150,12 +152,30 @@ typedef struct
 {
     am_hal_mspi_device_e eDeviceConfig;
     am_hal_mspi_clock_e eClockFreq;
-    am_hal_mspi_xipmixed_mode_e eMixedMode;
     uint32_t *pNBTxnBuf;
     uint32_t ui32NBTxnBufLength;
     uint32_t ui32ScramblingStartAddr;
     uint32_t ui32ScramblingEndAddr;
 } am_devices_mspi_atxp032_config_t;
+
+#if defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B)
+typedef struct
+{
+    uint32_t ui32Turnaround;
+    uint32_t ui32Rxneg;
+    uint32_t ui32Rxdqsdelay;
+} am_devices_mspi_atxp032_sdr_timing_config_t;
+#elif defined(AM_PART_APOLLO4P)
+typedef struct
+{
+    bool            bTxNeg;
+    bool            bRxNeg;
+    bool            bRxCap;
+    uint8_t         ui8TxDQSDelay;
+    uint8_t         ui8RxDQSDelay;
+    uint8_t         ui8Turnaround;
+} am_devices_mspi_atxp032_sdr_timing_config_t;
+#endif
 
 //*****************************************************************************
 //
@@ -211,6 +231,23 @@ am_devices_mspi_atxp032_read_hiprio(void *pHandle, uint8_t *pui8RxBuffer,
                            uint32_t ui32NumBytes,
                            bool bWaitForCompletion);
 
+extern uint32_t
+am_devices_mspi_atxp032_echo_with_inversion(void *pHandle,
+                                                uint8_t pattern,
+                                                uint32_t length,
+                                                uint8_t *pui8RxBuffer);
+
+#if defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P)
+extern uint32_t
+am_devices_mspi_atxp032_sdr_init_timing_check(uint32_t module,
+                                            am_devices_mspi_atxp032_config_t *pDevCfg,
+                                            am_devices_mspi_atxp032_sdr_timing_config_t *pDevSdrCfg);
+
+extern uint32_t
+am_devices_mspi_atxp032_apply_sdr_timing(void *pHandle,
+                                       am_devices_mspi_atxp032_sdr_timing_config_t *pDevSdrCfg);
+
+#endif
 
 
 #ifdef __cplusplus

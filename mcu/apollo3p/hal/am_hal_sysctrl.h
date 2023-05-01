@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_SYSCTRL_H
@@ -63,6 +63,24 @@ extern "C"
 //*****************************************************************************
 #define AM_HAL_SYSCTRL_SLEEP_DEEP       true
 #define AM_HAL_SYSCTRL_SLEEP_NORMAL     false
+
+//*****************************************************************************
+//
+// Special registers.
+//
+//*****************************************************************************
+#define PATCHVER2   0x50023828
+
+//*****************************************************************************
+//
+// Control operations for SysCtrl
+//
+//*****************************************************************************
+typedef enum
+{
+    AM_HAL_SYSCTRL_CONTROL_DEEPSLEEP_MINPWR_DIS,
+    AM_HAL_SYSCTRL_CONTROL_DEEPSLEEP_MINPWR_EN,
+} am_hal_sysctrl_control_e;
 
 //*****************************************************************************
 //
@@ -91,11 +109,19 @@ typedef enum
         g_ui32BusWriteFlush = *pui32Flush;                              \
     }
 
+//******************************************************************************
+//
+// External Globals.
+//
+//******************************************************************************
+extern uint32_t g_am_hal_sysctrl_sleep_count;
+
 //*****************************************************************************
 //
 // External function definitions
 //
 //*****************************************************************************
+extern uint32_t am_hal_sysctrl_control(am_hal_sysctrl_control_e eControl, void *pArgs);
 extern void am_hal_sysctrl_sleep(bool bSleepDeep);
 extern void am_hal_sysctrl_fpu_enable(void);
 extern void am_hal_sysctrl_fpu_disable(void);

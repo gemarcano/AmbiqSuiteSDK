@@ -45,7 +45,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #include "am_mcu_apollo.h"
@@ -382,7 +382,7 @@ am_flash_erase(uint32_t ui32InstErase)
                     ERRMSG(("   *** ERROR - Mass erase failed with rc=%d\n", ui32RC));
                     g_TestFail = 1;
                 }
-            } // for()
+            } // for ()
             ui32InstErase >>= 1;
             ui32Inst++;
         }

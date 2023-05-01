@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := freertos_lowpower
@@ -83,46 +83,46 @@ else
 
 DEFINES = -DPART_$(PART)
 DEFINES+= -DAM_FREERTOS
-DEFINES+= -DAM_PACKAGE_BGA
 DEFINES+= -DAM_UTIL_FAULTISR_PRINT
+DEFINES+= -DAM_PACKAGE_BGA
 DEFINES+= -DAM_PART_APOLLO3P
 DEFINES+= -DAM_DEBUG_PRINTF
 DEFINES+= -Dgcc
 
-INCLUDES = -I../../../../../third_party/FreeRTOSv10.1.1/Source/include
-INCLUDES+= -I../../../../../CMSIS/ARM/Include
-INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
-INCLUDES+= -I../../../../../utils
-INCLUDES+= -I../src
-INCLUDES+= -I../../../../../mcu/apollo3p
-INCLUDES+= -I../../../bsp
+INCLUDES = -I../../../../../devices
 INCLUDES+= -I../../../../../third_party/FreeRTOSv10.1.1/Source/portable/GCC/AMapollo2
+INCLUDES+= -I../../../bsp
+INCLUDES+= -I../../../../../CMSIS/ARM/Include
+INCLUDES+= -I../../../../../mcu/apollo3p
+INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
+INCLUDES+= -I../../../../../third_party/FreeRTOSv10.1.1/Source/include
+INCLUDES+= -I../src
 INCLUDES+= -I../../../../..
-INCLUDES+= -I../../../../../devices
+INCLUDES+= -I../../../../../utils
 
-VPATH = ../../../../../third_party/FreeRTOSv10.1.1/Source/portable/GCC/AMapollo2
-VPATH+=:../../../../../third_party/FreeRTOSv10.1.1/Source/portable/MemMang
-VPATH+=:../../../../../third_party/FreeRTOSv10.1.1/Source
-VPATH+=:../../../../../utils
+VPATH = ../../../../../devices
+VPATH+=:../../../../../third_party/FreeRTOSv10.1.1/Source/portable/GCC/AMapollo2
 VPATH+=:../src
-VPATH+=:../../../../../devices
+VPATH+=:../../../../../third_party/FreeRTOSv10.1.1/Source
+VPATH+=:../../../../../third_party/FreeRTOSv10.1.1/Source/portable/MemMang
+VPATH+=:../../../../../utils
 
 SRC = freertos_lowpower.c
 SRC += led_task.c
 SRC += rtos.c
 SRC += port.c
-SRC += heap_2.c
-SRC += event_groups.c
-SRC += list.c
-SRC += queue.c
-SRC += tasks.c
-SRC += timers.c
 SRC += am_devices_button.c
 SRC += am_devices_led.c
 SRC += am_util_debug.c
 SRC += am_util_delay.c
 SRC += am_util_faultisr.c
 SRC += am_util_stdio.c
+SRC += heap_2.c
+SRC += event_groups.c
+SRC += list.c
+SRC += queue.c
+SRC += tasks.c
+SRC += timers.c
 SRC += startup_gcc.c
 
 CSRC = $(filter %.c,$(SRC))
@@ -182,6 +182,7 @@ $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
 	@echo " Copying $(COMPILERNAME) $@..." ;\
 	$(CP) $(CPFLAGS) $< $@ ;\
 	$(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	@$(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
 
 clean:
 	@echo "Cleaning..." ;\

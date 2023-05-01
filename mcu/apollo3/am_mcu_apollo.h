@@ -16,7 +16,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_MCU_APOLLO_H
@@ -109,6 +109,7 @@
 #include "regs/am_reg.h"
 #include "regs/am_reg_m4.h"
 #include "regs/am_reg_jedec.h"
+#include "regs/am_mcu_apollo3_info0.h"
 
 //*****************************************************************************
 //
@@ -125,6 +126,7 @@
 #include "hal/am_hal_clkgen.h"
 #include "hal/am_hal_cmdq.h"
 #include "hal/am_hal_ctimer.h"
+#include "hal/am_hal_entropy.h"
 #include "hal/am_hal_debug.h"
 #include "hal/am_hal_flash.h"
 #include "hal/am_hal_global.h"

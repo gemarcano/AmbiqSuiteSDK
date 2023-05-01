@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -64,6 +64,8 @@
 // It is made global here to avoid compiler 'set but not used' warnings.
 //
 static volatile uint32_t g_ui32BusWriteFlush;
+
+uint32_t g_am_hal_sysctrl_sleep_count = 0;
 
 //*****************************************************************************
 //
@@ -89,6 +91,8 @@ am_hal_sysctrl_sleep(bool bSleepDeep)
     //
     AM_CRITICAL_BEGIN
 
+    g_am_hal_sysctrl_sleep_count++;
+
     //
     // If the user selected DEEPSLEEP and the TPIU is off, attempt to enter
     // DEEP SLEEP.
@@ -105,6 +109,63 @@ am_hal_sysctrl_sleep(bool bSleepDeep)
         {
             gAmHalResetStatus = RSTGEN->STAT;
         }
+
+        //
+        // save original SIMOBUCK1 value, it will be restored
+        //
+        uint32_t ui32Simobuck1Backup = MCUCTRL->SIMOBUCK1;
+
+        //
+        // increase VDDC by 9 counts
+        //
+        uint32_t ui32Vddc = _FLD2VAL( MCUCTRL_SIMOBUCK1_MEMACTIVETRIM, ui32Simobuck1Backup );
+        ui32Vddc += 9;
+
+        //
+        // check for overflow and limit
+        //
+        ui32Vddc =  ui32Vddc > (MCUCTRL_SIMOBUCK1_MEMACTIVETRIM_Msk>>MCUCTRL_SIMOBUCK1_MEMACTIVETRIM_Pos) ?
+                    (MCUCTRL_SIMOBUCK1_MEMACTIVETRIM_Msk>>MCUCTRL_SIMOBUCK1_MEMACTIVETRIM_Pos) :
+                    ui32Vddc;
+
+        ui32Vddc = _VAL2FLD(MCUCTRL_SIMOBUCK1_MEMACTIVETRIM, ui32Vddc );
+
+        //
+        // increase VDDF by 24 counts
+        //
+        uint32_t ui32Vddf = _FLD2VAL( MCUCTRL_SIMOBUCK1_COREACTIVETRIM, ui32Simobuck1Backup ) ;
+        ui32Vddf += 24 ;
+
+        //
+        // check for overflow and limit
+        //
+        ui32Vddf    = ui32Vddf > (MCUCTRL_SIMOBUCK1_COREACTIVETRIM_Msk >> MCUCTRL_SIMOBUCK1_COREACTIVETRIM_Pos) ?
+                      (MCUCTRL_SIMOBUCK1_COREACTIVETRIM_Msk >> MCUCTRL_SIMOBUCK1_COREACTIVETRIM_Pos) :
+                      ui32Vddf;
+        ui32Vddf = _VAL2FLD(MCUCTRL_SIMOBUCK1_COREACTIVETRIM, ui32Vddf );
+
+        //
+        // remove original values of vddc and vddf and replace with modified values
+        //
+        uint32_t  ui32VddVffMask = MCUCTRL_SIMOBUCK1_MEMACTIVETRIM_Msk | MCUCTRL_SIMOBUCK1_COREACTIVETRIM_Msk;
+        uint32_t  ui32SimoBuck1Working =
+                      (ui32Simobuck1Backup & ~ui32VddVffMask) | ui32Vddc | ui32Vddf;
+
+        //
+        // write updated vddc and vddf to SIMOBUCK1 and wait for 20 microseconds
+        //
+        MCUCTRL->SIMOBUCK1 = ui32SimoBuck1Working;
+
+        //
+        // 20 micosecond delay
+        //
+        am_hal_flash_delay(FLASH_CYCLES_US(20));
+
+        //
+        // just before sleep, restore SIMONBUCK1 to original value
+        //
+        MCUCTRL->SIMOBUCK1 = ui32Simobuck1Backup;
+
         //
         // Prepare the core for deepsleep (write 1 to the DEEPSLEEP bit).
         //

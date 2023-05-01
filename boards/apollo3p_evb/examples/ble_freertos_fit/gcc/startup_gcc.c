@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -57,7 +57,6 @@ extern void HardFault_Handler(void)   __attribute ((weak));
 extern void MemManage_Handler(void)   __attribute ((weak, alias ("HardFault_Handler")));
 extern void BusFault_Handler(void)    __attribute ((weak, alias ("HardFault_Handler")));
 extern void UsageFault_Handler(void)  __attribute ((weak, alias ("HardFault_Handler")));
-extern void SecureFault_Handler(void) __attribute ((weak));
 extern void SVC_Handler(void)         __attribute ((weak, alias ("am_default_isr")));
 extern void DebugMon_Handler(void)    __attribute ((weak, alias ("am_default_isr")));
 extern void PendSV_Handler(void)      __attribute ((weak, alias ("am_default_isr")));
@@ -136,7 +135,7 @@ void (* const g_am_pfnVectors[])(void) =
     MemManage_Handler,                      // The MemManage_Handler
     BusFault_Handler,                       // The BusFault_Handler
     UsageFault_Handler,                     // The UsageFault_Handler
-    SecureFault_Handler,                    // The SecureFault_Handler
+    0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved

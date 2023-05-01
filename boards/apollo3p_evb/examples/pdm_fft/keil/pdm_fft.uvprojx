@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>AM_UTIL_FAULTISR_PRINT __FPU_PRESENT AM_PART_APOLLO3P AM_PACKAGE_BGA UNITY_INCLUDE_CONFIG_H keil</Define>
+              <Define>__FPU_PRESENT AM_PART_APOLLO3P AM_PACKAGE_BGA AM_UTIL_FAULTISR_PRINT UNITY_INCLUDE_CONFIG_H keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../../mcu/apollo3p;../../../../../CMSIS/ARM/Include;../../../bsp;../../../../../CMSIS/AmbiqMicro/Include;../../../../../devices;../../../../../utils;../../../../..;../src</IncludePath>
+              <IncludePath>../../../../../CMSIS/ARM/Include;../../../../..;../../../../../mcu/apollo3p;../../../../../devices;../../../bsp;../src;../../../../../utils;../../../../../CMSIS/AmbiqMicro/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -425,14 +425,14 @@
               <FilePath>../../../../../mcu/apollo3p/hal/keil/bin/libam_hal.lib</FilePath>
             </File>
             <File>
-              <FileName>arm_cortexM4lf_math.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>../../../../../CMSIS/ARM/Lib/ARM/arm_cortexM4lf_math.lib</FilePath>
-            </File>
-            <File>
               <FileName>libam_bsp.lib</FileName>
               <FileType>4</FileType>
               <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
+            </File>
+            <File>
+              <FileName>arm_cortexM4lf_math.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>../../../../../CMSIS/ARM/Lib/ARM/arm_cortexM4lf_math.lib</FilePath>
             </File>
           </Files>
         </Group>

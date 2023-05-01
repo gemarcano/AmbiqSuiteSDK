@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>AM_ASSERT_INVALID_THRESHOLD=0 AM_DEBUG_ASSERT AM_PART_APOLLO3 keil</Define>
+              <Define>AM_PART_APOLLO3 AM_ASSERT_INVALID_THRESHOLD=0 AM_DEBUG_ASSERT keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../CMSIS/AmbiqMicro/Include;../../../../mcu/apollo3;../../../../CMSIS/ARM/Include</IncludePath>
+              <IncludePath>../../../../mcu/apollo3;../../../../CMSIS/ARM/Include;../../../../CMSIS/AmbiqMicro/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -428,6 +428,11 @@
               <FileName>am_hal_debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>../am_hal_debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>am_hal_entropy.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../am_hal_entropy.c</FilePath>
             </File>
             <File>
               <FileName>am_hal_flash.c</FileName>

@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -142,6 +142,32 @@ uint32_t am_hal_security_set_key(am_hal_security_locktype_t lockType, am_hal_sec
 //
 //*****************************************************************************
 uint32_t am_hal_security_get_lock_status(am_hal_security_locktype_t lockType, bool *pbUnlockStatus);
+
+//*****************************************************************************
+//
+//! @brief  Initialize CRC32 engine
+//!
+//! This will initialize the hardware engine to compute CRC32 on an arbitrary data payload
+//!
+//! @return Returns AM_HAL_STATUS_SUCCESS on success
+//
+//*****************************************************************************
+uint32_t am_hal_crc32_init(void);
+
+//*****************************************************************************
+//
+//! @brief  Accumulate CRC32 for a specified payload
+//!
+//! @param  startAddr - The start address of the payload
+//! @param  sizeBytes - The length of payload in bytes
+//! @param  pCrc -  Pointer to accumulated CRC
+//!
+//! This will use the hardware engine to compute CRC32 on an arbitrary data payload
+//!
+//! @return Returns AM_HAL_STATUS_SUCCESS on success
+//
+//*****************************************************************************
+uint32_t am_hal_crc32_accum(uint32_t startAddr, uint32_t sizeBytes, uint32_t *pCrc);
 
 //*****************************************************************************
 //

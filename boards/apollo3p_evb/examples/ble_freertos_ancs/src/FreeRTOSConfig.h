@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef FREERTOS_CONFIG_H
@@ -54,10 +54,10 @@ extern "C"
 #define configUSE_PREEMPTION                    1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 
-#ifdef AM_PART_APOLLO
-    #define configCPU_CLOCK_HZ                  24000000UL
-#else
+#ifdef AM_PART_APOLLO2
     #define configCPU_CLOCK_HZ                  48000000UL
+#else
+    #define configCPU_CLOCK_HZ                  24000000UL
 #endif
 #define configTICK_RATE_HZ                      1000
 #define configMAX_PRIORITIES                    4

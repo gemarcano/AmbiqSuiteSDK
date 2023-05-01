@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>AM_PART_APOLLO3 AM_PACKAGE_BGA APS6404L FIREBALL_CARD keil</Define>
+              <Define>AM_PACKAGE_BGA APS6404L AM_PART_APOLLO3 AM_PRINTF_BUFSIZE=256 keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../..;../../../../../CMSIS/ARM/Include;../src;../../../../../utils;../../../../../mcu/apollo3;../../../bsp;../../../../../devices;../../../../../CMSIS/AmbiqMicro/Include</IncludePath>
+              <IncludePath>../../../../../CMSIS/ARM/Include;../../../../../mcu/apollo3;../../../../../utils;../../../../..;../src;../../../bsp;../../../../../CMSIS/AmbiqMicro/Include;../../../../../devices</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,16 +377,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>src</GroupName>
-          <Files>
-            <File>
-              <FileName>cache_monitor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../src/cache_monitor.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>prime_mpi_src</GroupName>
           <Files>
             <File>
@@ -397,17 +387,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>devices</GroupName>
+          <GroupName>src</GroupName>
           <Files>
             <File>
-              <FileName>am_devices_fireball.c</FileName>
+              <FileName>cache_monitor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../devices/am_devices_fireball.c</FilePath>
-            </File>
-            <File>
-              <FileName>am_devices_mspi_psram_aps6404l.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../devices/am_devices_mspi_psram_aps6404l.c</FilePath>
+              <FilePath>../src/cache_monitor.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -432,6 +417,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>devices</GroupName>
+          <Files>
+            <File>
+              <FileName>am_devices_mspi_psram_aps6404l.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../devices/am_devices_mspi_psram_aps6404l.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>keil</GroupName>
           <Files>
             <File>
@@ -445,14 +440,14 @@
           <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>libam_hal.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>../../../../../mcu/apollo3/hal/keil/bin/libam_hal.lib</FilePath>
-            </File>
-            <File>
               <FileName>libam_bsp.lib</FileName>
               <FileType>4</FileType>
               <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
+            </File>
+            <File>
+              <FileName>libam_hal.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>../../../../../mcu/apollo3/hal/keil/bin/libam_hal.lib</FilePath>
             </File>
           </Files>
         </Group>

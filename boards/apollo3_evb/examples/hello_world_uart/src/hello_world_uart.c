@@ -4,16 +4,17 @@
 //!
 //! @brief A simple "Hello World" example using the UART peripheral.
 //!
-//! Purpose: This example prints a "Hello World" message with some device info
-//! over UART at 115200 baud. To see the output of this program, run AMFlash,
-//! and configure the console for UART. The example sleeps after it is done
-//! printing.
+//! This example prints a "Hello World" message with some device info
+//! over UART at 115200 baud.
+//! To see the output of this program, run a terminal appl such as
+//! Tera Term or PuTTY, and configure the console for UART.
+//! The example sleeps after it is done printing.
 //
 //*****************************************************************************
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +46,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -65,7 +66,6 @@ void *phUART;
     {                                                                         \
         error_handler(x);                                                     \
     }
-
 volatile uint32_t ui32LastError;
 
 //*****************************************************************************
@@ -211,7 +211,14 @@ main(void)
     // Initialize the printf interface for UART output.
     //
     CHECK_ERRORS(am_hal_uart_initialize(0, &phUART));
+
+
+
     CHECK_ERRORS(am_hal_uart_power_control(phUART, AM_HAL_SYSCTRL_WAKE, false));
+
+
+    am_hal_uart_clock_speed_e eUartClockSpeed = eUART_CLK_SPEED_DEFAULT ;
+    CHECK_ERRORS(am_hal_uart_control(phUART, AM_HAL_UART_CONTROL_CLKSEL, &eUartClockSpeed));
     CHECK_ERRORS(am_hal_uart_configure(phUART, &g_sUartConfig));
 
     //

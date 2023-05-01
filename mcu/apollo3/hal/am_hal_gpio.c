@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -59,33 +59,15 @@
 //
 // Generally define GPIO PADREG and GPIOCFG bitfields
 //
-// PADREG registers
 #define PADREG_FLD_76_S         6
 #define PADREG_FLD_FNSEL_S      3
 #define PADREG_FLD_DRVSTR_S     2
 #define PADREG_FLD_INPEN_S      1
 #define PADREG_FLD_PULLUP_S     0
 
-#define PADREG_FLD_76_Msk       0xA0
-#define PADREG_FLD_FNSEL_Msk    0x38
-#define PADREG_FLD_DRVSTR_Msk   0x04
-#define PADREG_FLD_INPEN_Msk    0x02
-#define PADREG_FLD_PULLUP_Msk   0x01
-
-// ALTPADCFG registers
-#define ALTPADCFG_FLD_DRVSTR1_S 0
-
-#define ALTPADCFG_FLD_DRVSTR1_Msk   0x01
-
-// CFG registers
 #define GPIOCFG_FLD_INTD_S      3
 #define GPIOCFG_FLD_OUTCFG_S    1
 #define GPIOCFG_FLD_INCFG_S     0
-
-#define GPIOCFG_FLD_INTD_Msk    0x08
-#define GPIOCFG_FLD_OUTCFG_Msk  0x06
-#define GPIOCFG_FLD_INCFG_Msk   0x01
-
 
 //*****************************************************************************
 //
@@ -347,9 +329,6 @@ g_ui8NCEtable[AM_HAL_GPIO_MAX_PADS][4] =
     {0x02,   0x12,   0x22,   0x32},  // NCE48
     {0x03,   0x13,   0x23,   0x43}   // NCE49
 };
-
-// declare ap3_gpio_get_pinconfig_bitmasks
-void ap3_gpio_get_pinconfig_bitmasks(am_hal_gpio_pincfg_allow_t sAllowableChanges, uint8_t *padRegMask, uint8_t *GPCfgMask, uint8_t *altPadCfgMask);
 
 //*****************************************************************************
 //
@@ -777,6 +756,8 @@ am_hal_gpio_fast_pinconfig(uint64_t ui64PinMask,
 //! This function reads a pin state as given by ui32Type.
 //!
 //! @return Status.
+//!
+//! This function is intended for use only when the pin is configured as GPIO.
 //
 //*****************************************************************************
 uint32_t
@@ -798,6 +779,20 @@ am_hal_gpio_state_read(uint32_t ui32Pin,
         *pui32ReadState = ui32ReadValue;
         return AM_HAL_STATUS_OUT_OF_RANGE;
     }
+
+#if 0   // By default, disable this additional validation check as it is very time consuming.
+    //
+    // Validate that the pin is configured for GPIO. Return error if not.
+    //
+    uint32_t ui32Regval, ui32PadShft, ui32FncselMsk;
+    ui32Regval    = AM_REGVAL( AM_REGADDR(GPIO, PADREGA) + (ui32Pin & ~0x3) );
+    ui32PadShft   = ((ui32Pin & 0x3) << 3);
+    ui32FncselMsk = (uint32_t)0x38 << ui32PadShft;
+    if ( (ui32Regval & ui32FncselMsk) != (0x3 << (ui32PadShft + 3)) )
+    {
+        return AM_HAL_STATUS_INVALID_ARG;
+    }
+#endif
 #endif // AM_HAL_DISABLE_API_VALIDATION
 
     //
@@ -838,7 +833,7 @@ am_hal_gpio_state_read(uint32_t ui32Pin,
 //
 //! @brief Write GPIO.
 //!
-//! @param ui32Pin    - pin number to be read.
+//! @param ui32Pin    - pin number to be written.
 //!
 //! @param ui32Type   - State type to write.  One of:
 //!     AM_HAL_GPIO_OUTPUT_SET              - Write a one to a GPIO.
@@ -851,7 +846,8 @@ am_hal_gpio_state_read(uint32_t ui32Pin,
 //! This function writes a GPIO value.
 //!
 //! @return Status.
-//!         Fails if the pad is not configured for GPIO (PADFNCSEL != 3).
+//!
+//! This function is intended for use only when the pin is configured as GPIO.
 //
 //*****************************************************************************
 uint32_t
@@ -870,6 +866,20 @@ am_hal_gpio_state_write(uint32_t ui32Pin, am_hal_gpio_write_type_e eWriteType)
     {
         return AM_HAL_STATUS_INVALID_ARG;
     }
+
+#if 0   // By default, disable this additional validation check as it is very time consuming.
+    //
+    // Validate that the pin is configured for GPIO. Return error if not.
+    //
+    uint32_t ui32Regval, ui32PadShft, ui32FncselMsk;
+    ui32Regval    = AM_REGVAL( AM_REGADDR(GPIO, PADREGA) + (ui32Pin & ~0x3) );
+    ui32PadShft   = ((ui32Pin & 0x3) << 3);
+    ui32FncselMsk = (uint32_t)0x38 << ui32PadShft;
+    if ( (ui32Regval & ui32FncselMsk) != (0x3 << (ui32PadShft + 3)) )
+    {
+        return AM_HAL_STATUS_INVALID_ARG;
+    }
+#endif
 #endif // AM_HAL_DISABLE_API_VALIDATION
 
     ui32Mask = (uint32_t)0x1 << (ui32Pin % 32);
@@ -1246,149 +1256,71 @@ am_hal_gpio_interrupt_service(uint64_t ui64Status)
 
 } // am_hal_gpio_interrupt_service()
 
+//*****************************************************************************
+//
+//  am_hal_gpio_isinput()
+//
+//  Determine whether a pad is configured with input enable.
+//  Returns true if input enable is set, false otherwise.
+//
+//*****************************************************************************
+bool am_hal_gpio_isinput(uint32_t ui32Pin)
+{
+    uint32_t ui32Regval, ui32PadShft, ui32InpenMsk;
+    ui32Regval    = AM_REGVAL( AM_REGADDR(GPIO, PADREGA) + (ui32Pin & ~0x3) );
+    ui32PadShft   = ((ui32Pin & 0x3) << 3);
+    ui32InpenMsk = (uint32_t)0x02 << ui32PadShft;
 
-//*****************************************************************************	
-//	
-//! @brief 
-//!	
-//! @param ui32Pin    - pin number to be configured.	
-//! @param pbfGpioCfg   - pointer to am_hal_gpio_pincfg_t structure to fill with current configuration
-//!	
-//! @return Status.	
-//	
-//*****************************************************************************	
-uint32_t ap3_get_pincfg(uint32_t ui32Pin, am_hal_gpio_pincfg_t* pbfGpioCfg){
-    // typedef struct
-    // {
-    //     uint32_t uFuncSel       : 3;    // [2:0]   Function select (FUNCSEL)
-    //     uint32_t ePowerSw       : 2;    // [4:3]   Pin is a power switch source (VCC) or sink (VSS)
-    //     uint32_t ePullup        : 3;    // [7:5]   Pin will enable a pullup resistor
-    //     uint32_t eDriveStrength : 2;    // [9:8]   Pad strength designator
-    //     uint32_t eGPOutcfg      : 2;    // [11:10] OUTCFG (GPIO config only)
-    //     uint32_t eGPInput       : 1;    // [12:12] GPIO Input (GPIO config only)
-    //     uint32_t eIntDir        : 2;    // [14:13] Interrupt direction
-    //     uint32_t eGPRdZero      : 1;    // [15:15] GPIO read as zero
+    return (ui32Regval & ui32InpenMsk) ? true : false;
+} // am_hal_gpio_isinput()
 
-    //     //
-    //     // The following descriptors designate the chip enable features of the
-    //     // pin being configured.  If not a CE, these descriptors are ignored.
-    //     // uIOMnum is 0-5 for the IOMs, or 6 for MSPI, 7 is invalid.
-    //     //
-    //     uint32_t uIOMnum        : 3;    // [18:16] IOM number (0-5), 6 for MSPI
-    //     uint32_t uNCE           : 2;    // [20:19] NCE number (0-3).
-    //     uint32_t eCEpol         : 1;    // [21:21] NCE polarity.
+//*****************************************************************************
+//  am_hal_gpio_isgpio()
+//
+//  Determine whether the GPIO is configured as input or output.
+//
+//  Return values:
+//      0: Pin is not configured as GPIO.
+//      1: Pin is configured as GPIO input.
+//      2: Pin is configured as GPIO output.
+//*****************************************************************************
+uint32_t am_hal_gpio_isgpio(uint32_t ui32Pin)
+{
+    uint32_t ui32Padval, ui32Cfgval;
 
-    //     uint32_t uRsvd22        : 10;    // [31:22]
-    // } am_hal_gpio_pincfg_t;
-
-    // helpers
-    uint32_t ui32PadregAddr = AM_REGADDR(GPIO, PADREGA) + (ui32Pin & ~0x3);
-    uint32_t ui32AltpadcfgAddr = AM_REGADDR(GPIO, ALTPADCFGA) + (ui32Pin & ~0x3);
-    uint32_t ui32CfgAddr = AM_REGADDR(GPIO, CFGA) + ((ui32Pin >> 1) & ~0x3);
-
-    uint32_t ui32PadregShft = ((ui32Pin & 0x3) << 3);
-    uint32_t ui32AltpadcfgShft = ((ui32Pin & 0x7) << 2);
-    uint32_t ui32CfgShft = ((ui32Pin & 0x7) << 2);
-    
-    // the pad's register values
-    uint32_t ui32Padreg = (AM_REGVAL(ui32PadregAddr) >> ui32PadregShft);
-    uint32_t ui32Altpadcfg = (AM_REGVAL(ui32AltpadcfgAddr) >> ui32AltpadcfgShft);
-    uint32_t ui32Cfg = (AM_REGVAL(ui32CfgAddr) >> ui32CfgShft);
-
-    // filling things
-    uint32_t uFuncSel        = ((ui32Padreg & PADREG_FLD_FNSEL_Msk) >> PADREG_FLD_FNSEL_S);
-    uint32_t eDriveStrength  = ((((ui32Altpadcfg & ALTPADCFG_FLD_DRVSTR1_Msk) >> ALTPADCFG_FLD_DRVSTR1_S) << 1) | ((ui32Padreg & PADREG_FLD_DRVSTR_Msk) >> PADREG_FLD_DRVSTR_S));
-    uint32_t eGPOutcfg       = ((ui32Cfg & GPIOCFG_FLD_OUTCFG_Msk) >> GPIOCFG_FLD_OUTCFG_S );
-    uint32_t eGPInput        = ((ui32Padreg & PADREG_FLD_INPEN_Msk) >> PADREG_FLD_INPEN_S );
-    uint32_t eIntDir         = ((((ui32Cfg & GPIOCFG_FLD_INCFG_Msk) >> GPIOCFG_FLD_INCFG_S) << 1) | ((ui32Cfg & GPIOCFG_FLD_INTD_Msk) >> GPIOCFG_FLD_INTD_S));
-
-    // there is interplay between eIntDir and eGPRdZero - this is the best method
-    uint32_t eGPRdZero = AM_HAL_GPIO_PIN_RDZERO_READPIN;
-    if(eIntDir == AM_HAL_GPIO_PIN_INTDIR_NONE){
-        eGPRdZero = AM_HAL_GPIO_PIN_RDZERO_ZERO;
+    //
+    // Check PADREGx field for this pin.
+    // [5:3] is FNCSEL (must be 0x18 for GPIO), [1:1] is INPEN.
+    //
+    ui32Padval   = AM_REGVAL( AM_REGADDR(GPIO, PADREGA) + (ui32Pin & ~0x3) );
+    ui32Padval >>= ((ui32Pin & 0x3) << 3);
+    if ( (ui32Padval & 0x38) != 0x18 )
+    {
+        //
+        // Not configured as GPIO
+        //
+        return 0;
     }
 
-    uint32_t ePowerSw = ((ui32Padreg & PADREG_FLD_76_Msk) >> PADREG_FLD_76_S);
-    if(!(g_ui8Bit76Capabilities[ui32Pin] & (CAP_VDD | CAP_VSS))){
-        ePowerSw = AM_HAL_GPIO_PIN_POWERSW_NONE;
+    //
+    // Determine if an input or an output.
+    //
+    ui32Cfgval = AM_REGVAL( AM_REGADDR(GPIO, CFGA) + ((ui32Pin >> 1) & ~0x3) );
+    ui32Cfgval >>= ((ui32Pin & 0x7) * 4);
+    if ( (ui32Padval & 0x02) )
+    {
+        //
+        // INPEN is set, so probably a GPIO input.
+        // However, GPIO outputs can also be set to read the pin state,
+        // which requires INPEN be set.
+        //
+        return (ui32Cfgval & 0x6) == 0 ? 1 : 2;
     }
-
-    // all pins indicate a pullup using the bit in PADREG_FLD_PULLUP_Msk
-    uint32_t ePullup = ((ui32Padreg & PADREG_FLD_PULLUP_Msk) >> PADREG_FLD_PULLUP_S);
-    if(g_ui8Bit76Capabilities[ui32Pin] & CAP_PUP){
-        // pins that have addtl. pullup capabilities indicate the config 
-        // using the FLD_76 area of the padreg
-        // the configuration of such a pin for 1_5K or WEAK is identical
-        ePullup = AM_HAL_GPIO_PIN_PULLUP_1_5K;
-        ePullup += ((ui32Padreg & PADREG_FLD_76_Msk) >> PADREG_FLD_76_S);
+    else
+    {
+        return 2;
     }
-    if(ui32Pin == 20){
-        if(ePullup){
-            // pad 20 can't have a pullup, so it must be a pull down
-            ePullup = AM_HAL_GPIO_PIN_PULLDOWN;
-        }
-    }
-
-    // // note: these settings are not properrly recovered - do not rely on a partial 
-    // //       pinconfig to retain these settings
-    // uIOMnum
-    // uNCE   
-    // eCEpol 
-
-    // pass out
-    pbfGpioCfg->uFuncSel       = uFuncSel;
-    pbfGpioCfg->ePowerSw       = ePowerSw;
-    pbfGpioCfg->ePullup        = ePullup;
-    pbfGpioCfg->eDriveStrength = eDriveStrength;
-    pbfGpioCfg->eGPOutcfg      = eGPOutcfg;
-    pbfGpioCfg->eGPInput       = eGPInput;
-    pbfGpioCfg->eIntDir        = eIntDir;
-    pbfGpioCfg->eGPRdZero      = eGPRdZero;
-    // pbfGpioCfg->uIOMnum        = uIOMnum;
-    // pbfGpioCfg->uNCE           = uNCE;
-    // pbfGpioCfg->eCEpol         = eCEpol;
-
-    return AM_HAL_STATUS_SUCCESS;
-}
-
-//*****************************************************************************	
-//	
-//! @brief Configure an Apollo3 pin without overwriting existing settings
-//!	
-//! @param ui32Pin    - pin number to be configured.	
-//! @param ui32Config - Contains multiple descriptor fields.	
-//! @param sAllowableChanges - am_hal_gpio_pincfg_allow_t structure with true elements for fields to change
-//!	
-//! This function configures a pin according to the parameters in ui32Config.	
-//! All parameters are validated, and the given pin is configured according	
-//! to the designated parameters.	
-//!	
-//! @return Status.	
-//	
-//*****************************************************************************	
-uint32_t ap3_hal_gpio_pinconfig_partial(uint32_t ui32Pin, am_hal_gpio_pincfg_t bfGpioCfg, am_hal_gpio_pincfg_allow_t sAllowableChanges) //am_hal_gpio_pincfg_t bfGpioCfgMsk)	
-{	
-    // get current config
-    am_hal_gpio_pincfg_t new_cfg;
-    ap3_get_pincfg(ui32Pin, &new_cfg);
-
-    // change only requested fields
-    if(sAllowableChanges.uFuncSel)          { new_cfg.uFuncSel          = bfGpioCfg.uFuncSel;       }
-    if(sAllowableChanges.ePowerSw)          { new_cfg.ePowerSw          = bfGpioCfg.ePowerSw;       }
-    if(sAllowableChanges.ePullup)           { new_cfg.ePullup           = bfGpioCfg.ePullup;        }
-    if(sAllowableChanges.eDriveStrength)    { new_cfg.eDriveStrength    = bfGpioCfg.eDriveStrength; }
-    if(sAllowableChanges.eGPOutcfg)         { new_cfg.eGPOutcfg         = bfGpioCfg.eGPOutcfg;      }
-    if(sAllowableChanges.eGPInput)          { new_cfg.eGPInput          = bfGpioCfg.eGPInput;       }
-    if(sAllowableChanges.eIntDir)           { new_cfg.eIntDir           = bfGpioCfg.eIntDir;        }
-    if(sAllowableChanges.eGPRdZero)         { new_cfg.eGPRdZero         = bfGpioCfg.eGPRdZero;      }
-    if(sAllowableChanges.uIOMnum)           { new_cfg.uIOMnum           = bfGpioCfg.uIOMnum;        }
-    if(sAllowableChanges.uNCE)              { new_cfg.uNCE              = bfGpioCfg.uNCE;           }
-    if(sAllowableChanges.eCEpol)            { new_cfg.eCEpol            = bfGpioCfg.eCEpol;         }
-
-    // call normal function
-    return am_hal_gpio_pinconfig(ui32Pin, new_cfg);
-}
-
+} // am_hal_gpio_isgpio()
 
 //*****************************************************************************
 //

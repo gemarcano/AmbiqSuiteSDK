@@ -121,9 +121,6 @@ static uint32_t g_lastSTimerVal = 0;
 #endif
 #if configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0
 #if configUSE_TICKLESS_IDLE == 2
-// This implementation is TODO - will use Systick when active, but fall back to STimer/Ctimer when Idle
-// Some crude analysis showed that doing so is no better than using CTImer/STimer always, in terms of power
-// Hence there is no plan currently to implement it.
 #error "configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0 not supported for configUSE_TICKLESS_IDLE = 2"
 #endif
 #endif
@@ -568,13 +565,13 @@ void xPortSysTickHandler( void )
 			__disable_interrupt();
 			__DSB();
 			__ISB();
-			
-			/* Disable the SysTick clock without reading the 
+
+			/* Disable the SysTick clock without reading the
 			portNVIC_SYSTICK_CTRL_REG register to ensure the
-			portNVIC_SYSTICK_COUNT_FLAG_BIT is not cleared if it is set.  Again, 
-			the time the SysTick is stopped for is accounted for as best it can 
-			be, but using the tickless mode will inevitably result in some tiny 
-			drift of the time maintained by the kernel with respect to calendar 
+			portNVIC_SYSTICK_COUNT_FLAG_BIT is not cleared if it is set.  Again,
+			the time the SysTick is stopped for is accounted for as best it can
+			be, but using the tickless mode will inevitably result in some tiny
+			drift of the time maintained by the kernel with respect to calendar
 			time*/
 			portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT );
 

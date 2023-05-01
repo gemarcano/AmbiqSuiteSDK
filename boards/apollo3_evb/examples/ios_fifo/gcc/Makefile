@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := ios_fifo
@@ -43,6 +43,12 @@ PROJECT := ios_fifo_gcc
 CONFIG := bin
 
 SHELL:=/bin/bash
+
+# Enable printing explicit commands with 'make VERBOSE=1'
+ifneq ($(VERBOSE),1)
+Q:=@
+endif
+
 #### Setup ####
 
 TOOLCHAIN ?= arm-none-eabi
@@ -82,18 +88,18 @@ all clean:
 else
 
 DEFINES = -DPART_$(PART)
-DEFINES+= -DAM_PACKAGE_BGA
 DEFINES+= -DAM_PART_APOLLO3
+DEFINES+= -DAM_PACKAGE_BGA
 DEFINES+= -Dgcc
 
-INCLUDES = -I../../../../../CMSIS/ARM/Include
+INCLUDES = -I../src
 INCLUDES+= -I../../../../../devices
-INCLUDES+= -I../src
-INCLUDES+= -I../../../../..
-INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
-INCLUDES+= -I../../../../../utils
 INCLUDES+= -I../../../bsp
 INCLUDES+= -I../../../../../mcu/apollo3
+INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
+INCLUDES+= -I../../../../..
+INCLUDES+= -I../../../../../CMSIS/ARM/Include
+INCLUDES+= -I../../../../../utils
 
 VPATH = ../../../../../utils
 VPATH+=:../src
@@ -113,8 +119,8 @@ OBJS+= $(ASRC:%.s=$(CONFIG)/%.o)
 DEPS = $(CSRC:%.c=$(CONFIG)/%.d)
 DEPS+= $(ASRC:%.s=$(CONFIG)/%.d)
 
-LIBS = ../../../bsp/gcc/bin/libam_bsp.a
-LIBS += ../../../../../mcu/apollo3/hal/gcc/bin/libam_hal.a
+LIBS = ../../../../../mcu/apollo3/hal/gcc/bin/libam_hal.a
+LIBS += ../../../bsp/gcc/bin/libam_bsp.a
 
 CFLAGS = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
 CFLAGS+= -ffunction-sections -fdata-sections -fomit-frame-pointer
@@ -146,35 +152,36 @@ $(CONFIG):
 	@mkdir -p $@
 
 $(CONFIG)/%.o: %.c $(CONFIG)/%.d
-	@echo " Compiling $(COMPILERNAME) $<" ;\
-	$(CC) -c $(CFLAGS) $< -o $@
+	@echo " Compiling $(COMPILERNAME) $<"
+	$(Q) $(CC) -c $(CFLAGS) $< -o $@
 
 $(CONFIG)/%.o: %.s $(CONFIG)/%.d
-	@echo " Assembling $(COMPILERNAME) $<" ;\
-	$(CC) -c $(CFLAGS) $< -o $@
+	@echo " Assembling $(COMPILERNAME) $<"
+	$(Q) $(CC) -c $(CFLAGS) $< -o $@
 
 $(CONFIG)/$(TARGET).axf: $(OBJS) $(LIBS)
-	@echo " Linking $(COMPILERNAME) $@" ;\
-	$(CC) -Wl,-T,$(LINKER_FILE) -o $@ $(OBJS) $(LFLAGS)
+	@echo " Linking $(COMPILERNAME) $@"
+	$(Q) $(CC) -Wl,-T,$(LINKER_FILE) -o $@ $(OBJS) $(LFLAGS)
 
 $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
-	@echo " Copying $(COMPILERNAME) $@..." ;\
-	$(CP) $(CPFLAGS) $< $@ ;\
-	$(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	@echo " Copying $(COMPILERNAME) $@..."
+	$(Q) $(CP) $(CPFLAGS) $< $@
+	$(Q) $(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	$(Q) $(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
 
 clean:
 	@echo "Cleaning..." ;\
-	$(RM) -f $(OBJS) $(DEPS) \
+	$(Q) $(RM) -f $(OBJS) $(DEPS) \
 	    $(CONFIG)/$(TARGET).bin $(CONFIG)/$(TARGET).axf \
 	    $(CONFIG)/$(TARGET).lst $(CONFIG)/$(TARGET).map
 
 $(CONFIG)/%.d: ;
 
-../../../bsp/gcc/bin/libam_bsp.a:
-	$(MAKE) -C ../../../bsp
-
 ../../../../../mcu/apollo3/hal/gcc/bin/libam_hal.a:
 	$(MAKE) -C ../../../../../mcu/apollo3/hal
+
+../../../bsp/gcc/bin/libam_bsp.a:
+	$(MAKE) -C ../../../bsp
 
 # Automatically include any generated dependencies
 -include $(DEPS)

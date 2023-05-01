@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := libam_bsp
@@ -55,11 +55,11 @@ all clean:
 else
 
 LIBS = 
-INCS = ../../../../utils
-INCS+= ../../../../devices
-INCS+= ../../../../CMSIS/AmbiqMicro/Include
-INCS+= ../../../../mcu/apollo3p
+INCS = ../../../../devices
 INCS+= ../../../../CMSIS/ARM/Include
+INCS+= ../../../../utils
+INCS+= ../../../../mcu/apollo3p
+INCS+= ../../../../CMSIS/AmbiqMicro/Include
 
 all: directories $(CONFIG)/$(TARGET).lib
 

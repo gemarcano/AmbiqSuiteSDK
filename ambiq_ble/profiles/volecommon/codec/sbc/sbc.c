@@ -610,7 +610,6 @@ static int sbc_unpack_frame_internal(const uint8_t *data,
     {
         for (sb = 0; sb < frame->subbands; sb++)
         {
-            /* FIXME assert(consumed % 4 == 0); */
             frame->scale_factor[ch][sb] =
                 (data[consumed >> 3] >> (4 - (consumed & 0x7))) & 0x0F;
             crc_header[crc_pos >> 3] |=
@@ -1727,9 +1726,6 @@ SBC_EXPORT int sbc_reinit(sbc_t *sbc, unsigned long flags)
     return 0;
 }
 
-/* FIXME: in msvc, we use inline, otherwise use inline.
- *        Add #ifdef _MSC_VER check. (chencai)
- */
 static inline void sbc_analyze_four_simd(const int16_t *in, int32_t *out,
                                          const FIXED_T *consts)
 {
@@ -2201,8 +2197,6 @@ static inline int sbc_clz(uint32_t x)
 #ifdef __GNUC__
     return __builtin_clz(x);
 #else
-    /* TODO: this should be replaced with something better if good
-     * performance is wanted when using compilers other than gcc */
     int cnt = 0;
     while (x)
     {

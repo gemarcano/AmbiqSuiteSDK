@@ -16,7 +16,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -69,6 +69,21 @@
 //
 #define UART_HCI_BRIDGE                 0
 #define MAX_UART_PACKET_SIZE            2048
+
+#define GPIO_COM_UART_TX                22
+#define GPIO_COM_UART_RX                23
+
+const am_hal_gpio_pincfg_t g_GpioUartTxCfg =
+{
+    .uFuncSel            = AM_HAL_PIN_22_UART0TX,
+    .eDriveStrength      = AM_HAL_GPIO_PIN_DRIVESTRENGTH_2MA
+};
+
+const am_hal_gpio_pincfg_t g_GpioUartRxCfg =
+{
+    .ePullup             = AM_HAL_GPIO_PIN_PULLUP_WEAK,
+    .uFuncSel            = AM_HAL_PIN_23_UART0RX
+};
 
 //*****************************************************************************
 //
@@ -144,9 +159,14 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
 
             /*added a new command for stopping carrier wave mode transmitting if needed*/
             case 0xff:
+                /* stop transmitting then  power of controller and reboot systerm. */
                 am_util_ble_transmitter_control(g_pvBLEHandle, 0);           //disable carrier_wave_mode
                 am_util_ble_set_constant_transmission(g_pvBLEHandle, false); //disable constant transmission mode
 
+                am_hal_ble_power_control(g_pvBLEHandle, AM_HAL_BLE_POWER_OFF);
+                while ( PWRCTRL->DEVPWREN_b.PWRBLEL );
+                am_hal_ble_deinitialize(g_pvBLEHandle);
+                am_hal_reset_control(AM_HAL_RESET_CONTROL_SWPOI, 0);
            break;
 
             default:
@@ -158,7 +178,7 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
     //
     // Check the parameters and the UART command format.
     //
-    if ( (NULL != pBuffer) && (len == 5) && (pBuffer[0] == 'A') && (pBuffer[1] == 'M') )
+    if ( (NULL != pBuffer) && (len == 5) && (pBuffer[0] == 0x41) && (pBuffer[1] == 0x4d) )
     {
         //
         // Compute the value.
@@ -170,7 +190,7 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
         //
         switch (pBuffer[2])
         {
-            case '0':   // handle the tx power setting command.
+            case 0x30:   // handle the tx power setting command.
             {
                 // Check the TX power range value.
                 if ((value > 0) && (value <= 0xF))
@@ -189,7 +209,7 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
             }
             break;
 
-            case '1':   // handle the 32MHz crystal trim setting command.
+            case 0x31:   // handle the 32MHz crystal trim setting command.
             {
                 am_util_ble_crystal_trim_set(g_pvBLEHandle, value);
 #ifndef AM_DEBUG_BLE_TIMING
@@ -198,7 +218,7 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
             }
             break;
 
-            case '2':   // handle modulation index setting command.
+            case 0x32:   // handle modulation index setting command.
             {
                 am_hal_ble_transmitter_modex_set(g_pvBLEHandle, (uint8_t)value);
 #ifndef AM_DEBUG_BLE_TIMING
@@ -207,7 +227,7 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
             }
             break;
 
-            case '3':  // handle the carrier wave output command
+            case 0x33:  // handle the carrier wave output command
             {
                 am_util_ble_transmitter_control_ex(g_pvBLEHandle, (uint8_t)value);
 #ifndef AM_DEBUG_BLE_TIMING
@@ -216,7 +236,7 @@ static void cmd_handler(uint8_t *pBuffer, uint32_t len)
             }
             break;
 
-            case '4':  // handle the continually transmitting output command
+            case 0x34:  // handle the continually transmitting output command
             {
                 am_util_ble_set_constant_transmission_ex(g_pvBLEHandle, (uint8_t)value);
 #ifndef AM_DEBUG_BLE_TIMING
@@ -260,6 +280,167 @@ static void fix_trans_mode(uint8_t *recvdata)
     }
 }
 
+#define HCI_CMD_TYPE           1
+#define HCI_ACL_TYPE           2
+#define HCI_CMD_HEADER_LEN     3
+#define HCI_ACL_HEADER_LEN     4
+#define MAX_READ_BYTES         23
+//compatible for WVT case requiring send more than 256 data(eg. case hci_cfc_tc_01 may send 265bytes data)
+#define HCI_MAX_RX_PACKET      512
+#define UART_RX_TIMEOUT_MS     1
+
+typedef enum
+{
+  HCI_RX_STATE_IDLE,
+  HCI_RX_STATE_HEADER,
+  HCI_RX_STATE_DATA,
+  HCI_RX_STATE_COMPLETE
+} hciRxState_t;
+
+#define BYTES_TO_UINT16(n, p)     { n = ((uint16_t)(p)[0] + ((uint16_t)(p)[1] << 8)); }
+
+
+/*************************************************************************************************/
+/*!
+ *  \fn     hciUartRxIncoming
+ *
+ *  \brief  Receive function.  Gets called by external code when bytes are received.
+ *
+ *  \param  pBuf   Pointer to buffer of incoming bytes.
+ *  \param  len    Number of bytes in incoming buffer.
+ *
+ *  \return The number of bytes consumed.
+ */
+/*************************************************************************************************/
+uint16_t hciUartRxIncoming(uint8_t *pBuf, uint16_t len)
+{
+    static uint8_t    stateRx = HCI_RX_STATE_IDLE;
+    static uint8_t    pktIndRx;
+    static uint16_t   iRx;
+    static uint8_t    hdrRx[HCI_ACL_HEADER_LEN];
+    static uint8_t    pPktRx[HCI_MAX_RX_PACKET];
+    static uint8_t    *pDataRx;
+    uint8_t   dataByte;
+    uint16_t  consumed_bytes;
+
+    consumed_bytes = 0;
+    /* loop until all bytes of incoming buffer are handled */
+    while (len)
+    {
+        /* read single byte from incoming buffer and advance to next byte */
+        dataByte = *pBuf;
+
+        /* --- Idle State --- */
+        if (stateRx == HCI_RX_STATE_IDLE)
+        {
+            /* save the packet type */
+            pktIndRx = dataByte;
+            iRx      = 0;
+            stateRx  = HCI_RX_STATE_HEADER;
+            pBuf++;
+            consumed_bytes++;
+            len--;
+        }
+        /* --- Header State --- */
+        else if (stateRx == HCI_RX_STATE_HEADER)
+        {
+            uint8_t  hdrLen = 0;
+            uint16_t dataLen = 0;
+
+            /* determine header length based on packet type */
+            if (pktIndRx == HCI_CMD_TYPE)
+            {
+                hdrLen = HCI_CMD_HEADER_LEN;
+            }
+            else if (pktIndRx == HCI_ACL_TYPE)
+            {
+                hdrLen = HCI_ACL_HEADER_LEN;
+            }
+            else
+            {
+                /* invalid packet type */
+                stateRx = HCI_RX_STATE_IDLE;
+                return consumed_bytes;
+            }
+
+            if (iRx != hdrLen)
+            {
+                /* copy current byte into the temp header buffer */
+                hdrRx[iRx++] = dataByte;
+                pBuf++;
+                consumed_bytes++;
+                len--;
+            }
+
+            /* see if entire header has been read */
+            if (iRx == hdrLen)
+            {
+                uint8_t  i = 0;
+                /* extract data length from header */
+                if (pktIndRx == HCI_CMD_TYPE)
+                {
+                    dataLen = hdrRx[2];
+                }
+                else if (pktIndRx == HCI_ACL_TYPE)
+                {
+                    BYTES_TO_UINT16(dataLen, &hdrRx[2]);
+                }
+
+                pDataRx = pPktRx;
+
+                /* copy header into data packet (note: memcpy is not so portable) */
+                for (i = 0; i < hdrLen; i++)
+                {
+                    *pDataRx++ = hdrRx[i];
+                }
+
+                /* save number of bytes left to read */
+                iRx = dataLen;
+                if (iRx == 0)
+                {
+                    stateRx = HCI_RX_STATE_COMPLETE;
+                }
+                else
+                {
+                    stateRx = HCI_RX_STATE_DATA;
+                }
+            }
+        }
+        /* --- Data State --- */
+        else if (stateRx == HCI_RX_STATE_DATA)
+        {
+            /* write incoming byte to allocated buffer */
+            *pDataRx++ = dataByte;
+
+            /* determine if entire packet has been read */
+            iRx--;
+            if (iRx == 0)
+            {
+                stateRx = HCI_RX_STATE_COMPLETE;
+            }
+            pBuf++;
+            consumed_bytes++;
+            len--;
+        }
+
+        /* --- Complete State --- */
+        /* ( Note Well!  There is no else-if construct by design. ) */
+        if (stateRx == HCI_RX_STATE_COMPLETE)
+        {
+            /* deliver data */
+            if (pPktRx != NULL)
+            {
+                NVIC_DisableIRQ((IRQn_Type)(UART0_IRQn + UART_HCI_BRIDGE));
+                g_bRxTimeoutFlag = true;
+                cmd_handler(g_psWriteData.bytes, consumed_bytes);
+            }
+
+            /* reset state machine */
+            stateRx = HCI_RX_STATE_IDLE;
+        }
+    }
+    return consumed_bytes;
+}
 
 //*****************************************************************************
 //
@@ -273,6 +454,7 @@ void am_uart1_isr(void)
 #endif
 {
   uint32_t ui32Status;
+  uint8_t * pData = (uint8_t *) &(g_psWriteData.bytes[g_ui32UARTRxIndex]);
 
   //
   // Read the masked interrupt status from the UART.
@@ -293,25 +475,15 @@ void am_uart1_isr(void)
     {
       .ui32Direction = AM_HAL_UART_READ,
       .pui8Data = (uint8_t *) &(g_psWriteData.bytes[g_ui32UARTRxIndex]),
-      .ui32NumBytes = 23,
-      .ui32TimeoutMs = 0,
+      .ui32NumBytes = MAX_READ_BYTES,
+      .ui32TimeoutMs = UART_RX_TIMEOUT_MS,
       .pui32BytesTransferred = &ui32BytesRead,
     };
 
     am_hal_uart_transfer(g_pvUART, &sRead);
 
+    hciUartRxIncoming(pData, ui32BytesRead);
     g_ui32UARTRxIndex += ui32BytesRead;
-
-    //
-    // If there is a TMOUT interrupt, assume we have a compete packet, and
-    // send it over SPI.
-    //
-    if (ui32Status & (AM_HAL_UART_INT_RX_TMOUT))
-    {
-      NVIC_DisableIRQ((IRQn_Type)(UART0_IRQn + UART_HCI_BRIDGE));
-      cmd_handler(g_psWriteData.bytes, g_ui32UARTRxIndex);
-      g_bRxTimeoutFlag = true;
-    }
   }
 }
 
@@ -331,7 +503,7 @@ main(void)
     // Default setup.
     //
     am_hal_clkgen_control(AM_HAL_CLKGEN_CONTROL_SYSCLK_MAX, 0);
-    //am_bsp_low_power_init();
+    am_bsp_low_power_init();
 
 #ifdef AM_DEBUG_BLE_TIMING
     //
@@ -362,6 +534,51 @@ main(void)
     am_bsp_itm_printf_enable();
     am_util_stdio_printf("Apollo3 UART to SPI Bridge\n");
 #endif // AM_DEBUG_BLE_TIMING
+    //
+    // Start the UART.
+    //
+    am_hal_uart_config_t sUartConfig =
+    {
+        //
+        // Standard UART settings: 115200-8-N-1
+        //
+        .ui32BaudRate   = 115200,
+        .ui32DataBits   = AM_HAL_UART_DATA_BITS_8,
+        .ui32Parity     = AM_HAL_UART_PARITY_NONE,
+        .ui32StopBits   = AM_HAL_UART_ONE_STOP_BIT,
+        .ui32FlowControl = AM_HAL_UART_FLOW_CTRL_NONE,
+
+        //
+        // Set TX and RX FIFOs to interrupt at three-quarters full.
+        //
+        .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_3_4 |
+                           AM_HAL_UART_RX_FIFO_3_4),
+
+        //
+        // This code will use the standard interrupt handling for UART TX, but
+        // we will have a custom routine for UART RX.
+        //
+        .pui8TxBuffer = g_pui8UARTTXBuffer,
+        .ui32TxBufferSize = sizeof(g_pui8UARTTXBuffer),
+        .pui8RxBuffer = 0,
+        .ui32RxBufferSize = 0,
+    };
+
+   am_hal_uart_initialize(UART_HCI_BRIDGE, &g_pvUART);
+   am_hal_uart_power_control(g_pvUART, AM_HAL_SYSCTRL_WAKE, false);
+   am_hal_uart_configure(g_pvUART, &sUartConfig);
+   am_hal_gpio_pinconfig(GPIO_COM_UART_TX, g_GpioUartTxCfg);
+   am_hal_gpio_pinconfig(GPIO_COM_UART_RX, g_GpioUartRxCfg);
+
+   //
+   // Make sure to enable the interrupts for RX, since the HAL doesn't already
+   // know we intend to use them.
+   //
+   NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + UART_HCI_BRIDGE));
+   am_hal_uart_interrupt_enable(g_pvUART, (AM_HAL_UART_INT_RX |
+                                AM_HAL_UART_INT_RX_TMOUT));
+
+   am_hal_interrupt_master_enable();
 
     //
     // Start the BLE interface.
@@ -391,56 +608,7 @@ main(void)
     //
     am_hal_ble_tx_power_set(g_pvBLEHandle, 0xf);
 
-    // if do the BQB /SRRC /FCC / CE test , please enable here
-    //am_hal_ble_BQB_test_init(g_pvBLEHandle, true);
-
     am_hal_ble_int_clear(g_pvBLEHandle, BLEIF_INTSTAT_BLECIRQ_Msk);
-
-    //
-    // Start the UART.
-    //
-    am_hal_uart_config_t sUartConfig =
-    {
-        //
-        // Standard UART settings: 115200-8-N-1
-        //
-        .ui32BaudRate    = 115200,
-        .ui32DataBits    = AM_HAL_UART_DATA_BITS_8,
-        .ui32Parity      = AM_HAL_UART_PARITY_NONE,
-        .ui32StopBits    = AM_HAL_UART_ONE_STOP_BIT,
-        .ui32FlowControl = AM_HAL_UART_FLOW_CTRL_NONE,
-
-        //
-        // Set TX and RX FIFOs to interrupt at three-quarters full.
-        //
-        .ui32FifoLevels = (AM_HAL_UART_TX_FIFO_3_4 |
-                           AM_HAL_UART_RX_FIFO_3_4),
-
-        //
-        // This code will use the standard interrupt handling for UART TX, but
-        // we will have a custom routine for UART RX.
-        //
-        .pui8TxBuffer = g_pui8UARTTXBuffer,
-        .ui32TxBufferSize = sizeof(g_pui8UARTTXBuffer),
-        .pui8RxBuffer = 0,
-        .ui32RxBufferSize = 0,
-    };
-
-    am_hal_uart_initialize(UART_HCI_BRIDGE, &g_pvUART);
-    am_hal_uart_power_control(g_pvUART, AM_HAL_SYSCTRL_WAKE, false);
-    am_hal_uart_configure(g_pvUART, &sUartConfig);
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_COM_UART_TX, g_AM_BSP_GPIO_COM_UART_TX);
-    am_hal_gpio_pinconfig(AM_BSP_GPIO_COM_UART_RX, g_AM_BSP_GPIO_COM_UART_RX);
-
-    //
-    // Make sure to enable the interrupts for RX, since the HAL doesn't already
-    // know we intend to use them.
-    //
-    NVIC_EnableIRQ((IRQn_Type)(UART0_IRQn + UART_HCI_BRIDGE));
-    am_hal_uart_interrupt_enable(g_pvUART, (AM_HAL_UART_INT_RX |
-                                 AM_HAL_UART_INT_RX_TMOUT));
-
-    am_hal_interrupt_master_enable();
 
     //
     // Loop forever.
@@ -527,7 +695,7 @@ main(void)
                      if (wakeupCount++ >1000)
                      {
                         am_util_stdio_printf("\r\n BLE controller response timeout! wakeupCount=%d,", wakeupCount);
-                        while(1);
+                        //while(1); // the infinite loop is for debug, comment out it for real use case
                      };
 
                   } //waiting command response

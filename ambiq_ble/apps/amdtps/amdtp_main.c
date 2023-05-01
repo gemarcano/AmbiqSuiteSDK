@@ -11,7 +11,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -319,17 +319,18 @@ static void amdtpCccCback(attsCccEvt_t *pEvt)
 
 static bool sendDataContinuously = false;
 static uint32_t counter = 0;
+static uint8_t data[1024] = {0};
 
 static void AmdtpsSendTestData(void)
 {
-    uint8_t data[1024] = {0};
     eAmdtpStatus_t status;
 
     sendDataContinuously = true;
-    *((uint32_t*)&(data[0])) = counter;
+    void *pData = &data[0];
+    *(uint32_t*)pData = counter;
 
 //    status = AmdtpsSendPacket(AMDTP_PKT_TYPE_DATA, false, true, data, sizeof(data));
-    status = AmdtpsSendPacket(AMDTP_PKT_TYPE_DATA, false, false, data, AttGetMtu(1) - 11);    //fixme
+    status = AmdtpsSendPacket(AMDTP_PKT_TYPE_DATA, false, false, data, AttGetMtu(1) - 11);
     if (status != AMDTP_STATUS_SUCCESS)
     {
         APP_TRACE_INFO1("AmdtpsSendTestData() failed, status = %d\n", status);
@@ -367,7 +368,7 @@ static void amdtpProcCccState(amdtpMsg_t *pMsg)
       {
 #if defined(AMDTPS_TXTEST)
         counter = 0;
-        AmdtpsSendTestData(); //fixme
+        AmdtpsSendTestData();
 #endif
       }
     }
@@ -490,7 +491,10 @@ static void amdtpBtnCback(uint8_t btn)
 #ifdef MEASURE_THROUGHPUT
 static void showThroughput(void)
 {
-    APP_TRACE_INFO1("throughput : %d Bytes/s\n", gTotalDataBytesRecev);
+    if ( gTotalDataBytesRecev > 0 )
+    {
+        APP_TRACE_INFO1("throughput : %d Bytes/s\n", gTotalDataBytesRecev);
+    }
     gTotalDataBytesRecev = 0;
     WsfTimerStartSec(&measTpTimer, 1);
 }
@@ -539,7 +543,6 @@ static void amdtpProcMsg(amdtpMsg_t *pMsg)
 
     case DM_CONN_DATA_LEN_CHANGE_IND:
       APP_TRACE_INFO2("DM_CONN_DATA_LEN_CHANGE_IND, Tx=%d, Rx=%d", ((hciLeDataLenChangeEvt_t*)pMsg)->maxTxOctets, ((hciLeDataLenChangeEvt_t*)pMsg)->maxRxOctets);
-      //AttcMtuReq((dmConnId_t)(pMsg->hdr.param), 480);//ATT_MAX_MTU);//83); //fixme
       break;
     case DM_RESET_CMPL_IND:
       AttsCalculateDbHash();
@@ -558,22 +561,8 @@ static void amdtpProcMsg(amdtpMsg_t *pMsg)
 
     case DM_CONN_OPEN_IND:
       amdtps_proc_msg(&pMsg->hdr);
-//      AttcMtuReq((dmConnId_t)(pMsg->hdr.param), ATT_MAX_MTU);//83); //fixme
-
-//        hciConnSpec_t connSpec;
-//        connSpec.connIntervalMin = (7.5/1.25);
-//        connSpec.connIntervalMax = (15/1.25);
-//        connSpec.connLatency = 0;
-//        connSpec.supTimeout = 200;
-//        connSpec.minCeLen = 4;//0;
-//        connSpec.maxCeLen = 8;//0xffff; //fixme
-//        DmConnUpdate(1, &connSpec);
-
-      // PDU length, TX interval (0x148 ~ 0x848)
-      //DmConnSetDataLen(1, 27, 0x148);
       DmConnSetDataLen(1, 251, 0x848);
 
-//      AppSlaveSecurityReq(1);
       uiEvent = APP_UI_CONN_OPEN;
       break;
 
@@ -588,6 +577,10 @@ static void amdtpProcMsg(amdtpMsg_t *pMsg)
 
     case DM_CONN_UPDATE_IND:
       amdtps_proc_msg(&pMsg->hdr);
+      break;
+
+    case DM_PHY_UPDATE_IND:
+      APP_TRACE_INFO3("DM_PHY_UPDATE_IND status: %d, RX: %d, TX: %d", pMsg->dm.phyUpdate.status, pMsg->dm.phyUpdate.rxPhy, pMsg->dm.phyUpdate.txPhy);
       break;
 
     case DM_SEC_PAIR_CMPL_IND:
@@ -713,14 +706,18 @@ void amdtpDtpRecvCback(uint8_t * buf, uint16_t len)
         APP_TRACE_INFO0("send test data stop\n");
         sendDataContinuously = false;
     }
-#ifdef MEASURE_THROUGHPUT
-    gTotalDataBytesRecev += len;
-    if (!measTpStarted)
+    else
     {
-        measTpStarted = true;
-        WsfTimerStartSec(&measTpTimer, 1);
-    }
+#ifdef MEASURE_THROUGHPUT
+        gTotalDataBytesRecev += len;
+        // start throughput calculation timer once when receiving client data
+        if (!measTpStarted)
+        {
+            measTpStarted = true;
+            WsfTimerStartSec(&measTpTimer, 1);
+        }
 #endif
+    }
 }
 
 void amdtpDtpTransCback(eAmdtpStatus_t status)

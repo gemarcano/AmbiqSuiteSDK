@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__FPU_PRESENT AM_UTIL_FAULTISR_PRINT AM_PART_APOLLO3 AM_PACKAGE_BGA UNITY_INCLUDE_CONFIG_H keil</Define>
+              <Define>UNITY_INCLUDE_CONFIG_H __FPU_PRESENT AM_PACKAGE_BGA AM_UTIL_FAULTISR_PRINT AM_PART_APOLLO3 keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../bsp;../../../../..;../../../../../devices;../../../../../utils;../../../../../CMSIS/AmbiqMicro/Include;../../../../../CMSIS/ARM/Include;../../../../../mcu/apollo3;../src</IncludePath>
+              <IncludePath>../src;../../../../../CMSIS/ARM/Include;../../../../..;../../../../../devices;../../../../../utils;../../../../../mcu/apollo3;../../../bsp;../../../../../CMSIS/AmbiqMicro/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

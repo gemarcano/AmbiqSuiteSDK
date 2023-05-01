@@ -10,7 +10,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #include <string.h>
@@ -69,6 +69,10 @@
 
 #include "amota_profile_config.h"
 #include "am_multi_boot.h"
+
+#if defined(AM_PART_APOLLO4B)
+#include "am_hal_security.h"
+#endif
 
 #undef  APP_TRACE_INFO0
 #undef  APP_TRACE_INFO1
@@ -120,6 +124,10 @@ amotasFlashOp_t amotasFlash = {
 
 // Temporary scratch buffer used to read from flash
 uint32_t amotasTmpBuf[AMOTA_PACKET_SIZE / 4];
+#if defined(AM_PART_APOLLO4B)
+static uint32_t sblOtaStorageAddr = AMOTA_INVALID_SBL_STOR_ADDR;
+#endif
+static uint32_t ui32ImageCalCRC = 0;
 
 //*****************************************************************************
 //
@@ -183,13 +191,68 @@ typedef struct
     uint32_t    version;
     uint32_t    fwDataType;             //binary type
     uint32_t    storageType;
+#if defined(AM_PART_APOLLO4B)
+    uint32_t    imageId;                //use to identify the ota image is for application, SBL or others
+#else
     uint32_t    resvd4;
-
+#endif
 }
 amotaHeaderInfo_t;
 
 //
-// FW header information
+// 32-byte Metadata added ahead of the actual image and behind of 48-byte AMOTA header
+//
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P)
+typedef struct
+{
+    //Word 0
+    uint32_t blobSize:24;
+    uint32_t magicNum:8;
+
+    //Word 1-7
+    uint32_t resvd[7];
+}
+amotaMetadataInfo_t;
+#elif defined(AM_PART_APOLLO4B)
+typedef struct
+{
+    //Word 0
+    uint32_t blobSize:24;
+    uint32_t resvd1:2;
+    uint32_t crcCheck:1;
+    uint32_t enc:1;
+    uint32_t authCheck:1;
+    uint32_t ccIncluded:1;
+    uint32_t ambiq:1;
+    uint32_t resvd2:1;
+
+    //Word 1
+    uint32_t crc;
+
+    //Word 2
+    uint32_t authKeyIdx:8;
+    uint32_t encKeyIdx:8;
+    uint32_t authAlgo:4;
+    uint32_t encAlgo:4;
+    uint32_t resvd3:8;
+
+    //Word 3
+    uint32_t resvd4;
+
+    //Word 4
+    uint32_t magicNum:8;
+    uint32_t resvd5:24;
+
+    //Word5-7
+    uint32_t resvd6;
+    uint32_t resvd7;
+    uint32_t resvd8;
+}
+amotaMetadataInfo_t;
+#endif
+
+//
+// FW packet information
 //
 typedef struct
 {
@@ -234,6 +297,9 @@ static struct
     amotasNewFwFlashInfo_t  newFwFlashInfo;
     wsfTimer_t              resetTimer;           // reset timer after OTA update done
     wsfTimer_t              disconnectTimer;      // Disconnect timer after OTA update done
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P) || defined(AM_PART_APOLLO4B)
+    amotaMetadataInfo_t     metaData;
+#endif
 }
 amotasCb;
 
@@ -294,10 +360,14 @@ amotas_conn_update(dmEvt_t *pMsg)
     (void)evt;
 
     APP_TRACE_INFO1("connection update status = 0x%x", evt->status);
-    APP_TRACE_INFO1("handle = 0x%x", evt->handle);
-    APP_TRACE_INFO1("connInterval = 0x%x", evt->connInterval);
-    APP_TRACE_INFO1("connLatency = 0x%x", evt->connLatency);
-    APP_TRACE_INFO1("supTimeout = 0x%x", evt->supTimeout);
+
+    if (evt->status == 0)
+    {
+        APP_TRACE_INFO1("handle = 0x%x", evt->handle);
+        APP_TRACE_INFO1("connInterval = 0x%x", evt->connInterval);
+        APP_TRACE_INFO1("connLatency = 0x%x", evt->connLatency);
+        APP_TRACE_INFO1("supTimeout = 0x%x", evt->supTimeout);
+    }
 }
 
 //*****************************************************************************
@@ -352,11 +422,11 @@ amotas_reset_timer_expired(wsfMsgHdr_t *pMsg)
 {
     APP_TRACE_INFO0("amotas_reset_board");
     am_util_delay_ms(10);
-#if AM_APOLLO3_RESET
-    am_hal_reset_control(AM_HAL_RESET_CONTROL_SWPOI, 0);
-#else // AM_APOLLO3_RESET
+#if (defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P) || defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B))
+    am_hal_reset_control(AM_HAL_RESET_CONTROL_SWPOR, 0);
+#else
     am_hal_reset_poi();
-#endif // AM_APOLLO3_RESET
+#endif
 }
 
 //*****************************************************************************
@@ -424,7 +494,7 @@ amotas_set_fw_addr(void)
         uint32_t storeAddr = (AMOTA_INT_FLASH_OTA_ADDRESS + AM_HAL_FLASH_PAGE_SIZE - 1) & ~(AM_HAL_FLASH_PAGE_SIZE - 1);
         uint32_t maxSize = AMOTA_INT_FLASH_OTA_MAX_SIZE & ~(AM_HAL_FLASH_PAGE_SIZE - 1);
 
-#if !defined(AM_PART_APOLLO3) && !defined(AM_PART_APOLLO3P) // There is no easy way to get the information about the main image in Apollo3
+#if !defined(AM_PART_APOLLO3) && !defined(AM_PART_APOLLO3P) && !defined(AM_PART_APOLLO4B)// There is no easy way to get the information about the main image in Apollo3
         uint32_t ui32CurLinkAddr;
         uint32_t ui32CurLen;
         // Get information about current main image
@@ -557,6 +627,18 @@ static bool amotas_write2flash(uint16_t len, uint8_t *buf, uint32_t addr, bool l
     // Check the target flash address to ensure we do not operation the wrong address
     // make sure to write to page boundary
     //
+#if defined(AM_PART_APOLLO4B)
+    if (((!((amotasCb.fwHeader.imageId == AMOTA_IMAGE_ID_SBL) &&
+        (amotasCb.newFwFlashInfo.offset < AMOTA_ENCRYPTED_SBL_SIZE))) &&
+        ((uint32_t)amotasCb.newFwFlashInfo.addr > addr)) ||
+        (addr & (g_pFlash->flashPageSize - 1)))
+    {
+        //
+        // application is trying to write to wrong address
+        //
+        return false;
+    }
+#else
     if (((uint32_t)amotasCb.newFwFlashInfo.addr > addr) ||
         (addr & (g_pFlash->flashPageSize - 1)))
     {
@@ -565,6 +647,7 @@ static bool amotas_write2flash(uint16_t len, uint8_t *buf, uint32_t addr, bool l
         //
         return false;
     }
+#endif
 
     FLASH_OPERATE(g_pFlash, flash_enable);
     while (ui16BytesRemaining)
@@ -590,7 +673,6 @@ static bool amotas_write2flash(uint16_t len, uint8_t *buf, uint32_t addr, bool l
         if (lastPktFlag || (amotasFlash.bufferIndex == g_pFlash->flashPageSize))
         {
             ui32TargetAddress = (addr + ui8PageCount*g_pFlash->flashPageSize);
-
             // Always write whole pages
             if ((g_pFlash->flash_write_page(ui32TargetAddress, (uint32_t *)amotasFlash.writeBuffer, g_pFlash->flashPageSize) != 0)
                 || (verify_flash_content(ui32TargetAddress, (uint32_t *)amotasFlash.writeBuffer, amotasFlash.bufferIndex, g_pFlash) != 0))
@@ -632,6 +714,7 @@ static bool amotas_write2flash(uint16_t len, uint8_t *buf, uint32_t addr, bool l
 #endif
 
 
+#if 0 // Remove to avoid compiler warning
 //*****************************************************************************
 //
 // Verify Firmware Image CRC
@@ -641,6 +724,9 @@ static bool amotas_write2flash(uint16_t len, uint8_t *buf, uint32_t addr, bool l
 static bool_t
 amotas_verify_firmware_crc(void)
 {
+    uint32_t i;
+    uint32_t ui32Remainder;
+
     // read back the whole firmware image from flash and calculate CRC
     uint32_t ui32CRC = 0;
 
@@ -650,30 +736,75 @@ amotas_verify_firmware_crc(void)
     FLASH_OPERATE(g_pFlash, flash_enable);
 
     // read from spi flash and calculate CRC32
-    for ( uint16_t i = 0; i < (amotasCb.fwHeader.fwLength / AMOTA_PACKET_SIZE); i++ )
+#if defined(AM_PART_APOLLO4B)
+    if (amotasCb.fwHeader.imageId == AMOTA_IMAGE_ID_SBL)
     {
-        g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
-            (uint32_t *)(amotasCb.newFwFlashInfo.addr + i*AMOTA_PACKET_SIZE),
-            AMOTA_PACKET_SIZE);
+        for ( i = 0; i < (AMOTA_ENCRYPTED_SBL_SIZE / AMOTA_PACKET_SIZE); i++ )
+        {
+            g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
+                (uint32_t *)(sblOtaStorageAddr + i*AMOTA_PACKET_SIZE),
+                AMOTA_PACKET_SIZE);
 
-        am_bootloader_partial_crc32(amotasTmpBuf, AMOTA_PACKET_SIZE, &ui32CRC);
+            am_bootloader_partial_crc32(amotasTmpBuf, AMOTA_PACKET_SIZE, &ui32CRC);
+        }
+
+        ui32Remainder = AMOTA_ENCRYPTED_SBL_SIZE % AMOTA_PACKET_SIZE;
+        if ( ui32Remainder )
+        {
+            g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
+                (uint32_t *)(sblOtaStorageAddr + AMOTA_ENCRYPTED_SBL_SIZE - ui32Remainder),
+                ui32Remainder);
+
+            am_bootloader_partial_crc32(amotasTmpBuf, ui32Remainder, &ui32CRC);
+        }
+
+        for ( i = 0; i < ((amotasCb.fwHeader.fwLength - AMOTA_ENCRYPTED_SBL_SIZE) / AMOTA_PACKET_SIZE); i++ )
+        {
+            g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
+                (uint32_t *)(amotasCb.newFwFlashInfo.addr + i*AMOTA_PACKET_SIZE),
+                AMOTA_PACKET_SIZE);
+
+            am_bootloader_partial_crc32(amotasTmpBuf, AMOTA_PACKET_SIZE, &ui32CRC);
+        }
+        ui32Remainder = (amotasCb.fwHeader.fwLength - AMOTA_ENCRYPTED_SBL_SIZE) % AMOTA_PACKET_SIZE;
+        if ( ui32Remainder )
+        {
+            g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
+                (uint32_t *)(amotasCb.newFwFlashInfo.addr + amotasCb.fwHeader.fwLength - ui32Remainder),
+                ui32Remainder);
+
+            am_bootloader_partial_crc32(amotasTmpBuf, ui32Remainder, &ui32CRC);
+        }
+
     }
-
-    uint32_t ui32Remainder = amotasCb.fwHeader.fwLength % AMOTA_PACKET_SIZE;
-    if ( ui32Remainder )
+    else
+#endif //#if defined(AM_PART_APOLLO4B)
     {
-        g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
-            (uint32_t *)(amotasCb.newFwFlashInfo.addr + amotasCb.fwHeader.fwLength - ui32Remainder),
-            ui32Remainder);
+        for ( i = 0; i < (amotasCb.fwHeader.fwLength / AMOTA_PACKET_SIZE); i++ )
+        {
+            g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
+                (uint32_t *)(amotasCb.newFwFlashInfo.addr + i*AMOTA_PACKET_SIZE),
+                AMOTA_PACKET_SIZE);
 
-        am_bootloader_partial_crc32(amotasTmpBuf, ui32Remainder, &ui32CRC);
+            am_bootloader_partial_crc32(amotasTmpBuf, AMOTA_PACKET_SIZE, &ui32CRC);
+        }
+
+        ui32Remainder = amotasCb.fwHeader.fwLength % AMOTA_PACKET_SIZE;
+        if ( ui32Remainder )
+        {
+            g_pFlash->flash_read_page((uint32_t)amotasTmpBuf,
+                (uint32_t *)(amotasCb.newFwFlashInfo.addr + amotasCb.fwHeader.fwLength - ui32Remainder),
+                ui32Remainder);
+
+            am_bootloader_partial_crc32(amotasTmpBuf, ui32Remainder, &ui32CRC);
+        }
     }
-
 
     FLASH_OPERATE(g_pFlash, flash_disable);
 
     return (ui32CRC == amotasCb.fwHeader.fwCrc);
 }
+#endif
 
 //*****************************************************************************
 //
@@ -684,7 +815,7 @@ amotas_verify_firmware_crc(void)
 static void
 amotas_update_ota(void)
 {
-    uint8_t  magic = *((uint8_t *)(amotasCb.newFwFlashInfo.addr + 3));
+    uint8_t magic = amotasCb.metaData.magicNum;
 
     // Set OTAPOINTER
     am_hal_ota_add(AM_HAL_FLASH_PROGRAM_KEY, magic, (uint32_t *)amotasCb.newFwFlashInfo.addr);
@@ -698,6 +829,33 @@ amotas_init_ota(void)
     // to facilitate multiple image upgrade in a single reboot
     // Will need change in the AMOTA app to do so
     am_hal_ota_init(AM_HAL_FLASH_PROGRAM_KEY, pOtaDesc);
+}
+#elif defined(AM_PART_APOLLO4B)
+static void
+amotas_update_ota(void)
+{
+    uint8_t magic;
+    if (amotasCb.fwHeader.imageId == AMOTA_IMAGE_ID_SBL)
+    {
+        magic = AM_IMAGE_MAGIC_SBL;
+    }
+    else
+    {
+        magic = amotasCb.metaData.magicNum;
+    }
+
+    // Set OTAPOINTER
+    am_hal_ota_add(AM_HAL_MRAM_PROGRAM_KEY, magic, (uint32_t *)amotasCb.newFwFlashInfo.addr);
+}
+
+static void
+amotas_init_ota(void)
+{
+    am_hal_otadesc_t *pOtaDesc = (am_hal_otadesc_t *)(OTA_POINTER_LOCATION & ~(AM_HAL_FLASH_PAGE_SIZE - 1));
+    // Initialize OTA descriptor - This should ideally be initiated through a separate command
+    // to facilitate multiple image upgrade in a single reboot
+    // Will need change in the AMOTA app to do so
+    am_hal_ota_init(AM_HAL_MRAM_PROGRAM_KEY, pOtaDesc);
 }
 #else
 static void
@@ -813,6 +971,8 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
                 }
             }
 
+            ui32ImageCalCRC = 0;
+
             BYTES_TO_UINT32(amotasCb.fwHeader.encrypted, buf);
             BYTES_TO_UINT32(amotasCb.fwHeader.fwStartAddr, buf + 4);
             BYTES_TO_UINT32(amotasCb.fwHeader.fwLength, buf + 8);
@@ -821,6 +981,19 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
             BYTES_TO_UINT32(amotasCb.fwHeader.version, buf + 32);
             BYTES_TO_UINT32(amotasCb.fwHeader.fwDataType, buf + 36);
             BYTES_TO_UINT32(amotasCb.fwHeader.storageType, buf + 40);
+#if defined(AM_PART_APOLLO4B)
+            BYTES_TO_UINT32(amotasCb.fwHeader.imageId, buf + 44);
+
+            //get the SBL OTA storage address if the image is for SBL
+            //the address can be 0x8000 or 0x10000 based on current SBL running address
+            if (amotasCb.fwHeader.imageId == AMOTA_IMAGE_ID_SBL)
+            {
+                am_hal_security_info_t pSecInfo;
+                am_hal_security_get_info(&pSecInfo);
+                sblOtaStorageAddr = pSecInfo.sblStagingAddr;
+                APP_TRACE_INFO1("get sblOtaStorageAddr: 0x%x", sblOtaStorageAddr);
+            }
+#endif
 
             if (resumeTransfer)
             {
@@ -851,6 +1024,9 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
             APP_TRACE_INFO1("fwStartAddr = 0x%x", amotasCb.fwHeader.fwStartAddr);
             APP_TRACE_INFO1("fwDataType = 0x%x", amotasCb.fwHeader.fwDataType);
             APP_TRACE_INFO1("storageType = 0x%x", amotasCb.fwHeader.storageType);
+#if defined(AM_PART_APOLLO4B)
+            APP_TRACE_INFO1("imageId = 0x%x", amotasCb.fwHeader.imageId);
+#endif
             APP_TRACE_INFO0("============= fw header end ===============");
 #endif // AMOTA_DEBUG_ON
             data[0] = ((amotasCb.newFwFlashInfo.offset) & 0xff);
@@ -861,8 +1037,34 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
         break;
 
         case AMOTA_CMD_FW_DATA:
-            bResult = amotas_write2flash(len, buf, amotasCb.newFwFlashInfo.addr + amotasCb.newFwFlashInfo.offset,
+        {
+#if defined(AM_PART_APOLLO3) || defined(AM_PART_APOLLO3P) || defined(AM_PART_APOLLO4B)
+            if ( amotasCb.newFwFlashInfo.offset == 0 )
+            {
+                memcpy(&amotasCb.metaData, buf, sizeof(amotaMetadataInfo_t));
+            }
+#endif
+
+#if defined(AM_PART_APOLLO4B)
+            if (amotasCb.fwHeader.imageId == AMOTA_IMAGE_ID_SBL)
+            {
+                if ( amotasCb.newFwFlashInfo.offset < AMOTA_ENCRYPTED_SBL_SIZE )
+                {
+                    bResult = amotas_write2flash(len, buf, sblOtaStorageAddr + amotasCb.newFwFlashInfo.offset,
+                        ((amotasCb.newFwFlashInfo.offset + len) == AMOTA_ENCRYPTED_SBL_SIZE));
+                }
+                else
+                {
+                    bResult = amotas_write2flash(len, buf, amotasCb.newFwFlashInfo.addr + amotasCb.newFwFlashInfo.offset - AMOTA_ENCRYPTED_SBL_SIZE,
                         ((amotasCb.newFwFlashInfo.offset + len) == amotasCb.fwHeader.fwLength));
+                }
+            }
+            else
+#endif
+            {
+                bResult = amotas_write2flash(len, buf, amotasCb.newFwFlashInfo.addr + amotasCb.newFwFlashInfo.offset,
+                    ((amotasCb.newFwFlashInfo.offset + len) == amotasCb.fwHeader.fwLength));
+            }
 
             if ( bResult == false )
             {
@@ -874,6 +1076,8 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
             }
             else
             {
+                am_bootloader_partial_crc32(buf, len, &ui32ImageCalCRC);
+
                 amotasCb.newFwFlashInfo.offset += len;
 
                 data[0] = ((amotasCb.newFwFlashInfo.offset) & 0xff);
@@ -882,10 +1086,14 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
                 data[3] = ((amotasCb.newFwFlashInfo.offset >> 24) & 0xff);
                 amotas_reply_to_client(cmd, AMOTA_STATUS_SUCCESS, data, sizeof(data));
             }
+        }
         break;
 
         case AMOTA_CMD_FW_VERIFY:
-            if (amotas_verify_firmware_crc())
+            //amotas_verify_firmware_crc() reads data from flash and calculates the CRC, but may not stable enough
+            //at this moment calculate the CRC in the firmware downloading process
+            //since the data will be read out to verify in writing process
+            if ( ui32ImageCalCRC == amotasCb.fwHeader.fwCrc )
             {
                 APP_TRACE_INFO0("crc verify success");
 
@@ -903,7 +1111,16 @@ amotas_packet_handler(eAmotaCommand cmd, uint16_t len, uint8_t *buf)
             }
             FLASH_OPERATE(g_pFlash, flash_deinit);
             amotasCb.state = AMOTA_STATE_INIT;
+            ui32ImageCalCRC = 0;
             g_pFlash = &g_intFlash;
+
+#if defined(AM_PART_APOLLO4B)
+            //set SBL OTA storage address to invalid value once data verify finish
+            if (amotasCb.fwHeader.imageId == AMOTA_IMAGE_ID_SBL)
+            {
+                sblOtaStorageAddr = AMOTA_INVALID_SBL_STOR_ADDR;
+            }
+#endif
         break;
 
         case AMOTA_CMD_FW_RESET:

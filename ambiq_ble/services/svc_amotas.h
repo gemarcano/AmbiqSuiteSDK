@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef SVC_AMOTAS_H
@@ -84,7 +84,7 @@ extern "C"
 #define ATT_UUID_AMOTA_TX               ATT_UUID_AMBIQ_BUILD(ATT_UUID_AMOTA_TX_PART)
 
 // AM OTA Service
-#define AMOTAS_START_HDL               0x300
+#define AMOTAS_START_HDL               0x0820
 #define AMOTAS_END_HDL                 (AMOTAS_MAX_HDL - 1)
 
 
@@ -92,9 +92,9 @@ extern "C"
 enum
 {
   AMOTA_SVC_HDL = AMOTAS_START_HDL,     /* AMOTA service declaration */
-  AMOTAS_RX_CH_HDL,                     /* AMOTA write command characteristic */ 
+  AMOTAS_RX_CH_HDL,                     /* AMOTA write command characteristic */
   AMOTAS_RX_HDL,                        /* AMOTA write command data */
-  AMOTAS_TX_CH_HDL,                     /* AMOTA notify characteristic */ 
+  AMOTAS_TX_CH_HDL,                     /* AMOTA notify characteristic */
   AMOTAS_TX_HDL,                        /* AMOTA notify data */
   AMOTAS_TX_CH_CCC_HDL,                 /* AMOTA notify client characteristic configuration */
   AMOTAS_MAX_HDL

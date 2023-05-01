@@ -25,7 +25,7 @@
                             <img alt="Logo" src="../resources/am_logo.png" />
                         </td>
                         <td style="padding-left: 0.5em;">
-                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v2.4.2</span></div>
+                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v${version}</span></div>
                         </td>
                     </tr>
                 </tbody>
@@ -64,7 +64,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#PCFG" target="_self">PCFG - PDM Configuration Register</a>
+                            <a class="el" href="#PCFG" target="_self">PCFG - PDM Configuration</a>
                         </td>
                     </tr>
 
@@ -75,7 +75,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#VCFG" target="_self">VCFG - Voice Configuration Register</a>
+                            <a class="el" href="#VCFG" target="_self">VCFG - Voice Configuration</a>
                         </td>
                     </tr>
 
@@ -86,7 +86,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#VOICESTAT" target="_self">VOICESTAT - Voice Status Register</a>
+                            <a class="el" href="#VOICESTAT" target="_self">VOICESTAT - Voice Status</a>
                         </td>
                     </tr>
 
@@ -174,7 +174,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#DMATRIGEN" target="_self">DMATRIGEN - DMA Trigger Enable Register</a>
+                            <a class="el" href="#DMATRIGEN" target="_self">DMATRIGEN - DMA Trigger Enable</a>
                         </td>
                     </tr>
 
@@ -185,7 +185,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#DMATRIGSTAT" target="_self">DMATRIGSTAT - DMA Trigger Status Register</a>
+                            <a class="el" href="#DMATRIGSTAT" target="_self">DMATRIGSTAT - DMA Trigger Status</a>
                         </td>
                     </tr>
 
@@ -196,7 +196,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#DMACFG" target="_self">DMACFG - DMA Configuration Register</a>
+                            <a class="el" href="#DMACFG" target="_self">DMACFG - DMA Configuration</a>
                         </td>
                     </tr>
 
@@ -218,7 +218,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#DMATARGADDR" target="_self">DMATARGADDR - DMA Target Address Register</a>
+                            <a class="el" href="#DMATARGADDR" target="_self">DMATARGADDR - DMA Target Address</a>
                         </td>
                     </tr>
 
@@ -229,7 +229,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#DMASTAT" target="_self">DMASTAT - DMA Status Register</a>
+                            <a class="el" href="#DMASTAT" target="_self">DMASTAT - DMA Status</a>
                         </td>
                     </tr>
 
@@ -239,7 +239,7 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="PCFG" class="panel-title">PCFG - PDM Configuration Register</h3>
+                <h3 id="PCFG" class="panel-title">PCFG - PDM Configuration</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -257,7 +257,7 @@
 
                 </table>
                 <h3>Description:</h3>
-                <p>PDM Configuration Register</p>
+                <p>PDM Configuration</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -456,7 +456,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>20:19</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -484,8 +484,8 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>ADCHPD</td>
                             <td>RW</td>
                             <td>High pass filter control.<br><br>
-                                 EN                   = 0x1 - Enable high pass filter.<br>
-                             DIS                  = 0x0 - Disable high pass filter.</td>
+                                 EN                   = 0x0 - Enable high pass filter.<br>
+                             DIS                  = 0x1 - Disable high pass filter.</td>
                         </tr>
 
                         <tr>
@@ -530,7 +530,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="VCFG" class="panel-title">VCFG - Voice Configuration Register</h3>
+                <h3 id="VCFG" class="panel-title">VCFG - Voice Configuration</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -548,7 +548,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Voice Configuration Register</p>
+                <p>Voice Configuration</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -714,7 +714,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>25:21</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -740,7 +740,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>18</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -766,7 +766,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>15:9</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -783,7 +783,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>7:5</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -802,7 +802,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>2:0</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -814,7 +814,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="VOICESTAT" class="panel-title">VOICESTAT - Voice Status Register</h3>
+                <h3 id="VOICESTAT" class="panel-title">VOICESTAT - Voice Status</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -832,7 +832,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Voice Status Register</p>
+                <p>Voice Status</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -917,7 +917,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:6</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1152,7 +1152,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:1</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1275,7 +1275,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:5</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1283,7 +1283,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>4:0</td>
                             <td>FIFOTHR</td>
                             <td>RW</td>
-                            <td>FIFO Threshold value.   When the FIFO count is equal to, or larger than this value (in words), a THR interrupt is generated (if enabled)<br><br>
+                            <td>FIFO Threshold value. When the FIFO count is equal to, or larger than this value (in words), a THR interrupt is generated (if enabled)<br><br>
                                 </td>
                         </tr>
 
@@ -1418,7 +1418,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>4</td>
                             <td>DERR</td>
                             <td>RW</td>
-                            <td>DMA Error receieved<br><br>
+                            <td>DMA Error received<br><br>
                                 </td>
                         </tr>
 
@@ -1585,7 +1585,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>4</td>
                             <td>DERR</td>
                             <td>RW</td>
-                            <td>DMA Error receieved<br><br>
+                            <td>DMA Error received<br><br>
                                 </td>
                         </tr>
 
@@ -1752,7 +1752,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>4</td>
                             <td>DERR</td>
                             <td>RW</td>
-                            <td>DMA Error receieved<br><br>
+                            <td>DMA Error received<br><br>
                                 </td>
                         </tr>
 
@@ -1919,7 +1919,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>4</td>
                             <td>DERR</td>
                             <td>RW</td>
-                            <td>DMA Error receieved<br><br>
+                            <td>DMA Error received<br><br>
                                 </td>
                         </tr>
 
@@ -1963,7 +1963,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="DMATRIGEN" class="panel-title">DMATRIGEN - DMA Trigger Enable Register</h3>
+                <h3 id="DMATRIGEN" class="panel-title">DMATRIGEN - DMA Trigger Enable</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -1981,7 +1981,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>DMA Trigger Enable Register</p>
+                <p>DMA Trigger Enable</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -2077,7 +2077,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>1</td>
                             <td>DTHR90</td>
                             <td>RW</td>
-                            <td>Trigger DMA at FIFO 90 percent full.  This signal is also used internally for AUTOHIP function<br><br>
+                            <td>Trigger DMA at FIFO 90 percent full. This signal is also used internally for AUTOHIP function<br><br>
                                 </td>
                         </tr>
 
@@ -2085,7 +2085,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>0</td>
                             <td>DTHR</td>
                             <td>RW</td>
-                            <td>Trigger DMA upon when FIFO iss filled to level indicated by the FIFO THRESHOLD,at granularity of 16 bytes only<br><br>
+                            <td>Trigger DMA upon when FIFO is filled to level indicated by the FIFO THRESHOLD,at granularity of 16 bytes only<br><br>
                                 </td>
                         </tr>
 
@@ -2097,7 +2097,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="DMATRIGSTAT" class="panel-title">DMATRIGSTAT - DMA Trigger Status Register</h3>
+                <h3 id="DMATRIGSTAT" class="panel-title">DMATRIGSTAT - DMA Trigger Status</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2115,7 +2115,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>DMA Trigger Status Register</p>
+                <p>DMA Trigger Status</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -2231,7 +2231,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="DMACFG" class="panel-title">DMACFG - DMA Configuration Register</h3>
+                <h3 id="DMACFG" class="panel-title">DMACFG - DMA Configuration</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2249,7 +2249,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>DMA Configuration Register</p>
+                <p>DMA Configuration</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -2368,7 +2368,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>9</td>
                             <td>DAUTOHIP</td>
                             <td>RW</td>
-                            <td>Raise priority to high on fifo full, and DMAPRI set to low<br><br>
+                            <td>Raise priority to high on FIFO full, and DMAPRI set to low<br><br>
                                 </td>
                         </tr>
 
@@ -2546,7 +2546,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="DMATARGADDR" class="panel-title">DMATARGADDR - DMA Target Address Register</h3>
+                <h3 id="DMATARGADDR" class="panel-title">DMATARGADDR - DMA Target Address</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2564,7 +2564,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>DMA Target Address Register</p>
+                <p>DMA Target Address</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -2669,7 +2669,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="DMASTAT" class="panel-title">DMASTAT - DMA Status Register</h3>
+                <h3 id="DMASTAT" class="panel-title">DMASTAT - DMA Status</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2687,7 +2687,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>DMA Status Register</p>
+                <p>DMA Status</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -2820,7 +2820,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
             <small>
                 AmbiqSuite Register Documentation&nbsp;
                 <a href="http://www.ambiqmicro.com">
-                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2019&nbsp&nbsp<br />
+                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2021&nbsp&nbsp<br />
                 This documentation is licensed and distributed under the <a rel="license" href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</a>.&nbsp&nbsp<br/>
             </small>
         </div>

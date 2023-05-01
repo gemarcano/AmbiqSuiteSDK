@@ -12,7 +12,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -463,13 +463,13 @@ am_hal_pdm_dma_start(void *pHandle, am_hal_pdm_transfer_t *pDmaCfg)
     //
     // Check for DMA to/from DTCM.
     //
-    if ( (pDmaCfg->ui32TargetAddr >= AM_HAL_FLASH_DTCM_START) && 
+    if ( (pDmaCfg->ui32TargetAddr >= AM_HAL_FLASH_DTCM_START) &&
       (pDmaCfg->ui32TargetAddr <= AM_HAL_FLASH_DTCM_END) )
     {
       return AM_HAL_STATUS_OUT_OF_RANGE;
     }
 #endif
-    
+
     //
     // Find an appropriate threshold size for this transfer.
     //

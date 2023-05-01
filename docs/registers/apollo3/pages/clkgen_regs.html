@@ -25,7 +25,7 @@
                             <img alt="Logo" src="../resources/am_logo.png" />
                         </td>
                         <td style="padding-left: 0.5em;">
-                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v2.4.2</span></div>
+                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v${version}</span></div>
                         </td>
                     </tr>
                 </tbody>
@@ -119,7 +119,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#CLKKEY" target="_self">CLKKEY - Key Register for Clock Control Register</a>
+                            <a class="el" href="#CLKKEY" target="_self">CLKKEY - Key for Clock Control Register</a>
                         </td>
                     </tr>
 
@@ -218,7 +218,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#INTRPTEN" target="_self">INTRPTEN - CLKGEN Interrupt Register: Enable</a>
+                            <a class="el" href="#INTRPTEN" target="_self">INTRPTEN - CLKGEN Interrupt: Enable</a>
                         </td>
                     </tr>
 
@@ -229,7 +229,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#INTRPTSTAT" target="_self">INTRPTSTAT - CLKGEN Interrupt Register: Status</a>
+                            <a class="el" href="#INTRPTSTAT" target="_self">INTRPTSTAT - CLKGEN Interrupt: Status</a>
                         </td>
                     </tr>
 
@@ -240,7 +240,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#INTRPTCLR" target="_self">INTRPTCLR - CLKGEN Interrupt Register: Clear</a>
+                            <a class="el" href="#INTRPTCLR" target="_self">INTRPTCLR - CLKGEN Interrupt: Clear</a>
                         </td>
                     </tr>
 
@@ -251,7 +251,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#INTRPTSET" target="_self">INTRPTSET - CLKGEN Interrupt Register: Set</a>
+                            <a class="el" href="#INTRPTSET" target="_self">INTRPTSET - CLKGEN Interrupt: Set</a>
                         </td>
                     </tr>
 
@@ -279,7 +279,7 @@
 
                 </table>
                 <h3>Description:</h3>
-                <p>This is the XT Oscillator Calibration value.  This value allows any derived XT clocks to be "calibrated".  This means that the original 32KHz version of XT will not be changed, but a 16KHz version (divided down version) can be modified.  This register value will add or subtract the number of cycles programmed in this register across a 32 seconds interval.  For example, if a value of 100 is programmed in this register, then 100 additional clock cycles will be added into a 16KHz clock period across a 32 second interval.</p>
+                <p>This is the XT Oscillator Calibration value. This value allows any derived XT clocks to be calibrated. This means that the original 32KHz version of XT will not be changed, but a 16KHz version (divided down version) can be modified. This register value will add or subtract the number of cycles programmed in this register across a 32 seconds interval. For example, if a value of 100 is programmed in this register, then 100 additional clock cycles will be added into a 16KHz clock period across a 32 second interval.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -372,7 +372,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>10:0</td>
                             <td>CALXT</td>
                             <td>RW</td>
-                            <td>XT Oscillator calibration value.  This register will enable the hardware to increase or decrease the number of cycles in a 16KHz clock derived from the original 32KHz version.  The most significant bit is the sign.  A '1' is a reduction, and a '0' is an addition.  This calibration value will add or reduce the number of cycles programmed here across a 32 second interval.  The maximum value that is effective is from -1024 to 1023.<br><br>
+                            <td>XT Oscillator calibration value. This register will enable the hardware to increase or decrease the number of cycles in a 16KHz clock derived from the original 32KHz version. The most significant bit is the sign. A '1' is a reduction, and a '0' is an addition. This calibration value will add or reduce the number of cycles programmed here across a 32 second interval. The maximum value that is effective is from -1024 to 1023.<br><br>
                                 </td>
                         </tr>
 
@@ -402,7 +402,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>This is the LFRC Calibration value.  Similar to the XT calibration, it allows the derived LFRC clock to be calibrated.  The original 1024Hz clock source will not change, but a 512Hz version (divided down version) can be modified.  This register will add or subtract the number of cycles programmed in this register across a 1024 seconds interval.  For example, if a value of 200 is programmed in this register, then 200 additional clocks will be added into the 512Hz derived clock across a 1024 seconds interval.</p>
+                <p>This is the LFRC Calibration value. Similar to the XT calibration, it allows the derived LFRC clock to be calibrated. The original 1024Hz clock source will not change, but a 512Hz version (divided down version) can be modified. This register will add or subtract the number of cycles programmed in this register across a 1024 seconds interval. For example, if a value of 200 is programmed in this register, then 200 additional clocks will be added into the 512Hz derived clock across a 1024 seconds interval.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -495,7 +495,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>17:0</td>
                             <td>CALRC</td>
                             <td>RW</td>
-                            <td>LFRC Oscillator calibration value.   This register will enable the hardware to increase or decrease the number of cycles in a 512 Hz clock derived from the original 1024 version.  The most significant bit is the sign.  A '1' is a reduction, and a '0' is an addition.  This calibration value will add or reduce the number of cycles programmed here across a 32 second interval.  The range is from -131072 (decimal) to 131071 (decimal).  This register is normally used in conjuction with ACALCTR register.  The CALRC register will load the ACALCTR register (bits 17:0) if the ACALCTR register is set to measure the LFRC with the XT clock.<br><br>
+                            <td>LFRC Oscillator calibration value. This register will enable the hardware to increase or decrease the number of cycles in a 512 Hz clock derived from the original 1024 version. The most significant bit is the sign. A '1' is a reduction, and a '0' is an addition. This calibration value will add or reduce the number of cycles programmed here across a 32 second interval. The range is from -131072 (decimal) to 131071 (decimal). This register is normally used in conjunction with ACALCTR register. The CALRC register will load the ACALCTR register (bits 17:0) if the ACALCTR register is set to measure the LFRC with the XT clock.<br><br>
                                 </td>
                         </tr>
 
@@ -525,7 +525,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>This register can be used for 2 purposes.  The first is to calibrate the LFRC clock using the XT clock source.  The second is to measure an internal clock signal relative to the external clock.  In that case, the ACALCTR will show the multiple of the external clock with respect to the internal clock signal.  E.g. Fref = Fmeas x ACALCTR.  Note that this register should not be confused with the HFRC Adjustment register, which is separately defined in CLKGEN_HFADJ register.</p>
+                <p>This register can be used for 2 purposes. The first is to calibrate the LFRC clock using the XT clock source. The second is to measure an internal clock signal relative to the external clock. In that case, the ACALCTR will show the multiple of the external clock with respect to the internal clock signal. E.g. Fref = Fmeas x ACALCTR. Note that this register should not be confused with the HFRC Adjustment register, which is separately defined in CLKGEN_HFADJ register.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -756,11 +756,11 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>10:8</td>
                             <td>ACAL</td>
                             <td>RW</td>
-                            <td>Autocalibration control.  This selects the source to be used in the autocalibration flow.  This flow can also be used to measure an internal clock against an external clock source, with the external clock normally used as the reference.<br><br>
+                            <td>Autocalibration control. This selects the source to be used in the autocalibration flow. This flow can also be used to measure an internal clock against an external clock source, with the external clock normally used as the reference.<br><br>
                                  DIS                  = 0x0 - Disable Autocalibration<br>
-                             1024SEC              = 0x2 - Autocalibrate every 1024 seconds.  Once autocalibration is done, an interrupt will be triggered at the end of 1024 seconds.<br>
-                             512SEC               = 0x3 - Autocalibrate every 512 seconds.  Once autocalibration is done, an interrupt will be trigged at the end of 512 seconds.<br>
-                             XTFREQ               = 0x6 - Frequency measurement using XT.  The XT clock is normally considered much more accurate than the LFRC clock source.<br>
+                             1024SEC              = 0x2 - Autocalibrate every 1024 seconds. Once autocalibration is done, an interrupt will be triggered at the end of 1024 seconds.<br>
+                             512SEC               = 0x3 - Autocalibrate every 512 seconds. Once autocalibration is done, an interrupt will be trigged at the end of 512 seconds.<br>
+                             XTFREQ               = 0x6 - Frequency measurement using XT. The XT clock is normally considered much more accurate than the LFRC clock source.<br>
                              EXTFREQ              = 0x7 - Frequency measurement using external clock.</td>
                         </tr>
 
@@ -777,7 +777,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>6</td>
                             <td>FOS</td>
                             <td>RW</td>
-                            <td>Oscillator switch on failure function.  If this is set, then LFRC clock source will switch from XT to RC.<br><br>
+                            <td>Oscillator switch on failure function. If this is set, then LFRC clock source will switch from XT to RC.<br><br>
                                  DIS                  = 0x0 - Disable the oscillator switch on failure function.<br>
                              EN                   = 0x1 - Enable the oscillator switch on failure function.</td>
                         </tr>
@@ -951,7 +951,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>CKSEL</td>
                             <td>RW</td>
                             <td>CLKOUT signal select<br><br>
-                                 LFRC                 = 0x0 - LFRC<br>
+                                 LFRC                 = 0x0 - LFRC Low Frequency RC<br>
                              XT_DIV2              = 0x1 - XT / 2<br>
                              XT_DIV4              = 0x2 - XT / 4<br>
                              XT_DIV8              = 0x3 - XT / 8<br>
@@ -959,9 +959,9 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                              XT_DIV32             = 0x5 - XT / 32<br>
                              RTC_1Hz              = 0x10 - 1 Hz as selected in RTC<br>
                              XT_DIV2M             = 0x16 - XT / 2^21<br>
-                             XT                   = 0x17 - XT<br>
+                             XT                   = 0x17 - Crystal<br>
                              CG_100Hz             = 0x18 - 100 Hz as selected in CLKGEN<br>
-                             HFRC                 = 0x19 - HFRC<br>
+                             HFRC                 = 0x19 - High Frequency RC<br>
                              HFRC_DIV4            = 0x1A - HFRC / 4<br>
                              HFRC_DIV8            = 0x1B - HFRC / 8<br>
                              HFRC_DIV16           = 0x1C - HFRC / 16<br>
@@ -1001,7 +1001,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="CLKKEY" class="panel-title">CLKKEY - Key Register for Clock Control Register</h3>
+                <h3 id="CLKKEY" class="panel-title">CLKKEY - Key for Clock Control Register</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -1019,7 +1019,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Key Register for Clock Control Register</p>
+                <p>This controls the write access to the CCTRL register. This prevents customers from accidentally setting the HFRC clocks to be half of what they are set to.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -1102,7 +1102,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>CLKKEY</td>
                             <td>RW</td>
                             <td>Key register value.<br><br>
-                                 Key                  = 0x47 - Key</td>
+                                 Key                  = 0x47 - Key value to unlock the register.</td>
                         </tr>
 
                     </tbody>
@@ -1131,7 +1131,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>This register controls the main divider for HFRC clock.  If this is set, all internal HFRC clock sources are divided by 2.</p>
+                <p>This register controls the main divider for HFRC clock. If this is set, all internal HFRC clock sources are divided by 2.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -1359,7 +1359,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>0</td>
                             <td>OMODE</td>
                             <td>RO</td>
-                            <td>Current RTC oscillator (1 => LFRC, 0 => XT).  After an RTC oscillator change, it may take up to 2 seconds for this field to reflect the new oscillator.<br><br>
+                            <td>Current RTC oscillator (1 => LFRC, 0 => XT). After an RTC oscillator change, it may take up to 2 seconds for this field to reflect the new oscillator.<br><br>
                                 </td>
                         </tr>
 
@@ -1389,7 +1389,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>This register controls the HFRC adjustment.  The HFRC clock can change with temperature and process corners, and this register controls the HFRC adjustment logic which reduces the fluctuations to the clock.</p>
+                <p>This register controls the HFRC adjustment. The HFRC clock can change with temperature and process corners, and this register controls the HFRC adjustment logic which reduces the fluctuations to the clock.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -1510,9 +1510,9 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>20</td>
                             <td>HFWARMUP</td>
                             <td>RW</td>
-                            <td>XT warmup period for HFRC adjustment<br><br>
-                                 1SEC                 = 0x0 - Autoadjust XT warmup period = 1-2 seconds<br>
-                             2SEC                 = 0x1 - Autoadjust XT warmup period = 2-4 seconds</td>
+                            <td>XT warm-up period for HFRC adjustment<br><br>
+                                 1SEC                 = 0x0 - Autoadjust XT warm-up period = 1-2 seconds<br>
+                             2SEC                 = 0x1 - Autoadjust XT warm-up period = 2-4 seconds</td>
                         </tr>
 
                         <tr>
@@ -1823,7 +1823,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                              TPIU_CLKEN           = 0x2000 - Clock enable for the TPIU_CLKEN<br>
                              UART0HF_CLKEN        = 0x4000 - Clock enable for the UART0 HF<br>
                              UART1HF_CLKEN        = 0x8000 - Clock enable for the UART1 HF<br>
-                             WDT_CLKEN            = 0x8000 - Clock enable for the Watchdog timer<br>
+                             WDT_CLKEN            = 0x10000 - Clock enable for the Watchdog timer<br>
                              XT_32KHZ_EN          = 0x40000000 - Clock enable for the XT 32KHZ<br>
                              FORCEHFRC            = 0x80000000 - HFRC is forced on Status.</td>
                         </tr>
@@ -1938,7 +1938,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>RO</td>
                             <td>Clock enable status 3<br><br>
                                  DAP_enabled          = 0x20000 - DAP clock is enabled [17]<br>
-                             VCOMP_enabled        = 0x40000 - VCOMP powerdown indicator [18]<br>
+                             VCOMP_enabled        = 0x40000 - VCOMP power-down indicator [18]<br>
                              XTAL_enabled         = 0x1000000 - XTAL is enabled [24]<br>
                              HFRC_enabled         = 0x2000000 - HFRC is enabled [25]<br>
                              HFADJEN              = 0x4000000 - HFRC Adjust enabled [26]<br>
@@ -2239,22 +2239,22 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>ZEROLENDETECTTRIM</td>
                             <td>RW</td>
                             <td>BLEBUCK ZERO LENGTH DETECT TRIM<br><br>
-                                 SetF                 = 0xF - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 81us (10 percent margin of error) or more<br>
-                             SetE                 = 0xE - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 75.6us (10 percent margin of error) or more<br>
-                             SetD                 = 0xD - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 70.2us (10 percent margin of error) or more<br>
-                             SetC                 = 0xC - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 64.8us (10 percent margin of error) or more<br>
-                             SetB                 = 0xB - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 59.4us (10 percent margin of error) or more<br>
-                             SetA                 = 0xA - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 54.0us (10 percent margin of error) or more<br>
-                             Set9                 = 0x9 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 48.6us (10 percent margin of error) or more<br>
-                             Set8                 = 0x8 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 43.2us (10 percent margin of error) or more<br>
-                             Set7                 = 0x7 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 37.8us (10 percent margin of error) or more<br>
-                             Set6                 = 0x6 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 32.4us (10 percent margin of error) or more<br>
-                             Set5                 = 0x5 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 27.0us (10 percent margin of error) or more<br>
-                             Set4                 = 0x4 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 21.6us (10 percent margin of error) or more<br>
-                             Set3                 = 0x3 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 16.2us (10 percent margin of error) or more<br>
-                             Set2                 = 0x2 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 10.8us (10 percent margin of error) or more<br>
-                             Set1                 = 0x1 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 5.4us (10 percent margin of error) or more<br>
-                             Set0                 = 0x0 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 2.0us (10 percent margin of error) or more</td>
+                                 SetF                 = 0xF - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 81 us (10 percent margin of error) or more<br>
+                             SetE                 = 0xE - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 75.6 us (10 percent margin of error) or more<br>
+                             SetD                 = 0xD - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 70.2 us (10 percent margin of error) or more<br>
+                             SetC                 = 0xC - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 64.8 us (10 percent margin of error) or more<br>
+                             SetB                 = 0xB - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 59.4 us (10 percent margin of error) or more<br>
+                             SetA                 = 0xA - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 54.0 us (10 percent margin of error) or more<br>
+                             Set9                 = 0x9 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 48.6 us (10 percent margin of error) or more<br>
+                             Set8                 = 0x8 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 43.2 us (10 percent margin of error) or more<br>
+                             Set7                 = 0x7 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 37.8 us (10 percent margin of error) or more<br>
+                             Set6                 = 0x6 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 32.4 us (10 percent margin of error) or more<br>
+                             Set5                 = 0x5 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 27.0 us (10 percent margin of error) or more<br>
+                             Set4                 = 0x4 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 21.6 us (10 percent margin of error) or more<br>
+                             Set3                 = 0x3 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 16.2 us (10 percent margin of error) or more<br>
+                             Set2                 = 0x2 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 10.8 us (10 percent margin of error) or more<br>
+                             Set1                 = 0x1 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 5.4 us (10 percent margin of error) or more<br>
+                             Set0                 = 0x0 - Indicator send when the BLE BUCK asserts blebuck_comp1 for about 2.0 us (10 percent margin of error) or more</td>
                         </tr>
 
                         <tr>
@@ -2281,7 +2281,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>19:10</td>
                             <td>TONHIGHTHRESHOLD</td>
                             <td>RW</td>
-                            <td>TON ADJUST HIGH THRESHOLD.  Suggested values are #15(94KHz) #2A(47Khz) #A6(12Khz) #29A(3Khz)<br><br>
+                            <td>TON ADJUST HIGH THRESHOLD. Suggested values are #15(94KHz) #2A(47Khz) #A6(12Khz) #29A(3Khz)<br><br>
                                 </td>
                         </tr>
 
@@ -2289,7 +2289,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>9:0</td>
                             <td>TONLOWTHRESHOLD</td>
                             <td>RW</td>
-                            <td>TON ADJUST LOW THRESHOLD.  Suggested values are #A(94KHz) #15(47KHz) #53(12Khz) #14D(3Khz)<br><br>
+                            <td>TON ADJUST LOW THRESHOLD. Suggested values are #A(94KHz) #15(47KHz) #53(12Khz) #14D(3Khz)<br><br>
                                 </td>
                         </tr>
 
@@ -2301,7 +2301,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="INTRPTEN" class="panel-title">INTRPTEN - CLKGEN Interrupt Register: Enable</h3>
+                <h3 id="INTRPTEN" class="panel-title">INTRPTEN - CLKGEN Interrupt: Enable</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2446,7 +2446,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="INTRPTSTAT" class="panel-title">INTRPTSTAT - CLKGEN Interrupt Register: Status</h3>
+                <h3 id="INTRPTSTAT" class="panel-title">INTRPTSTAT - CLKGEN Interrupt: Status</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2591,7 +2591,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="INTRPTCLR" class="panel-title">INTRPTCLR - CLKGEN Interrupt Register: Clear</h3>
+                <h3 id="INTRPTCLR" class="panel-title">INTRPTCLR - CLKGEN Interrupt: Clear</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2736,7 +2736,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="INTRPTSET" class="panel-title">INTRPTSET - CLKGEN Interrupt Register: Set</h3>
+                <h3 id="INTRPTSET" class="panel-title">INTRPTSET - CLKGEN Interrupt: Set</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -2887,7 +2887,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
             <small>
                 AmbiqSuite Register Documentation&nbsp;
                 <a href="http://www.ambiqmicro.com">
-                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2019&nbsp&nbsp<br />
+                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2021&nbsp&nbsp<br />
                 This documentation is licensed and distributed under the <a rel="license" href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</a>.&nbsp&nbsp<br/>
             </small>
         </div>

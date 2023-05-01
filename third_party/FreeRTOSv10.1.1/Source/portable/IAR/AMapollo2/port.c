@@ -32,17 +32,22 @@
 /* IAR includes. */
 #include <intrinsics.h>
 
-/* Scheduler includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-
 /* hardware includes */
 #include "am_mcu_apollo.h"
 #include "am_bsp.h"
 
+/* Scheduler includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+
+
 // A Possible clock glitch could rarely cause the Stimer interrupt to be lost.
 // Set up a backup comparator to handle this case
 #define AM_FREERTOS_STIMER_BACKUP
+
+#if defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P)
+#error "Apollo4 should use Apollo4 port of FreeRTOS"
+#endif // AM_PART_APOLLO4
 
 //#define FREERTOS_STIMER_DIAGS
 #ifdef AM_FREERTOS_STIMER_DIAGS
@@ -131,9 +136,6 @@ static uint32_t g_lastSTimerVal = 0;
 #endif
 #if configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0
 #if configUSE_TICKLESS_IDLE == 2
-// This implementation is TODO - will use Systick when active, but fall back to STimer/Ctimer when Idle
-// Some crude analysis showed that doing so is no better than using CTImer/STimer always, in terms of power
-// Hence there is no plan currently to implement it.
 #error "configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0 not supported for configUSE_TICKLESS_IDLE = 2"
 #endif
 #endif
@@ -578,13 +580,13 @@ void xPortSysTickHandler( void )
 			__disable_interrupt();
 			__DSB();
 			__ISB();
-			
-			/* Disable the SysTick clock without reading the 
+
+			/* Disable the SysTick clock without reading the
 			portNVIC_SYSTICK_CTRL_REG register to ensure the
-			portNVIC_SYSTICK_COUNT_FLAG_BIT is not cleared if it is set.  Again, 
-			the time the SysTick is stopped for is accounted for as best it can 
-			be, but using the tickless mode will inevitably result in some tiny 
-			drift of the time maintained by the kernel with respect to calendar 
+			portNVIC_SYSTICK_COUNT_FLAG_BIT is not cleared if it is set.  Again,
+			the time the SysTick is stopped for is accounted for as best it can
+			be, but using the tickless mode will inevitably result in some tiny
+			drift of the time maintained by the kernel with respect to calendar
 			time*/
 			portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT );
 
@@ -939,7 +941,7 @@ xPortStimerTickHandler(uint32_t delta)
 #ifdef AM_FREERTOS_STIMER_BACKUP
     am_hal_stimer_compare_delta_set(1, (ulTimerCountsForOneTick-delta+1));
 #endif
-    
+
     timerCounts = curSTimer - g_lastSTimerVal;
     numTicksElapsed = timerCounts/ulTimerCountsForOneTick;
     remainder = timerCounts % ulTimerCountsForOneTick;
@@ -1070,11 +1072,21 @@ xPortCTimer0TickHandler(void)
 void vPortSetupTimerInterrupt( void )
 {
 #ifdef AM_FREERTOS_USE_STIMER_FOR_TICK
-    uint32_t oldCfg;
+    uint32_t oldCfg, stimer_src;
     /* Calculate the constants required to configure the tick interrupt. */
     #if configUSE_TICKLESS_IDLE == 2
     {
-        ulTimerCountsForOneTick = (configSTIMER_CLOCK_HZ /configTICK_RATE_HZ) ; //( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ );
+#ifdef AM_PART_APOLLO4B
+		if (APOLLO4_B0)
+		{
+			// STIMER with XTAL is not functional in Apollo4 B0, use STIMER_HFRC instead
+        	ulTimerCountsForOneTick = (375000 /configTICK_RATE_HZ) ; //( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ );
+		}
+		else
+#endif
+		{
+        	ulTimerCountsForOneTick = (configSTIMER_CLOCK_HZ /configTICK_RATE_HZ) ; //( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ );
+		}
 #ifdef AM_FREERTOS_STIMER_BACKUP
         xMaximumPossibleSuppressedTicks = portMAX_32_BIT_NUMBER / ulTimerCountsForOneTick - 1;
 #else
@@ -1090,7 +1102,7 @@ void vPortSetupTimerInterrupt( void )
 #else
     am_hal_stimer_int_enable(AM_HAL_STIMER_INT_COMPAREA);
 #endif
-    
+
     //
     // Enable the timer interrupt in the NVIC, making sure to use the
     // appropriate priority level.
@@ -1117,20 +1129,32 @@ void vPortSetupTimerInterrupt( void )
     oldCfg = am_hal_stimer_config(AM_HAL_STIMER_CFG_FREEZE);
     g_lastSTimerVal = am_hal_stimer_counter_get();
     am_hal_stimer_compare_delta_set(0, ulTimerCountsForOneTick);
+	// STIMER Source Configuration
+#ifdef AM_PART_APOLLO4B
+	if (APOLLO4_B0)
+	{
+		// STIMER with XTAL is not functional in Apollo4 B0, use STIMER_HFRC instead
+		stimer_src = AM_HAL_STIMER_HFRC_375KHZ;
+	}
+	else
+#endif
+	{
+		stimer_src = configSTIMER_CLOCK;
+	}
 #ifdef AM_FREERTOS_STIMER_BACKUP
     am_hal_stimer_compare_delta_set(1, ulTimerCountsForOneTick+1);
 #if AM_CMSIS_REGS
-    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE | CTIMER_STCFG_CLKSEL_Msk)) | configSTIMER_CLOCK | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE | AM_HAL_STIMER_CFG_COMPARE_B_ENABLE);
+    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE | CTIMER_STCFG_CLKSEL_Msk)) | stimer_src | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE | AM_HAL_STIMER_CFG_COMPARE_B_ENABLE);
 #else // AM_CMSIS_REGS
-    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE|AM_REG_CTIMER_STCFG_CLKSEL_M)) | configSTIMER_CLOCK | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE | AM_HAL_STIMER_CFG_COMPARE_B_ENABLE);
+    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE|AM_REG_CTIMER_STCFG_CLKSEL_M)) | stimer_src | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE | AM_HAL_STIMER_CFG_COMPARE_B_ENABLE);
 #endif // AM_CMSIS_REGS
 #else
 #if AM_CMSIS_REGS
-    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE | CTIMER_STCFG_CLKSEL_Msk)) | configSTIMER_CLOCK | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE);
+    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE | CTIMER_STCFG_CLKSEL_Msk)) | stimer_src | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE);
 #else // AM_CMSIS_REGS
-    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE|AM_REG_CTIMER_STCFG_CLKSEL_M)) | configSTIMER_CLOCK | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE);
+    am_hal_stimer_config((oldCfg & ~(AM_HAL_STIMER_CFG_FREEZE|AM_REG_CTIMER_STCFG_CLKSEL_M)) | stimer_src | AM_HAL_STIMER_CFG_COMPARE_A_ENABLE);
 #endif // AM_CMSIS_REGS
-    
+
 #endif
 #else
 

@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_FLASH_H
@@ -74,9 +74,11 @@ extern "C"
 // Some helpful SRAM values and macros.
 //
 //*****************************************************************************
-#define AM_HAL_FLASH_SRAM_ADDR                  0x10000000
+#define AM_HAL_FLASH_SRAM_ADDR                  SRAM_BASEADDR
 #define AM_HAL_FLASH_SRAM_SIZE                  (384 * 1024)
 #define AM_HAL_FLASH_SRAM_LARGEST_VALID_ADDR    (AM_HAL_FLASH_SRAM_ADDR + AM_HAL_FLASH_SRAM_SIZE - 1)
+#define AM_HAL_FLASH_DTCM_START                 AM_HAL_FLASH_SRAM_ADDR
+#define AM_HAL_FLASH_DTCM_END                   (AM_HAL_FLASH_SRAM_ADDR + (64 * 1024) - 1)
 
 //*****************************************************************************
 //
@@ -295,7 +297,7 @@ extern int      am_hal_flash_erase_main_plus_info(uint32_t ui32InfoKey,
                                                   uint32_t ui32Instance);
 extern int      am_hal_flash_erase_main_plus_info_both_instances(
                                                   uint32_t ui32InfoKey);
-extern void     am_hal_flash_recovery(uint32_t ui32RecoveryKey);
+extern int      am_hal_flash_recovery(uint32_t ui32RecoveryKey);
 
 //
 // This function safely writes to a peripheral or memory address while executing

@@ -119,9 +119,6 @@ static uint32_t g_lastSTimerVal = 0;
 #endif
 #if configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0
 #if configUSE_TICKLESS_IDLE == 2
-// This implementation is TODO - will use Systick when active, but fall back to STimer/Ctimer when Idle
-// Some crude analysis showed that doing so is no better than using CTImer/STimer always, in terms of power
-// Hence there is no plan currently to implement it.
 #error "configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0 not supported for configUSE_TICKLESS_IDLE = 2"
 #endif
 #endif

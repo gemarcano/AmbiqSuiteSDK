@@ -9,7 +9,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #include "wsf_types.h"
@@ -82,15 +82,15 @@ static const uint8_t svcAckUuid[] = {ATT_UUID_AMDTP_ACK};
 static const uint8_t amdtpSvc[] = {ATT_UUID_AMDTP_SERVICE};
 static const uint16_t amdtpLenSvc = sizeof(amdtpSvc);
 
-/* AMDTP RX characteristic */ 
+/* AMDTP RX characteristic */
 static const uint8_t amdtpRxCh[] = {ATT_PROP_WRITE_NO_RSP, UINT16_TO_BYTES(AMDTPS_RX_HDL), ATT_UUID_AMDTP_RX};
 static const uint16_t amdtpLenRxCh = sizeof(amdtpRxCh);
 
-/* AMDTP TX characteristic */ 
+/* AMDTP TX characteristic */
 static const uint8_t amdtpTxCh[] = {ATT_PROP_NOTIFY, UINT16_TO_BYTES(AMDTPS_TX_HDL), ATT_UUID_AMDTP_TX};
 static const uint16_t amdtpLenTxCh = sizeof(amdtpTxCh);
 
-/* AMDTP RX ack characteristic */ 
+/* AMDTP RX ack characteristic */
 static const uint8_t amdtpAckCh[] = {(ATT_PROP_WRITE_NO_RSP | ATT_PROP_NOTIFY), UINT16_TO_BYTES(AMDTPS_ACK_HDL), ATT_UUID_AMDTP_ACK};
 static const uint16_t amdtpLenAckCh = sizeof(amdtpAckCh);
 
@@ -122,9 +122,9 @@ static const uint16_t amdtpLenAckChCcc = sizeof(amdtpAckChCcc);
 static const attsAttr_t amdtpList[] =
 {
   {
-    attPrimSvcUuid, 
+    attPrimSvcUuid,
     (uint8_t *) amdtpSvc,
-    (uint16_t *) &amdtpLenSvc, 
+    (uint16_t *) &amdtpLenSvc,
     sizeof(amdtpSvc),
     0,
     ATTS_PERMIT_READ
@@ -209,7 +209,7 @@ static attsGroup_t svcAmdtpGroup =
 /*************************************************************************************************/
 /*!
  *  \fn     SvcAmdtpsAddGroup
- *        
+ *
  *  \brief  Add the services to the attribute server.
  *
  *  \return None.
@@ -223,7 +223,7 @@ void SvcAmdtpsAddGroup(void)
 /*************************************************************************************************/
 /*!
  *  \fn     SvcAmdtpRemoveGroup
- *        
+ *
  *  \brief  Remove the services from the attribute server.
  *
  *  \return None.
@@ -237,7 +237,7 @@ void SvcAmdtpsRemoveGroup(void)
 /*************************************************************************************************/
 /*!
  *  \fn     SvcAmdtpsCbackRegister
- *        
+ *
  *  \brief  Register callbacks for the service.
  *
  *  \param  readCback   Read callback function.

@@ -25,7 +25,7 @@
                             <img alt="Logo" src="../resources/am_logo.png" />
                         </td>
                         <td style="padding-left: 0.5em;">
-                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v2.4.2</span></div>
+                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v${version}</span></div>
                         </td>
                     </tr>
                 </tbody>
@@ -45,7 +45,7 @@
     <!-- window showing the filter options -->
     <div class="header">
         <div class="headertitle">
-            <div class="title">CACHECTRL - Flash Cache Controller</div>
+            <div class="title">CACHECTRL - FLASH Cache Controller</div>
         </div>
     </div>
     <!--header-->
@@ -64,7 +64,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#CACHECFG" target="_self">CACHECFG - Flash Cache Control Register</a>
+                            <a class="el" href="#CACHECFG" target="_self">CACHECFG - FLASH Cache Control</a>
                         </td>
                     </tr>
 
@@ -75,7 +75,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#FLASHCFG" target="_self">FLASHCFG - Flash Control Register</a>
+                            <a class="el" href="#FLASHCFG" target="_self">FLASHCFG - FLASH Control Register</a>
                         </td>
                     </tr>
 
@@ -97,7 +97,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#NCR0START" target="_self">NCR0START - Flash Cache Noncachable Region 0 Start</a>
+                            <a class="el" href="#NCR0START" target="_self">NCR0START - FLASH Cache Noncacheable Region 0 Start</a>
                         </td>
                     </tr>
 
@@ -108,7 +108,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#NCR0END" target="_self">NCR0END - Flash Cache Noncachable Region 0 End</a>
+                            <a class="el" href="#NCR0END" target="_self">NCR0END - FLASH Cache Noncacheable Region 0 End</a>
                         </td>
                     </tr>
 
@@ -119,7 +119,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#NCR1START" target="_self">NCR1START - Flash Cache Noncachable Region 1 Start</a>
+                            <a class="el" href="#NCR1START" target="_self">NCR1START - FLASH Cache Noncacheable Region 1 Start</a>
                         </td>
                     </tr>
 
@@ -130,7 +130,7 @@
                         </td>
                         <td class="entry">
                             <span style="width:32px;display:inline-block;">&#160;</span>
-                            <a class="el" href="#NCR1END" target="_self">NCR1END - Flash Cache Noncachable Region 1 End</a>
+                            <a class="el" href="#NCR1END" target="_self">NCR1END - FLASH Cache Noncacheable Region 1 End</a>
                         </td>
                     </tr>
 
@@ -228,7 +228,7 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="CACHECFG" class="panel-title">CACHECFG - Flash Cache Control Register</h3>
+                <h3 id="CACHECFG" class="panel-title">CACHECFG - FLASH Cache Control</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -246,7 +246,7 @@
 
                 </table>
                 <h3>Description:</h3>
-                <p>Flash Cache Control Register</p>
+                <p>FLASH Cache Control</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -367,7 +367,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:25</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -375,7 +375,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>24</td>
                             <td>ENABLE_MONITOR</td>
                             <td>RW</td>
-                            <td>Enable Cache Monitoring Stats.  Cache monitoring consumes additional power and should only be enabled when profiling code and counters will increment when this bit is set.  Counter values will be retained when this is set to 0, allowing software to enable/disable counting for multiple code segments.<br><br>
+                            <td>Enable Cache Monitoring Stats. Cache monitoring consumes additional power and should only be enabled when profiling code and counters will increment when this bit is set. Counter values will be retained when this is set to 0, allowing software to enable/disable counting for multiple code segments.<br><br>
                                 </td>
                         </tr>
 
@@ -383,7 +383,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>23:21</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -391,7 +391,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>20</td>
                             <td>DATA_CLKGATE</td>
                             <td>RW</td>
-                            <td>Enable aggressive clock gating of entire data array.  This bit should be set to 1 for optimal power efficiency.<br><br>
+                            <td>Enable aggressive clock gating of entire data array. This bit should be set to 1 for optimal power efficiency.<br><br>
                                 </td>
                         </tr>
 
@@ -399,7 +399,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>19:12</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -407,7 +407,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>11</td>
                             <td>CACHE_LS</td>
                             <td>RW</td>
-                            <td>Enable LS (light sleep) of cache RAMs.  Software should DISABLE this bit since cache activity is too high to benefit from LS usage.<br><br>
+                            <td>Enable LS (light sleep) of cache RAMs. Software should DISABLE this bit since cache activity is too high to benefit from LS usage.<br><br>
                                 </td>
                         </tr>
 
@@ -415,7 +415,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>10</td>
                             <td>CACHE_CLKGATE</td>
                             <td>RW</td>
-                            <td>Enable clock gating of cache TAG RAM.  Software should enable this bit for optimal power efficiency.<br><br>
+                            <td>Enable clock gating of cache TAG RAM. Software should enable this bit for optimal power efficiency.<br><br>
                                 </td>
                         </tr>
 
@@ -423,7 +423,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>9</td>
                             <td>DCACHE_ENABLE</td>
                             <td>RW</td>
-                            <td>Enable Flash Data Caching.<br><br>
+                            <td>Enable FLASH Data Caching<br><br>
                                 </td>
                         </tr>
 
@@ -431,7 +431,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>8</td>
                             <td>ICACHE_ENABLE</td>
                             <td>RW</td>
-                            <td>Enable Flash Instruction Caching<br><br>
+                            <td>Enable FLASH Instruction Caching<br><br>
                                 </td>
                         </tr>
 
@@ -440,16 +440,16 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>CONFIG</td>
                             <td>RW</td>
                             <td>Sets the cache configuration<br><br>
-                                 W1_128B_512E         = 0x4 - Direct mapped, 128-bit linesize, 512 entries (4 SRAMs active)<br>
-                             W2_128B_512E         = 0x5 - Two-way set associative, 128-bit linesize, 512 entries (8 SRAMs active)<br>
-                             W1_128B_1024E        = 0x8 - Direct mapped, 128-bit linesize, 1024 entries (8 SRAMs active)</td>
+                                 W1_128B_512E         = 0x4 - Direct mapped, 128-bit line size, 512 entries (4 SRAMs active)<br>
+                             W2_128B_512E         = 0x5 - Two-way set associative, 128-bit line size, 512 entries (8 SRAMs active)<br>
+                             W1_128B_1024E        = 0x8 - Direct mapped, 128-bit line size, 1024 entries (8 SRAMs active)</td>
                         </tr>
 
                         <tr>
                             <td>3</td>
                             <td>ENABLE_NC1</td>
                             <td>RW</td>
-                            <td>Enable Non-cacheable region 1.  See NCR1 registers to define the region.<br><br>
+                            <td>Enable Non-cacheable region 1. See NCR1 registers to define the region.<br><br>
                                 </td>
                         </tr>
 
@@ -457,7 +457,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>2</td>
                             <td>ENABLE_NC0</td>
                             <td>RW</td>
-                            <td>Enable Non-cacheable region 0.  See NCR0 registers to define the region.<br><br>
+                            <td>Enable Non-cacheable region 0. See NCR0 registers to define the region.<br><br>
                                 </td>
                         </tr>
 
@@ -465,7 +465,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>1</td>
                             <td>LRU</td>
                             <td>RW</td>
-                            <td>Sets the cache repleacment policy.  0=LRR (least recently replaced), 1=LRU (least recently used).  LRR minimizes writes to the TAG SRAM.<br><br>
+                            <td>Sets the cache replacement policy. 0=LRR (least recently replaced), 1=LRU (least recently used). LRR minimizes writes to the TAG SRAM.<br><br>
                                 </td>
                         </tr>
 
@@ -473,7 +473,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>0</td>
                             <td>ENABLE</td>
                             <td>RW</td>
-                            <td>Enables the flash cache controller and enables power to the cache SRAMs.  The ICACHE_ENABLE and DCACHE_ENABLE should be set to enable caching for each type of access.<br><br>
+                            <td>Enables the FLASH cache controller and enables power to the cache SRAMs. The ICACHE_ENABLE and DCACHE_ENABLE should be set to enable caching for each type of access.<br><br>
                                 </td>
                         </tr>
 
@@ -485,7 +485,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="FLASHCFG" class="panel-title">FLASHCFG - Flash Control Register</h3>
+                <h3 id="FLASHCFG" class="panel-title">FLASHCFG - FLASH Control Register</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -503,7 +503,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Flash Control Register</p>
+                <p>FLASH Control Register</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -600,7 +600,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:14</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -608,17 +608,17 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>13:12</td>
                             <td>LPMMODE</td>
                             <td>RW</td>
-                            <td>Controls flash low power modes (control of LPM pin).<br><br>
+                            <td>Controls FLASH low power modes (control of LPM pin).<br><br>
                                  NEVER                = 0x0 - High power mode (LPM not used).<br>
-                             STANDBY              = 0x1 - Fast Standby mode.  LPM deasserted for read operations, but asserted while flash IDLE.<br>
-                             ALWAYS               = 0x2 - Low Power mode.  LPM always asserted for reads.  LPM_RD_WAIT must be programmed to accomodate longer read access times.</td>
+                             STANDBY              = 0x1 - Fast Standby mode. LPM deasserted for read operations, but asserted while FLASH IDLE.<br>
+                             ALWAYS               = 0x2 - Low Power mode. LPM always asserted for reads. LPM_RD_WAIT must be programmed to accomodate longer read access times.</td>
                         </tr>
 
                         <tr>
                             <td>11:8</td>
                             <td>LPM_RD_WAIT</td>
                             <td>RW</td>
-                            <td>Sets flash waitstates when in LPM Mode 2 (RD_WAIT in LPM mode 2 only)<br><br>
+                            <td>Sets FLASH waitstates when in LPM Mode 2 (RD_WAIT in LPM mode 2 only)<br><br>
                                 </td>
                         </tr>
 
@@ -626,7 +626,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>7</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -634,7 +634,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>6:4</td>
                             <td>SEDELAY</td>
                             <td>RW</td>
-                            <td>Sets SE delay (flash address setup).  A value of 5 is recommended.<br><br>
+                            <td>Sets SE delay (FLASH address setup). A value of 5 is recommended.<br><br>
                                 </td>
                         </tr>
 
@@ -642,7 +642,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>3:0</td>
                             <td>RD_WAIT</td>
                             <td>RW</td>
-                            <td>Sets read waitstates for normal (fast) operation.  A value of 1 is recommended.<br><br>
+                            <td>Sets read waitstates for normal (fast) operation. A value of 1 is recommended.<br><br>
                                 </td>
                         </tr>
 
@@ -787,7 +787,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:11</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -795,7 +795,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>10</td>
                             <td>FLASH1_SLM_ENABLE</td>
                             <td>WO</td>
-                            <td>Enable Flash Sleep Mode.  Write to 1 to put flash 1 into sleep mode.  NOTE: there is a 5us latency after waking flash until the first access will be returned.<br><br>
+                            <td>Enable FLASH Sleep Mode. Write to 1 to put FLASH1 into sleep mode. NOTE: there is a 5 us latency after waking FLASH until the first access will be returned.<br><br>
                                 </td>
                         </tr>
 
@@ -803,7 +803,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>9</td>
                             <td>FLASH1_SLM_DISABLE</td>
                             <td>WO</td>
-                            <td>Disable Flash Sleep Mode.  Write 1 to wake flash1 from sleep mode (reading the array will also automatically wake it).<br><br>
+                            <td>Disable FLASH Sleep Mode. Write 1 to wake FLASH1 from sleep mode (reading the array will also automatically wake it).<br><br>
                                 </td>
                         </tr>
 
@@ -811,7 +811,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>8</td>
                             <td>FLASH1_SLM_STATUS</td>
                             <td>RO</td>
-                            <td>Flash Sleep Mode Status.  1 indicates that flash1 is in sleep mode, 0 indicates flash1 is in normal mode.<br><br>
+                            <td>FLASH Sleep Mode Status. 1 indicates that FLASH1 is in sleep mode, 0 indicates FLASH1 is in normal mode.<br><br>
                                 </td>
                         </tr>
 
@@ -819,7 +819,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>7</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -827,7 +827,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>6</td>
                             <td>FLASH0_SLM_ENABLE</td>
                             <td>WO</td>
-                            <td>Enable Flash Sleep Mode.  Write to 1 to put flash 0 into sleep mode.  NOTE: there is a 5us latency after waking flash until the first access will be returned.<br><br>
+                            <td>Enable FLASH Sleep Mode. Write to 1 to put FLASH0 into sleep mode. NOTE: there is a 5 us latency after waking FLASH until the first access will be returned.<br><br>
                                 </td>
                         </tr>
 
@@ -835,7 +835,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>5</td>
                             <td>FLASH0_SLM_DISABLE</td>
                             <td>WO</td>
-                            <td>Disable Flash Sleep Mode.  Write 1 to wake flash0 from sleep mode (reading the array will also automatically wake it).<br><br>
+                            <td>Disable FLASH Sleep Mode. Write 1 to wake FLASH0 from sleep mode (reading the array will also automatically wake it).<br><br>
                                 </td>
                         </tr>
 
@@ -843,7 +843,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>4</td>
                             <td>FLASH0_SLM_STATUS</td>
                             <td>RO</td>
-                            <td>Flash Sleep Mode Status.  1 indicates that flash0 is in sleep mode, 0 indicates flash0 is in normal mode.<br><br>
+                            <td>FLASH Sleep Mode Status. 1 indicates that FLASH0 is in sleep mode, 0 indicates FLASH0 is in normal mode.<br><br>
                                 </td>
                         </tr>
 
@@ -851,7 +851,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>3</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -867,7 +867,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>1</td>
                             <td>RESET_STAT</td>
                             <td>WO</td>
-                            <td>Reset Cache Statistics.  When written to a 1, the cache monitor counters will be cleared.  The monitor counters can be reset only when the CACHECFG.ENABLE_MONITOR bit is set.<br><br>
+                            <td>Reset Cache Statistics. When written to a 1, the cache monitor counters will be cleared. The monitor counters can be reset only when the CACHECFG.ENABLE_MONITOR bit is set.<br><br>
                                  CLEAR                = 0x1 - Clear Cache Stats</td>
                         </tr>
 
@@ -875,7 +875,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>0</td>
                             <td>INVALIDATE</td>
                             <td>WO</td>
-                            <td>Writing a 1 to this bitfield invalidates the flash cache contents.<br><br>
+                            <td>Writing a 1 to this bit field invalidates the FLASH cache contents.<br><br>
                                 </td>
                         </tr>
 
@@ -887,7 +887,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="NCR0START" class="panel-title">NCR0START - Flash Cache Noncachable Region 0 Start</h3>
+                <h3 id="NCR0START" class="panel-title">NCR0START - FLASH Cache Noncacheable Region 0 Start</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -905,7 +905,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Flash Cache Noncachable Region 0 Start</p>
+                <p>FLASH Cache Noncacheable Region 0 Start</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -993,7 +993,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:27</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1009,7 +1009,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>3:0</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1021,7 +1021,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="NCR0END" class="panel-title">NCR0END - Flash Cache Noncachable Region 0 End</h3>
+                <h3 id="NCR0END" class="panel-title">NCR0END - FLASH Cache Noncacheable Region 0 End</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -1039,7 +1039,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Flash Cache Noncachable Region 0 End</p>
+                <p>FLASH Cache Noncacheable Region 0 End</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -1127,7 +1127,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:27</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1143,7 +1143,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>3:0</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1155,7 +1155,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="NCR1START" class="panel-title">NCR1START - Flash Cache Noncachable Region 1 Start</h3>
+                <h3 id="NCR1START" class="panel-title">NCR1START - FLASH Cache Noncacheable Region 1 Start</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -1173,7 +1173,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Flash Cache Noncachable Region 1 Start</p>
+                <p>FLASH Cache Noncacheable Region 1 Start</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -1261,7 +1261,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:27</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1277,7 +1277,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>3:0</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1289,7 +1289,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 id="NCR1END" class="panel-title">NCR1END - Flash Cache Noncachable Region 1 End</h3>
+                <h3 id="NCR1END" class="panel-title">NCR1END - FLASH Cache Noncacheable Region 1 End</h3>
             </div>
             <div class="panel-body">
                 <h3>Address:</h3>
@@ -1307,7 +1307,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>Flash Cache Noncachable Region 1 End</p>
+                <p>FLASH Cache Noncacheable Region 1 End</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -1395,7 +1395,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:27</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1411,7 +1411,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>3:0</td>
                             <td>RSVD</td>
                             <td>RO</td>
-                            <td>This bitfield is reserved for future use.<br><br>
+                            <td>This bit field is reserved for future use.<br><br>
                                 </td>
                         </tr>
 
@@ -1523,7 +1523,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>31:0</td>
                             <td>DACCESS_COUNT</td>
                             <td>RO</td>
-                            <td>Total accesses to data cache.  All performance metrics should be relative to the number of accesses performed.<br><br>
+                            <td>Total accesses to data cache. All performance metrics should be relative to the number of accesses performed.<br><br>
                                 </td>
                         </tr>
 
@@ -2325,7 +2325,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
             <small>
                 AmbiqSuite Register Documentation&nbsp;
                 <a href="http://www.ambiqmicro.com">
-                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2019&nbsp&nbsp<br />
+                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2021&nbsp&nbsp<br />
                 This documentation is licensed and distributed under the <a rel="license" href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</a>.&nbsp&nbsp<br/>
             </small>
         </div>

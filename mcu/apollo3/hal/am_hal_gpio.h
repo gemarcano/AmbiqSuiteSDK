@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -72,7 +72,7 @@ extern "C"
 //! Macros to assist with defining a GPIO mask given a GPIO number.
 //!
 //! IMPORTANT: AM_HAL_GPIO_BIT(n) is DEPRECATED and is provided only for
-//! backward compatibility.  It is replaced with AM_HAL_GPIO_MASKBIT().
+//!            backward compatibility. It is replaced with AM_HAL_GPIO_MASKBIT().
 //
 #define AM_HAL_GPIO_BIT(n)  (((uint64_t) 0x1) << n) /* DEPRECATED, PLEASE USE AM_HAL_GPIO_MASKBIT() */
 
@@ -84,15 +84,14 @@ extern "C"
 //!     AM_HAL_GPIO_MASKBIT()
 //!
 
-#define AM_HAL_GPIO_MASKCREATE(sMaskNm)     uint64_t p##sMaskNm=0
+#define AM_HAL_GPIO_MASKCREATE(sMaskNm)     volatile uint64_t p##sMaskNm=0
 //! AM_HAL_GPIO_MASKCREATE() should be used before AM_HAL_GPIO_MASKBIT() to
 //! ensure forward compatibility.  In future releases it will allocate and
 //! initialize a bitmask structure used in the various GPIO interrupt functions.
 //!
 
 // Implented as an inline function below.
-//#define AM_HAL_GPIO_MASKBIT(psMaskNm, n)    (psMaskNm |= (((uint64_t) 0x1) << n))
-#define AM_HAL_GPIO_MASKBIT(psMaskNm, n)    psMaskNm |= (((uint64_t) 0x1) << n)
+#define AM_HAL_GPIO_MASKBIT(psMaskNm, n)    psMaskNm = (((uint64_t) 0x1) << n)
 //! AM_HAL_GPIO_MASKBIT(psMaskNm, n)
 //! Support macros for use with AM_HAL_GPIO_MASKBIT().
 //!  AM_HAL_GPIO_MASKCREATE()
@@ -102,6 +101,11 @@ extern "C"
 //!     AM_HAL_GPIO_MASKBIT(pGpioIntMask, n)
 //! where n is the desired GPIO bit number.
 //! Note - this usage is analogous to the deprecated AM_HAL_GPIO_BIT(n).
+//!
+
+#define AM_HAL_GPIO_MASKBITSMULT(psMaskNm, n)    psMaskNm |= (((uint64_t) 0x1) << n)
+//! AM_HAL_GPIO_MASKBITSMULT(psMaskNm, n)
+//! Support multiple bits operation in addition to AM_HAL_GPIO_MASKBIT()
 //!
 
 #define AM_HAL_GPIO_MASKCLR(psMaskNm)
@@ -191,6 +195,25 @@ typedef struct  // Future use - not currently used for Apollo3.
 //*****************************************************************************
 //!
 //! Read types for am_hal_gpio_state_read().
+//!
+//! AM_HAL_GPIO_INPUT_READ
+//!     Used for reading the value on the pad whether the pad is configured
+//!     as an input or an output. Assumes that the pin is configured with
+//!     AM_HAL_GPIO_PIN_INPUT_ENABLE and AM_HAL_GPIO_PIN_RDZERO_READPIN, even
+//!     if configured for output (e.g. see g_AM_HAL_GPIO_OUTPUT_WITH_READ).
+//!     Perhaps a reasonable alias would be AM_HAL_GPIO_PAD_READ.
+//!
+//! AM_HAL_GPIO_OUTPUT_READ
+//!     Used for reading the last value written to the GPIO output, e.g via
+//!     am_hal_gpio_state_write(AM_HAL_GPIO_OUTPUT_SET) or even the macro
+//!     am_hal_gpio_output_set(n).
+//!
+//! AM_HAL_GPIO_ENABLE_READ
+//!     Used for reading the state of the tristate enable, e.g. the state
+//!     of the tristate enable after calling
+//!     am_hal_gpio_state_write(AM_HAL_GPIO_OUTPUT_TRISTATE_ENABLE) or
+//!     am_hal_gpio_state_write(AM_HAL_GPIO_OUTPUT_TRISTATE_DISABLE), or even
+//!     the macro am_hal_gpio_output_tristate_disable(n).
 //!
 //*****************************************************************************
 typedef enum
@@ -374,23 +397,6 @@ typedef struct
 
     uint32_t uRsvd22        : 10;    // [31:22]
 } am_hal_gpio_pincfg_t;
-
-typedef struct
-{
-    uint16_t uFuncSel : 1;
-    uint16_t ePowerSw : 1;
-    uint16_t ePullup : 1;
-    uint16_t eDriveStrength : 1;
-    uint16_t eGPOutcfg : 1;
-    uint16_t eGPInput : 1;
-    uint16_t eIntDir : 1;
-    uint16_t eGPRdZero : 1;
-    uint16_t uIOMnum : 1;
-    uint16_t uNCE : 1;
-    uint16_t eCEpol : 1;
-
-    uint16_t _reserved : 5;
-} am_hal_gpio_pincfg_allow_t;
 
 #define IOMNUM_MSPI         6
 #define IOMNUM_MAX          IOMNUM_MSPI
@@ -588,7 +594,7 @@ extern uint32_t am_hal_gpio_fast_pinconfig(uint64_t ui64PinMask,
 //*****************************************************************************
 extern uint32_t am_hal_gpio_state_read(uint32_t ui32Pin,
                                        am_hal_gpio_read_type_e eReadType,
-                                       uint32_t *pu32RetVal);
+                                       uint32_t *pui32RetVal);
 
 //*****************************************************************************
 //
@@ -729,6 +735,29 @@ extern uint32_t am_hal_gpio_interrupt_register_adv(uint32_t ui32GPIONumber,
 //*****************************************************************************
 extern uint32_t am_hal_gpio_interrupt_service(uint64_t ui64Status);
 
+//*****************************************************************************
+//!
+//!  am_hal_gpio_isinput()
+//!
+//! Determine whether a pad is configured with input enable.
+//! Returns true if input enable is set, false otherwise.
+//!
+//*****************************************************************************
+extern bool am_hal_gpio_isinput(uint32_t ui32Pin);
+
+//*****************************************************************************
+//!
+//! am_hal_gpio_isgpio()
+//!
+//! Determine whether the GPIO is configured as input or output.
+//!
+//! Return values:
+//!     0: Pin is not configured as GPIO.
+//!     1: Pin is configured as GPIO input.
+//!     2: Pin is configured as GPIO output.
+//!
+//*****************************************************************************
+extern uint32_t am_hal_gpio_isgpio(uint32_t ui32Pin);
 
 //*****************************************************************************
 //
@@ -787,12 +816,12 @@ extern uint32_t am_hal_gpio_interrupt_service(uint64_t ui64Status);
 //! Note that the macros are named as lower-case counterparts to the
 //! enumerations for the am_hal_gpio_state_read() function.  That is:
 //!
-//!    AM_HAL_GPIO_OUTPUT_CLEAR            -> am_hal_gpio_output_clear(n,v)
-//!    AM_HAL_GPIO_OUTPUT_SET              -> am_hal_gpio_output_set(n,v)
-//!    AM_HAL_GPIO_OUTPUT_TOGGLE           -> am_hal_gpio_output_toggle(n,v)
-//!    AM_HAL_GPIO_OUTPUT_TRISTATE_DISABLE -> am_hal_gpio_output_tristate_disable(n,v)
-//!    AM_HAL_GPIO_OUTPUT_TRISTATE_ENABLE  -> am_hal_gpio_output_tristate_enable(n,v)
-//!    AM_HAL_GPIO_OUTPUT_TRISTATE_TOGGLE  -> am_hal_gpio_output_toggle(n,v)
+//!    AM_HAL_GPIO_OUTPUT_CLEAR            -> am_hal_gpio_output_clear(n)
+//!    AM_HAL_GPIO_OUTPUT_SET              -> am_hal_gpio_output_set(n)
+//!    AM_HAL_GPIO_OUTPUT_TOGGLE           -> am_hal_gpio_output_toggle(n)
+//!    AM_HAL_GPIO_OUTPUT_TRISTATE_DISABLE -> am_hal_gpio_output_tristate_disable(n)
+//!    AM_HAL_GPIO_OUTPUT_TRISTATE_ENABLE  -> am_hal_gpio_output_tristate_enable(n)
+//!    AM_HAL_GPIO_OUTPUT_TRISTATE_TOGGLE  -> am_hal_gpio_output_tristate_toggle(n)
 //!
 //! @return None.
 //!

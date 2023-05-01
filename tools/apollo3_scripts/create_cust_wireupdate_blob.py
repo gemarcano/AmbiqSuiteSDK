@@ -50,21 +50,29 @@ def process(appFile, imagetype, loadaddress, authalgo, encalgo, authKeyIdx, encK
         if ((authKeyIdx < keys.minHmacKeyIdx) or (authKeyIdx > keys.maxHmacKeyIdx) or (authKeyIdx & 0x1)):
             am_print("Invalid authKey Idx ", authKeyIdx, level=AM_PRINT_LEVEL_ERROR);
             return
-
     hdr_length  = AM_WU_IMAGEHDR_SIZE;   #fixed header length
     am_print("Header Size = ", hex(hdr_length))
 
     orig_app_length  = (len(app_binarray))
 
+    if (imagetype == AM_SECBOOT_WIRED_IMAGETYPE_INFO0_NOOTA):
+        if (orig_app_length & 0x3):
+            am_print("INFO0 blob length needs to be multiple of 4", level=AM_PRINT_LEVEL_ERROR)
+            return
+        if ((loadaddress + orig_app_length) > INFO_SIZE_BYTES):
+            am_print("INFO0 Offset and length exceed size", level=AM_PRINT_LEVEL_ERROR)
+            return
+
     if (encalgo != 0):
         block_size = keySize
-        app_binarray = pad_to_block_size(app_binarray, block_size, 1)
+        app_binarray = pad_to_block_size(app_binarray, block_size, 0)
     else:
         # Add Padding
         app_binarray = pad_to_block_size(app_binarray, 4, 0)
     
     app_length  = (len(app_binarray))
     am_print("app_size ",hex(app_length), "(",app_length,")")
+    pad_length = app_length - orig_app_length
 
     if (app_length + hdr_length > maxSize):
         am_print("Image size bigger than max - Creating Split image")
@@ -80,10 +88,21 @@ def process(appFile, imagetype, loadaddress, authalgo, encalgo, authKeyIdx, encK
 
         if (app_length - start > maxSize):
             end = start + maxSize
+            # update size
+            fill_word(hdr_binarray, AM_WU_IMAGEHDR_OFFSET_SIZE, maxSize)
         else:
             end = app_length
+            # update size
+            fill_word(hdr_binarray, AM_WU_IMAGEHDR_OFFSET_SIZE, orig_app_length-start)
+
+        # Create imageType & options
+        hdr_binarray[AM_WU_IMAGEHDR_OFFSET_IMAGETYPE] = imagetype
+        hdr_binarray[AM_WU_IMAGEHDR_OFFSET_OPTIONS] = 0
 
         if (imagetype == AM_SECBOOT_WIRED_IMAGETYPE_INFO0_NOOTA):
+            if (end != app_length):
+                am_print("Insufficient split size ", maxSize, level=AM_PRINT_LEVEL_ERROR)
+                return
             key = keys.INFO_KEY
             # word offset
             fill_word(hdr_binarray, AM_WU_IMAGEHDR_OFFSET_ADDR, loadaddress>>2)
@@ -93,19 +112,12 @@ def process(appFile, imagetype, loadaddress, authalgo, encalgo, authKeyIdx, encK
             fill_word(hdr_binarray, AM_WU_IMAGEHDR_OFFSET_ADDR, loadaddress)
             if (loadaddress & (FLASH_PAGE_SIZE - 1)):
                 am_print("WARNING!!! - load address is not page aligned", level=AM_PRINT_LEVEL_ERROR)
-
-        # Create imageType & options
-        hdr_binarray[AM_WU_IMAGEHDR_OFFSET_IMAGETYPE] = imagetype
-        # Set the options only for the first block
-        if (start == 0):
-            hdr_binarray[AM_WU_IMAGEHDR_OFFSET_OPTIONS] = optionsVal
-        else:
-            hdr_binarray[AM_WU_IMAGEHDR_OFFSET_OPTIONS] = 0
+            # Set the options only for the first block
+            if (start == 0):
+                hdr_binarray[AM_WU_IMAGEHDR_OFFSET_OPTIONS] = optionsVal
 
         # Create Info0 Update Blob for wired update
         fill_word(hdr_binarray, AM_WU_IMAGEHDR_OFFSET_KEY, key)
-        # update size
-        fill_word(hdr_binarray, AM_WU_IMAGEHDR_OFFSET_SIZE, end-start)
 
         w0 = ((authalgo & 0xf) | ((authKeyIdx << 8) & 0xf00) | ((encalgo << 16) & 0xf0000) | ((encKeyIdx << 24) & 0x0f000000))
 

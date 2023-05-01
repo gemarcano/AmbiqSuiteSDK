@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -302,10 +302,10 @@ am_hal_rtc_int_status_get(bool bEnabledOnly)
     //
     if ( bEnabledOnly )
     {
-        uint32_t u32RetVal;
-        u32RetVal  = RTC->INTSTAT;
-        u32RetVal &= RTC->INTEN;
-        return u32RetVal & (AM_HAL_RTC_INT_ALM);
+        uint32_t ui32RetVal;
+        ui32RetVal  = RTC->INTSTAT;
+        ui32RetVal &= RTC->INTEN;
+        return ui32RetVal & (AM_HAL_RTC_INT_ALM);
     }
     else
     {

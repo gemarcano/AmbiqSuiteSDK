@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>AM_PACKAGE_BGA AM_PART_APOLLO3P keil</Define>
+              <Define>AM_PART_APOLLO3P AM_PACKAGE_BGA AM_PRINTF_BUFSIZE=256 keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../../CMSIS/AmbiqMicro/Include;../../../../../utils;../../../../..;../../../../../devices;../../../../../mcu/apollo3p;../../../bsp;../../../../../CMSIS/ARM/Include;../src</IncludePath>
+              <IncludePath>../../../../../utils;../../../../../CMSIS/ARM/Include;../../../../../devices;../../../../../mcu/apollo3p;../../../../..;../../../../../CMSIS/AmbiqMicro/Include;../src;../../../bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,16 +377,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>prime_mpi_src</GroupName>
-          <Files>
-            <File>
-              <FileName>prime_mpi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/prime_mpi/src/prime_mpi.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>src</GroupName>
           <Files>
             <File>
@@ -397,12 +387,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>devices</GroupName>
+          <GroupName>prime_mpi_src</GroupName>
           <Files>
             <File>
-              <FileName>am_devices_led.c</FileName>
+              <FileName>prime_mpi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../devices/am_devices_led.c</FilePath>
+              <FilePath>../../../../../third_party/prime_mpi/src/prime_mpi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -423,6 +413,16 @@
               <FileName>am_util_stdio.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../utils/am_util_stdio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>devices</GroupName>
+          <Files>
+            <File>
+              <FileName>am_devices_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../devices/am_devices_led.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -12,7 +12,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -664,8 +664,8 @@ am_hal_ble_buffer(0x00be) am_ble_buffer_nvds_data =
         0x11,0x06,0x01,0x01, //sleep algorithm enabled
         0x12,0x06,0x01,0x01, //external wake-up support
         0x13,0x06,0x02,0xf4,0x01, //duration of sleep and wake-up algorithm
-        0x14,0x06,0x02,0x60,0x00, //BLE Company ID
-        0x15,0x06,0x01,0x08, //BLE major version
+        0x14,0x06,0x02,0xAC,0x09, // Ambiq's Company Identifier
+        0x15,0x06,0x01,0x09, //BLE major version, support BLE 5.0
         0x16,0x06,0x01,0x03, //BLE minor version
         0x17,0x06,0x01,0x29, //BLE SW version build
         0x18,0x06,0x02,0xdc,0x05, //advertising interval (undirect)

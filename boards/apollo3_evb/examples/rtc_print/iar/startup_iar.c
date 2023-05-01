@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -61,7 +61,6 @@
 #pragma weak MemManage_Handler      = HardFault_Handler
 #pragma weak BusFault_Handler       = HardFault_Handler
 #pragma weak UsageFault_Handler     = HardFault_Handler
-#pragma weak SecureFault_Handler    = HardFault_Handler
 #pragma weak SVC_Handler            = am_default_isr
 #pragma weak DebugMon_Handler       = am_default_isr
 #pragma weak PendSV_Handler         = am_default_isr
@@ -113,7 +112,6 @@ extern __weak void HardFault_Handler(void);
 extern        void MemManage_Handler(void);
 extern        void BusFault_Handler(void);
 extern        void UsageFault_Handler(void);
-extern        void SecureFault_Handler(void);
 extern        void SVC_Handler(void);
 extern        void DebugMon_Handler(void);
 extern        void PendSV_Handler(void);
@@ -203,7 +201,7 @@ __root const uVectorEntry __vector_table[] @ ".intvec" =
     MemManage_Handler,                      // The MemManage_Handler
     BusFault_Handler,                       // The BusFault_Handler
     UsageFault_Handler,                     // The UsageFault_Handler
-    SecureFault_Handler,                    // The SecureFault_Handler
+    0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
@@ -386,7 +384,7 @@ HardFault_Handler(void)
 // for examination by a debugger.
 //
 //*****************************************************************************
-static void
+void
 am_default_isr(void)
 {
     //

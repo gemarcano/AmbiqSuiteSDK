@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef SVC_AMDTPS_H
@@ -88,7 +88,7 @@ extern "C"
 #define ATT_UUID_AMDTP_ACK              ATT_UUID_AMBIQ_BUILD(ATT_UUID_AMDTP_ACK_PART)
 
 // AM DTP Service
-#define AMDTPS_START_HDL               0x0800//0x300
+#define AMDTPS_START_HDL               0x0800
 #define AMDTPS_END_HDL                 (AMDTPS_MAX_HDL - 1)
 
 
@@ -96,12 +96,12 @@ extern "C"
 enum
 {
   AMDTP_SVC_HDL = AMDTPS_START_HDL,     /* AMDTP service declaration */
-  AMDTPS_RX_CH_HDL,                     /* AMDTP write command characteristic */ 
+  AMDTPS_RX_CH_HDL,                     /* AMDTP write command characteristic */
   AMDTPS_RX_HDL,                        /* AMDTP write command data */
-  AMDTPS_TX_CH_HDL,                     /* AMDTP notify characteristic */ 
+  AMDTPS_TX_CH_HDL,                     /* AMDTP notify characteristic */
   AMDTPS_TX_HDL,                        /* AMDTP notify data */
   AMDTPS_TX_CH_CCC_HDL,                 /* AMDTP notify client characteristic configuration */
-  AMDTPS_ACK_CH_HDL,                    /* AMDTP rx ack characteristic */ 
+  AMDTPS_ACK_CH_HDL,                    /* AMDTP rx ack characteristic */
   AMDTPS_ACK_HDL,                       /* AMDTP rx ack data */
   AMDTPS_ACK_CH_CCC_HDL,                /* AMDTP rx ack client characteristic configuration */
   AMDTPS_MAX_HDL

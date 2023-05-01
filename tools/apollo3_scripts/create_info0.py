@@ -23,7 +23,7 @@ def copy_keys(binarray, offset, key, size):
 # Generate the info0 blob as per command line parameters
 #
 #******************************************************************************
-def process(valid, version, output, mainPtr, secPol, keyWrap, secBoot, secBootOnRst, plOnExit, sDbg, bEnErase, infoProg, bNoSramWipe, bSwoCtrl, bDbgAllowed, custTrim, custTrim2, overrideGpio, overridePol, wiredIfMask, wiredSlvInt, wiredI2cAddr, wiredTimeout, u0, u1, u2, u3, u4, u5, krev, arev, chipId0, chipId1, sresv, wprot0, wprot1, rprot0, rprot1, swprot0, swprot1, srprot0, srprot1, wprot2, wprot3, rprot2, rprot3, swprot2, swprot3, srprot2, srprot3, chip, keyFile):
+def process(valid, version, output, mainPtr, secPol, keyWrap, secBoot, secBootOnRst, plOnExit, sDbg, bEnErase, infoProg, bNoSramWipe, bSwoCtrl, bDbgAllowed, custTrim, custTrim2, overrideGpio, overridePol, wiredIfMask, wiredSlvInt, wiredI2cAddr, wiredTimeout, u0, u1, u2, u3, u4, u5, krev, arev, chipId0, chipId1, sresv, wprot0, wprot1, rprot0, rprot1, swprot0, swprot1, srprot0, srprot1, wprot2, wprot3, rprot2, rprot3, swprot2, swprot3, srprot2, srprot3, custid, chip, keyFile):
 
 
     if (chip == 'apollo3'):
@@ -218,6 +218,9 @@ def process(valid, version, output, mainPtr, secPol, keyWrap, secBoot, secBootOn
         am_print("AREV Mask = ", hex(arev))
         fill_word(hdr_binarray, info0.INFO0_AREVTRACK_O, arev)
 
+        # CustID
+        am_print("CUSID = ", hex(custid))
+        fill_word(hdr_binarray, info0.INFO0_CUSTID_O, custid)
 
     # now output all three binary arrays in the proper order
     with open(output + '.bin', mode = 'wb') as out:
@@ -246,8 +249,8 @@ def parse_arguments():
     parser.add_argument('--wrap', dest = 'keyWrap', type=auto_int, default=0, choices = [0,1,2],
                         help = 'KeyWrap Algo (Default = 0)? (0 = none, 1 = XOR, 2 = AES128)')
 
-    parser.add_argument('--sRst', dest = 'secBootOnRst', type=auto_int, default=0, choices = [0,1],
-                        help = 'Secure Boot on Soft Reset (Default = 0) ?')
+    parser.add_argument('--sRst', dest = 'secBootOnRst', type=auto_int, default=1, choices = [0,1],
+                        help = 'Secure Boot on Soft Reset (Default = 1) ?')
 
     parser.add_argument('-s', dest = 'secBoot', type=auto_int, default=0, choices = [0,1],
                         help = 'Secure Boot (Default = 0) ?')
@@ -378,6 +381,9 @@ def parse_arguments():
     parser.add_argument('--srprot3', dest='srprot3', type=auto_int, default = hex(0xFFFFFFFF),
                         help='SBL overridable Copy Protections Mask for flash#3 (Default 0xFFFFFFFF)')
 
+    parser.add_argument('--custId', dest='custid', type=auto_int, default = hex(0xFFFFFFFF),
+                        help='CUSTID (Default 0xFFFFFFFF)')
+
     parser.add_argument('--chipType', dest='chip', type=str, required=True,
                         choices = ['apollo3', 'apollo3p'],
                         help='Chip Type: apollo3, apollo3p (default = apollo3)')
@@ -403,7 +409,7 @@ def main():
     args = parse_arguments()
     am_set_print_level(args.loglevel)
 
-    process(args.valid, args.version, args.output, args.mainPtr, args.secPol, args.keyWrap, args.secBoot, args.secBootOnRst, args.plOnExit, args.sDbg, args.bEnErase, args.infoProg, args.bNoSramWipe, args.bSwoCtrl, args.bDbgAllowed, args.custTrim, args.custTrim2, args.overrideGpio, args.overridePol, args.wiredIfMask, args.wiredSlvInt, args.wiredI2cAddr, args.wiredTimeout, args.u0, args.u1, args.u2, args.u3, args.u4, args.u5, args.krev, args.arev, args.chipId0, args.chipId1, args.sresv, args.wprot0, args.wprot1, args.rprot0, args.rprot1, args.swprot0, args.swprot1, args.srprot0, args.srprot1, args.wprot2, args.wprot3, args.rprot2, args.rprot3, args.swprot2, args.swprot3, args.srprot2, args.srprot3, args.chip, args.keyFile)
+    process(args.valid, args.version, args.output, args.mainPtr, args.secPol, args.keyWrap, args.secBoot, args.secBootOnRst, args.plOnExit, args.sDbg, args.bEnErase, args.infoProg, args.bNoSramWipe, args.bSwoCtrl, args.bDbgAllowed, args.custTrim, args.custTrim2, args.overrideGpio, args.overridePol, args.wiredIfMask, args.wiredSlvInt, args.wiredI2cAddr, args.wiredTimeout, args.u0, args.u1, args.u2, args.u3, args.u4, args.u5, args.krev, args.arev, args.chipId0, args.chipId1, args.sresv, args.wprot0, args.wprot1, args.rprot0, args.rprot1, args.swprot0, args.swprot1, args.srprot0, args.srprot1, args.wprot2, args.wprot3, args.rprot2, args.rprot3, args.swprot2, args.swprot3, args.srprot2, args.srprot3, args.custid, args.chip, args.keyFile)
 
 if __name__ == '__main__':
     main()

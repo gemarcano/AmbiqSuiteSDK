@@ -9,7 +9,7 @@
 
 ;******************************************************************************
 ;
-; Copyright (c) 2020, Ambiq Micro
+; Copyright (c) 2021, Ambiq Micro, Inc.
 ; All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 ; ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ; POSSIBILITY OF SUCH DAMAGE.
 ;
-; This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+; This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 ;
 ;******************************************************************************
 
@@ -114,7 +114,7 @@ __Vectors
         DCD     MemManage_Handler           ; The MPU fault handler
         DCD     BusFault_Handler            ; The bus fault handler
         DCD     UsageFault_Handler          ; The usage fault handler
-        DCD     SecureFault_Handler         ; Secure fault handler
+        DCD     0                           ; Reserved
         DCD     0                           ; Reserved
         DCD     0                           ; Reserved
         DCD     0                           ; Reserved
@@ -253,11 +253,6 @@ BusFault_Handler\
 UsageFault_Handler\
                 PROC
                 EXPORT  UsageFault_Handler          [WEAK]
-                B       .
-                ENDP
-SecureFault_Handler\
-                PROC
-                EXPORT  SecureFault_Handler         [WEAK]
                 B       .
                 ENDP
 SVC_Handler     PROC

@@ -6,12 +6,19 @@
 //!
 //! Functions for performing printf-style operations without dynamic memory
 //! allocation.
+//!
+//! For further information about this module concerning its history, uses,
+//! and limitations, please see the Ambiq Micro KB article "Q&A: What does
+//! the AmbiqSuite SDK am_util_stdio_printf() function do?" at:
+//!
+//! https://support.ambiqmicro.com/hc/en-us/articles/360040441631
+//!
 //
 //*****************************************************************************
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +50,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -1151,7 +1158,7 @@ am_util_stdio_vsprintf(char *pcBuf, const char *pcFmt, va_list pArgs)
                 ++ui32CharCnt;
                 break;
 
-        } // switch()
+        } // switch ()
 
         //
         // Bump the format specification to the next character
@@ -1245,6 +1252,69 @@ am_util_stdio_printf(const char *pcFmt, ...)
     return ui32NumChars;
 }
 
+uint32_t
+am_util_stdio_vsnprintf(char *pcBuf, uint32_t n, const char *pcFmt,
+                        va_list pArgs)
+{
+    uint32_t ui32NumChars, i;
+
+    if (n >= AM_PRINTF_BUFSIZE)
+    {
+        return 0;
+    }
+
+    ui32NumChars = am_util_stdio_vsprintf(g_prfbuf, pcFmt, pArgs);
+
+    if (ui32NumChars >= n)
+    {
+        return 0;
+    }
+
+    for (i = 0; i < ui32NumChars; i++)
+    {
+        pcBuf[i] = g_prfbuf[i];
+    }
+
+    return ui32NumChars;
+}
+
+uint32_t
+am_util_stdio_snprintf(char *pcBuf, uint32_t n, const char *pcFmt, ...)
+{
+    uint32_t ui32CharCnt;
+
+    va_list pArgs;
+    va_start(pArgs, pcFmt);
+    ui32CharCnt = am_util_stdio_vsnprintf(pcBuf, n, pcFmt, pArgs);
+    va_end(pArgs);
+
+    return ui32CharCnt;
+}
+
+
+uint32_t
+am_util_stdio_vprintf(const char *pcFmt, va_list pArgs)
+{
+    uint32_t ui32NumChars;
+
+    if (!g_pfnCharPrint)
+    {
+        return 0;
+    }
+
+    ui32NumChars = am_util_stdio_vsprintf(g_prfbuf, pcFmt, pArgs);
+
+    //
+    // This is where we print the buffer to the configured interface.
+    //
+    g_pfnCharPrint(g_prfbuf);
+
+    //
+    // return the number of characters printed.
+    //
+    return ui32NumChars;
+}
+
 //*****************************************************************************
 //
 //! @brief Clear the terminal screen
@@ -1258,11 +1328,7 @@ void
 am_util_stdio_terminal_clear(void)
 {
     //
-    // Escape codes to clear a terminal screen and put the cursor in the top
-    // left corner.
-    // We'll first print a number of spaces, which helps get the ITM in sync
-    // with AM Flash, especially after a reset event or a system clock
-    // frequency change.
+    // Simulate a clear terminal by printing a series of linefeeds.
     //
     am_util_stdio_printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }

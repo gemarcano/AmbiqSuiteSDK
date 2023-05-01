@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>AM_FREERTOS AM_PACKAGE_BGA AM_UTIL_FAULTISR_PRINT AM_PART_APOLLO3P AM_DEBUG_PRINTF keil</Define>
+              <Define>AM_FREERTOS AM_UTIL_FAULTISR_PRINT AM_PACKAGE_BGA AM_PART_APOLLO3P AM_DEBUG_PRINTF keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../../third_party/FreeRTOSv10.1.1/Source/include;../../../../../CMSIS/ARM/Include;../../../../../CMSIS/AmbiqMicro/Include;../../../../../utils;../src;../../../../../mcu/apollo3p;../../../bsp;../../../../..;../../../../../third_party/FreeRTOSv10.1.1/Source/portable/Keil/AMapollo2;../../../../../devices</IncludePath>
+              <IncludePath>../../../../../devices;../../../bsp;../../../../../CMSIS/ARM/Include;../../../../../mcu/apollo3p;../../../../../CMSIS/AmbiqMicro/Include;../../../../../third_party/FreeRTOSv10.1.1/Source/portable/Keil/AMapollo2;../../../../../third_party/FreeRTOSv10.1.1/Source/include;../src;../../../../..;../../../../../utils</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -407,46 +407,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>FreeRTOSv10.1.1_MemMang</GroupName>
-          <Files>
-            <File>
-              <FileName>heap_2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/portable/MemMang/heap_2.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>FreeRTOSv10.1.1_Source</GroupName>
-          <Files>
-            <File>
-              <FileName>event_groups.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/event_groups.c</FilePath>
-            </File>
-            <File>
-              <FileName>list.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/list.c</FilePath>
-            </File>
-            <File>
-              <FileName>queue.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/queue.c</FilePath>
-            </File>
-            <File>
-              <FileName>tasks.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/tasks.c</FilePath>
-            </File>
-            <File>
-              <FileName>timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/timers.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>devices</GroupName>
           <Files>
             <File>
@@ -487,6 +447,46 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>FreeRTOSv10.1.1_MemMang</GroupName>
+          <Files>
+            <File>
+              <FileName>heap_2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/portable/MemMang/heap_2.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FreeRTOSv10.1.1_Source</GroupName>
+          <Files>
+            <File>
+              <FileName>event_groups.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/event_groups.c</FilePath>
+            </File>
+            <File>
+              <FileName>list.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/list.c</FilePath>
+            </File>
+            <File>
+              <FileName>queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/queue.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../third_party/FreeRTOSv10.1.1/Source/timers.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>keil</GroupName>
           <Files>
             <File>
@@ -500,14 +500,14 @@
           <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>libam_bsp.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
-            </File>
-            <File>
               <FileName>libam_hal.lib</FileName>
               <FileType>4</FileType>
               <FilePath>../../../../../mcu/apollo3p/hal/keil/bin/libam_hal.lib</FilePath>
+            </File>
+            <File>
+              <FileName>libam_bsp.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
             </File>
           </Files>
         </Group>

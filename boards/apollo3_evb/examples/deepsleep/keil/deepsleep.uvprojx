@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>AM_PART_APOLLO3 AM_PACKAGE_BGA keil</Define>
+              <Define>AM_PART_APOLLO3 AM_PRINTF_BUFSIZE=256 AM_PACKAGE_BGA keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../..;../../../../../utils;../src;../../../bsp;../../../../../CMSIS/AmbiqMicro/Include;../../../../../CMSIS/ARM/Include;../../../../../devices;../../../../../mcu/apollo3</IncludePath>
+              <IncludePath>../../../../../CMSIS/ARM/Include;../../../../../utils;../../../../..;../src;../../../bsp;../../../../../CMSIS/AmbiqMicro/Include;../../../../../devices;../../../../../mcu/apollo3</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -390,6 +390,11 @@
           <GroupName>utils</GroupName>
           <Files>
             <File>
+              <FileName>am_util_ble.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../utils/am_util_ble.c</FilePath>
+            </File>
+            <File>
               <FileName>am_util_delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../utils/am_util_delay.c</FilePath>
@@ -420,14 +425,14 @@
           <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>libam_bsp.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
-            </File>
-            <File>
               <FileName>libam_hal.lib</FileName>
               <FileType>4</FileType>
               <FilePath>../../../../../mcu/apollo3/hal/keil/bin/libam_hal.lib</FilePath>
+            </File>
+            <File>
+              <FileName>libam_bsp.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
             </File>
           </Files>
         </Group>

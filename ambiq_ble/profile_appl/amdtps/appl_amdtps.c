@@ -7,7 +7,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -242,7 +242,7 @@ void appl_manage_trasnfer(GATT_DB_HANDLE handle, UINT16 config)
         AMDTP_TRC("[AMDTP]: notify registered \n");
 #if defined(AMDTPS_TXTEST)
         counter = 0;
-        AmdtpsSendTestData(); //fixme
+        AmdtpsSendTestData();
 #endif
     }
     else if (GATT_CLI_CNFG_DEFAULT == config)
@@ -377,7 +377,6 @@ void amdtpsHandleValueCnf(
         // process next data
         AmdtpSendPacketHandler(&amdtpsCb.core);
 #ifdef AMDTPS_TXTEST
-            // fixme when last packet, continue to send next one.
             if (amdtpsCb.core.txState == AMDTP_STATE_WAITING_ACK)
             {
                 uint8_t temp[3];

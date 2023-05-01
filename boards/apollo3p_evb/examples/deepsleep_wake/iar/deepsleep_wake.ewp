@@ -208,6 +208,7 @@
                 <option>
                     <name>CCDefines</name>
                     <state>iar</state>
+          <state>AM_PRINTF_BUFSIZE=256</state>
           <state>AM_PACKAGE_BGA</state>
           <state>AM_PART_APOLLO3P</state>
                 </option>
@@ -334,14 +335,14 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-          <state>$PROJ_DIR$\..\..\..\..\..\utils</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\..\devices</state>
           <state>$PROJ_DIR$\..\..\..\bsp</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\ARM\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
-          <state>$PROJ_DIR$\..\src</state>
           <state>$PROJ_DIR$\..\..\..\..\..</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\utils</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\ARM\Include</state>
+          <state>$PROJ_DIR$\..\src</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -607,14 +608,14 @@
                 </option>
                 <option>
                     <name>AUserIncludes</name>
-          <state>$PROJ_DIR$\..\..\..\..\..\utils</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\..\devices</state>
           <state>$PROJ_DIR$\..\..\..\bsp</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\ARM\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
-          <state>$PROJ_DIR$\..\src</state>
           <state>$PROJ_DIR$\..\..\..\..\..</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\utils</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\ARM\Include</state>
+          <state>$PROJ_DIR$\..\src</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -815,8 +816,8 @@
                 </option>
                 <option>
                     <name>IlinkAdditionalLibs</name>
-          <state>$PROJ_DIR$\..\..\..\bsp\iar\bin\libam_bsp.a</state>
           <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p\hal\iar\bin\libam_hal.a</state>
+          <state>$PROJ_DIR$\..\..\..\bsp\iar\bin\libam_bsp.a</state>
                 </option>
                 <option>
                     <name>IlinkOverrideProgramEntryLabel</name>
@@ -1236,6 +1237,7 @@
                     <name>CCDefines</name>
                     <state>NDEBUG</state>
                     <state>iar</state>
+          <state>AM_PRINTF_BUFSIZE=256</state>
           <state>AM_PACKAGE_BGA</state>
           <state>AM_PART_APOLLO3P</state>
                 </option>
@@ -1362,14 +1364,14 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-          <state>$PROJ_DIR$\..\..\..\..\..\utils</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\..\devices</state>
           <state>$PROJ_DIR$\..\..\..\bsp</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\ARM\Include</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
-          <state>$PROJ_DIR$\..\src</state>
           <state>$PROJ_DIR$\..\..\..\..\..</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\utils</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\CMSIS\ARM\Include</state>
+          <state>$PROJ_DIR$\..\src</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1836,8 +1838,8 @@
                 </option>
                 <option>
                     <name>IlinkAdditionalLibs</name>
-          <state>$PROJ_DIR$\..\..\..\bsp\iar\bin\libam_bsp.a</state>
           <state>$PROJ_DIR$\..\..\..\..\..\mcu\apollo3p\hal\iar\bin\libam_hal.a</state>
+          <state>$PROJ_DIR$\..\..\..\bsp\iar\bin\libam_bsp.a</state>
                 </option>
                 <option>
                     <name>IlinkOverrideProgramEntryLabel</name>

@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_UTIL_ID_H
@@ -52,6 +52,71 @@
 extern "C"
 {
 #endif
+
+
+//*****************************************************************************
+//
+// Define the devices to be included in identification.
+// This is useful for limiting coding to the desired device.
+//
+//*****************************************************************************
+//
+// Define AM_ID_APOLLO_ALL to define all Apollo family
+//
+//#define AM_ID_APOLLO_ALL
+
+//
+// New defines to be used in am_util_id
+//
+#if defined(AM_PART_APOLLO)
+#define AM_ID_APOLLO
+#endif
+#if defined(AM_PART_APOLLO2)
+#define AM_ID_APOLLO2
+#endif
+#if defined(AM_PART_APOLLO3)
+#define AM_ID_APOLLO3
+#endif
+#if defined(AM_PART_APOLLO3P)
+#define AM_ID_APOLLO3P
+#endif
+#if defined(AM_PART_APOLLO4)
+#define AM_ID_APOLLO4A
+#endif
+#if defined(AM_PART_APOLLO4B)
+#define AM_ID_APOLLO4B
+#endif
+#if defined(AM_PART_APOLLO4P)
+#define AM_ID_APOLLO4P
+#endif
+
+//
+// Handle AM_ID_APOLLO_ALL
+//
+#if defined(AM_ID_APOLLO_ALL)
+#ifndef AM_ID_APOLLO
+#define AM_ID_APOLLO
+#endif
+#ifndef AM_ID_APOLLO2
+#define AM_ID_APOLLO2
+#endif
+#ifndef AM_ID_APOLLO3
+#define AM_ID_APOLLO3
+#endif
+#ifndef AM_ID_APOLLO3P
+#define AM_ID_APOLLO3P
+#endif
+#ifndef AM_ID_APOLLO4A
+#define AM_ID_APOLLO4A
+#endif
+#ifndef AM_ID_APOLLO4B
+#define AM_ID_APOLLO4B
+#endif
+#ifndef AM_ID_APOLLO4P
+#define AM_ID_APOLLO4P
+#endif
+#endif // AM_ID_APOLLO_ALL
+
 
 //*****************************************************************************
 //
@@ -94,11 +159,13 @@ am_util_id_t;
 
 //*****************************************************************************
 //
-// Macros for MCUCTRL CHIP_INFO field.
-// Note - these macros are derived from the Apollo2 auto-generated register
-// definitions.
+// Macros for MCUCTRL CHIP INFO field.
+// Note - these macros are derived from CHIPPN definitions.
 //
 //*****************************************************************************
+#define AM_UTIL_MCUCTRL_CHIP_INFO_PARTNUM_VOYAGER     0x04000000
+#define AM_UTIL_MCUCTRL_CHIP_INFO_PARTNUM_APOLLOHC    0x02000000
+#define AM_UTIL_MCUCTRL_CHIP_INFO_PARTNUM_APOLLO4     0x08000000
 #define AM_UTIL_MCUCTRL_CHIP_INFO_PARTNUM_APOLLO3P    0x07000000
 #define AM_UTIL_MCUCTRL_CHIP_INFO_PARTNUM_APOLLO3     0x06000000
 #define AM_UTIL_MCUCTRL_CHIP_INFO_PARTNUM_APOLLOBL    0x05000000
@@ -116,6 +183,8 @@ am_util_id_t;
 #define AM_UTIL_ID_APOLLO2      0x0002
 #define AM_UTIL_ID_APOLLO3      0x0003      // Apollo3 Blue
 #define AM_UTIL_ID_APOLLO3P     0x0103      // Apollo3 Blue Plus
+#define AM_UTIL_ID_APOLLO4      0x0004      // Apollo4
+#define AM_UTIL_ID_APOLLO4P     0x0104      // Apollo4 Plus
 
 //*****************************************************************************
 //

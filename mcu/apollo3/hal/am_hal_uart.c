@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -102,6 +102,13 @@ typedef struct
     uint32_t regIER;
 }
 am_hal_uart_register_state_t;
+//*****************************************************************************
+//
+// Enum defining module clock speed options
+//
+//*****************************************************************************
+
+
 
 //*****************************************************************************
 //
@@ -122,6 +129,8 @@ typedef struct
     am_hal_queue_t sRxQueue;
 
     uint32_t ui32BaudRate;
+
+    am_hal_uart_clock_speed_e  eUartClockSpeed ;
 }
 am_hal_uart_state_t;
 
@@ -130,7 +139,7 @@ am_hal_uart_state_t;
 // State structure for each module.
 //
 //*****************************************************************************
-am_hal_uart_state_t g_am_hal_uart_states[AM_REG_UART_NUM_MODULES];
+static am_hal_uart_state_t g_am_hal_uart_states[AM_REG_UART_NUM_MODULES];
 
 //*****************************************************************************
 //
@@ -337,6 +346,15 @@ am_hal_uart_power_control(void *pHandle,
             am_hal_uart_interrupt_clear(pState, 0xFFFFFFFF);
 
             //
+            // If the user is going to sleep, certain bits of the CR register
+            // need to be 0 to be low power and have the UART shut off.
+            // Since the user either wishes to retain state which takes place
+            // above or the user does not wish to retain state, it is acceptable
+            // to set the entire CR register to 0.
+            //
+            UARTn(ui32Module)->CR = 0;
+
+            //
             // Disable power control.
             //
             am_hal_pwrctrl_periph_disable(eUARTPowerModule);
@@ -382,10 +400,24 @@ am_hal_uart_configure(void *pHandle, const am_hal_uart_config_t *psConfig)
     // Start by enabling the clocks, which needs to happen in a critical
     // section.
     //
+    // convert user entered (or default) enum value to
+    // the enum the hardware uses for input clock freq.(subtract 1 to convert)
+    // also choose default, if user hasn't modified the clock setting
+    //
+    am_hal_uart_clock_speed_e eUartClkSpeed = pState->eUartClockSpeed ;
+    if ( eUartClkSpeed >= eUART_CLK_SPEED_INVALID )
+    {
+        return AM_HAL_STATUS_INVALID_ARG ;
+    }
+
+    UART0_CR_CLKSEL_Enum eClkSel = eUartClkSpeed == eUART_CLK_SPEED_DEFAULT ?
+                                   UART0_CR_CLKSEL_24MHZ :
+                                   (UART0_CR_CLKSEL_Enum) (eUartClkSpeed-1) ;
+
     AM_CRITICAL_BEGIN
 
     UARTn(ui32Module)->CR_b.CLKEN = 1;
-    UARTn(ui32Module)->CR_b.CLKSEL = UART0_CR_CLKSEL_24MHZ;
+    UARTn(ui32Module)->CR_b.CLKSEL = eClkSel;
 
     AM_CRITICAL_END
 
@@ -444,96 +476,6 @@ am_hal_uart_configure(void *pHandle, const am_hal_uart_config_t *psConfig)
 
     return AM_HAL_STATUS_SUCCESS;
 } // am_hal_uart_configure()
-
-uint32_t
-am_hal_uart_configure_fifo(void *pHandle, const am_hal_uart_config_t *psConfig, bool bEnableFIFO)
-{
-    am_hal_uart_state_t *pState = (am_hal_uart_state_t *) pHandle;
-    uint32_t ui32Module = pState->ui32Module;
-
-    uint32_t ui32ErrorStatus;
-
-    //
-    // Check to make sure this is a valid handle.
-    //
-    if (!AM_HAL_UART_CHK_HANDLE(pHandle))
-    {
-        return AM_HAL_STATUS_INVALID_HANDLE;
-    }
-
-    //
-    // Reset the CR register to a known value.
-    //
-    UARTn(ui32Module)->CR = 0;
-
-    //
-    // Start by enabling the clocks, which needs to happen in a critical
-    // section.
-    //
-    AM_CRITICAL_BEGIN
-
-    UARTn(ui32Module)->CR_b.CLKEN = 1;
-    UARTn(ui32Module)->CR_b.CLKSEL = UART0_CR_CLKSEL_24MHZ;
-
-    AM_CRITICAL_END
-
-    //
-    // Disable the UART.
-    //
-    AM_CRITICAL_BEGIN
-
-    UARTn(ui32Module)->CR_b.UARTEN = 0;
-    UARTn(ui32Module)->CR_b.RXE = 0;
-    UARTn(ui32Module)->CR_b.TXE = 0;
-
-    AM_CRITICAL_END
-
-    //
-    // Set the baud rate.
-    //
-    ui32ErrorStatus = config_baudrate(ui32Module, psConfig->ui32BaudRate,
-                                          &(pState->ui32BaudRate));
-
-    RETURN_ON_ERROR(ui32ErrorStatus);
-
-    //
-    // Copy the configuration options into the appropriate registers.
-    //
-    UARTn(ui32Module)->CR_b.RTSEN = 0;
-    UARTn(ui32Module)->CR_b.CTSEN = 0;
-    UARTn(ui32Module)->CR |= psConfig->ui32FlowControl;
-
-    UARTn(ui32Module)->IFLS = psConfig->ui32FifoLevels;
-
-    UARTn(ui32Module)->LCRH = (psConfig->ui32DataBits   |
-                               psConfig->ui32Parity     |
-                               psConfig->ui32StopBits   |
-                               ((bEnableFIFO) ? AM_HAL_UART_FIFO_ENABLE : AM_HAL_UART_FIFO_DISABLE));
-
-    //
-    // Enable the UART, RX, and TX.
-    //
-    AM_CRITICAL_BEGIN
-
-    UARTn(ui32Module)->CR_b.UARTEN = 1;
-    UARTn(ui32Module)->CR_b.RXE = 1;
-    UARTn(ui32Module)->CR_b.TXE = 1;
-
-    AM_CRITICAL_END
-
-    if(bEnableFIFO){
-        //
-        // Set up any buffers that might exist.
-        //
-        buffer_configure(pHandle,
-                        psConfig->pui8TxBuffer,
-                        psConfig->ui32TxBufferSize,
-                        psConfig->pui8RxBuffer,
-                        psConfig->ui32RxBufferSize);
-    }
-
-    return AM_HAL_STATUS_SUCCESS;
-} // am_hal_uart_configure_fifo()
 
 //*****************************************************************************
 //
@@ -682,7 +624,6 @@ config_baudrate(uint32_t ui32Module, uint32_t ui32DesiredBaudrate, uint32_t *pui
     //
     // Write the UART regs.
     //
-    // TODO: Is this double-write of IBRD really intended?
     UARTn(ui32Module)->IBRD = ui32IntegerDivisor;
     UARTn(ui32Module)->IBRD = ui32IntegerDivisor;
     UARTn(ui32Module)->FBRD = ui32FractionDivisor;
@@ -1514,3 +1455,48 @@ am_hal_uart_interrupt_enable_get(void *pHandle, uint32_t *pui32IntMask)
 
     return AM_HAL_STATUS_SUCCESS;
 } // am_hal_uart_interrupt_enable_get()
+// ****************************************************************************
+//
+//  am_hal_uart_control()
+//      Apply various specific commands/controls on the UART module.
+//
+// ****************************************************************************
+uint32_t
+am_hal_uart_control(void *pHandle, am_hal_uart_control_e eControl, void *pArgs)
+{
+    #ifndef AM_HAL_DISABLE_API_VALIDATION
+    if ( pArgs == (void *) 0 || pHandle == (void *) 0)
+    {
+        return (uint32_t) AM_HAL_STATUS_INVALID_ARG ;
+    }
+    #endif // AM_HAL_DISABLE_API_VALIDATION
+
+    am_hal_status_e     eHalStatus  = AM_HAL_STATUS_SUCCESS ;
+    am_hal_uart_state_t *pState    = (am_hal_uart_state_t *) pHandle;
+
+    switch ( eControl )
+    {
+        case AM_HAL_UART_CONTROL_CLKSEL:
+        {
+            //
+            // save the uart input clock setting
+            //
+            am_hal_uart_clock_speed_e eClkSpeed = *((am_hal_uart_clock_speed_e *)  pArgs) ;
+            if (eClkSpeed >= eUART_CLK_SPEED_INVALID)
+            {
+                eHalStatus = AM_HAL_STATUS_INVALID_ARG ;
+                break ;
+            }
+
+            pState->eUartClockSpeed = eClkSpeed ;
+            break ;
+        }
+
+        default:
+
+            eHalStatus = AM_HAL_STATUS_INVALID_ARG ;
+            break ;
+    } // switch
+
+    return (uint32_t) eHalStatus ;
+}

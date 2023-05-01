@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := ctimer_stepper_synch_32bit_pattern
@@ -43,6 +43,12 @@ PROJECT := ctimer_stepper_synch_32bit_pattern_gcc
 CONFIG := bin
 
 SHELL:=/bin/bash
+
+# Enable printing explicit commands with 'make VERBOSE=1'
+ifneq ($(VERBOSE),1)
+Q:=@
+endif
+
 #### Setup ####
 
 TOOLCHAIN ?= arm-none-eabi
@@ -82,21 +88,21 @@ all clean:
 else
 
 DEFINES = -DPART_$(PART)
-DEFINES+= -DAM_PART_APOLLO3
 DEFINES+= -DAM_PACKAGE_BGA
+DEFINES+= -DAM_PART_APOLLO3
 DEFINES+= -Dgcc
 
-INCLUDES = -I../src
-INCLUDES+= -I../../../../../CMSIS/ARM/Include
-INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
-INCLUDES+= -I../../../../../devices
-INCLUDES+= -I../../../../..
+INCLUDES = -I../../../../../devices
 INCLUDES+= -I../../../../../mcu/apollo3
+INCLUDES+= -I../src
 INCLUDES+= -I../../../bsp
+INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
 INCLUDES+= -I../../../../../utils
+INCLUDES+= -I../../../../..
+INCLUDES+= -I../../../../../CMSIS/ARM/Include
 
-VPATH = ../src
-VPATH+=:../../../../../devices
+VPATH = ../../../../../devices
+VPATH+=:../src
 VPATH+=:../../../../../utils
 
 SRC = ctimer_stepper_synch_32bit_pattern.c
@@ -147,25 +153,26 @@ $(CONFIG):
 	@mkdir -p $@
 
 $(CONFIG)/%.o: %.c $(CONFIG)/%.d
-	@echo " Compiling $(COMPILERNAME) $<" ;\
-	$(CC) -c $(CFLAGS) $< -o $@
+	@echo " Compiling $(COMPILERNAME) $<"
+	$(Q) $(CC) -c $(CFLAGS) $< -o $@
 
 $(CONFIG)/%.o: %.s $(CONFIG)/%.d
-	@echo " Assembling $(COMPILERNAME) $<" ;\
-	$(CC) -c $(CFLAGS) $< -o $@
+	@echo " Assembling $(COMPILERNAME) $<"
+	$(Q) $(CC) -c $(CFLAGS) $< -o $@
 
 $(CONFIG)/$(TARGET).axf: $(OBJS) $(LIBS)
-	@echo " Linking $(COMPILERNAME) $@" ;\
-	$(CC) -Wl,-T,$(LINKER_FILE) -o $@ $(OBJS) $(LFLAGS)
+	@echo " Linking $(COMPILERNAME) $@"
+	$(Q) $(CC) -Wl,-T,$(LINKER_FILE) -o $@ $(OBJS) $(LFLAGS)
 
 $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
-	@echo " Copying $(COMPILERNAME) $@..." ;\
-	$(CP) $(CPFLAGS) $< $@ ;\
-	$(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	@echo " Copying $(COMPILERNAME) $@..."
+	$(Q) $(CP) $(CPFLAGS) $< $@
+	$(Q) $(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	$(Q) $(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
 
 clean:
 	@echo "Cleaning..." ;\
-	$(RM) -f $(OBJS) $(DEPS) \
+	$(Q) $(RM) -f $(OBJS) $(DEPS) \
 	    $(CONFIG)/$(TARGET).bin $(CONFIG)/$(TARGET).axf \
 	    $(CONFIG)/$(TARGET).lst $(CONFIG)/$(TARGET).map
 

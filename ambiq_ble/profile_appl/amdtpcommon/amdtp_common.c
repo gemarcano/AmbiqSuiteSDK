@@ -9,7 +9,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -166,7 +166,7 @@ AmdtpPacketHandler(amdtpCb_t *amdtpCb, eAmdtpPktType_t type, uint16_t len, uint8
 #ifdef AMDTP_DEBUG_ON
     AMDTP_TRC("received packet type = %d, len = %d\n", type, len);
 #endif
-    
+
     switch(type)
     {
         case AMDTP_PKT_TYPE_DATA:
@@ -191,7 +191,7 @@ AmdtpPacketHandler(amdtpCb_t *amdtpCb, eAmdtpPktType_t type, uint16_t len, uint8
             // stop tx timeout timer
             if (BT_TIMER_HANDLE_INIT_VAL != amdtpCb->timeoutTimer)
             {
-#ifdef AMDTP_DEBUG_ON                
+#ifdef AMDTP_DEBUG_ON
                 API_RESULT retval = API_SUCCESS;
                 retval = BT_stop_timer (amdtpCb->timeoutTimer);
                 AMDTP_TRC (
@@ -199,15 +199,15 @@ AmdtpPacketHandler(amdtpCb_t *amdtpCb, eAmdtpPktType_t type, uint16_t len, uint8
                 retval, amdtpCb->timeoutTimer);
 #else
                 BT_stop_timer (amdtpCb->timeoutTimer);
-#endif                
+#endif
                 amdtpCb->timeoutTimer = BT_TIMER_HANDLE_INIT_VAL;
             }
 
             if (amdtpCb->txState != AMDTP_STATE_TX_IDLE)
             {
-#ifdef AMDTP_DEBUG_ON                
+#ifdef AMDTP_DEBUG_ON
                 AMDTP_TRC("set txState back to idle, state = %d\n", amdtpCb->txState);
-#endif                
+#endif
                 amdtpCb->txState = AMDTP_STATE_TX_IDLE;
             }
 

@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>AM_PART_APOLLO3 AM_PACKAGE_BGA keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../src;../../../../..;../../../../../devices;../../../bsp;../../../../../CMSIS/ARM/Include;../../../../../mcu/apollo3;../../../../../utils;../../../../../CMSIS/AmbiqMicro/Include</IncludePath>
+              <IncludePath>../src;../../../../../CMSIS/ARM/Include;../../../bsp;../../../../../utils;../../../../../CMSIS/AmbiqMicro/Include;../../../../..;../../../../../devices;../../../../../mcu/apollo3</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

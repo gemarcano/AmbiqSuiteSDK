@@ -9,7 +9,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AMOTAS_API_H
@@ -72,6 +72,17 @@ extern "C"
 
 #define AMOTA_FW_STORAGE_INTERNAL   0
 #define AMOTA_FW_STORAGE_EXTERNAL   1
+
+#if defined(AM_PART_APOLLO4B)
+//The imageId field of amotaHeaderInfo_t is used to get the type of downloading image
+//define image id macros to identify the type of OTA image and process corresbonding logic
+//the OTA image can be for SBL, host application or others in future
+#define AMOTA_IMAGE_ID_SBL          (0x00000001)
+#define AMOTA_IMAGE_ID_APPLICATION  (0x00000002)
+
+#define AMOTA_ENCRYPTED_SBL_SIZE    (32 * 1024)
+#define AMOTA_INVALID_SBL_STOR_ADDR (0xFFFFFFFF)
+#endif
 
 /*! Configurable parameters */
 typedef struct

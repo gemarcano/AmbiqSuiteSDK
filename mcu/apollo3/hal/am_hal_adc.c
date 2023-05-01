@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -668,8 +668,7 @@ uint32_t am_hal_adc_control(void *pHandle,
                     //
                     // Compute the temperature.
                     //
-                    fTemp  = fCalibration_temp;
-                    fTemp /= (fCalibration_voltage - fCalibration_offset);
+                    fTemp  = fCalibration_temp / fCalibration_voltage ;
                     fTemp *= (fVoltage - fCalibration_offset);
 
                     //
@@ -1112,7 +1111,6 @@ uint32_t am_hal_adc_samples_read(void *pHandle, bool bFullSample,
         //
         do
         {
-            ui32Sample = ADCn(ui32Module)->FIFOPR;
             pui32OutBuffer->ui32Slot   = AM_HAL_ADC_FIFO_SLOT(*pui32InSampleBuffer);
             pui32OutBuffer->ui32Sample = AM_HAL_ADC_FIFO_SAMPLE(*pui32InSampleBuffer);
             pui32InSampleBuffer++;

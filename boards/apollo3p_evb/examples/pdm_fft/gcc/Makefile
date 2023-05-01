@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := pdm_fft
@@ -82,25 +82,25 @@ all clean:
 else
 
 DEFINES = -DPART_$(PART)
-DEFINES+= -DAM_UTIL_FAULTISR_PRINT
 DEFINES+= -D__FPU_PRESENT
 DEFINES+= -DAM_PART_APOLLO3P
 DEFINES+= -DAM_PACKAGE_BGA
+DEFINES+= -DAM_UTIL_FAULTISR_PRINT
 DEFINES+= -DUNITY_INCLUDE_CONFIG_H
 DEFINES+= -Dgcc
 
-INCLUDES = -I../../../../../mcu/apollo3p
-INCLUDES+= -I../../../../../CMSIS/ARM/Include
-INCLUDES+= -I../../../bsp
-INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
-INCLUDES+= -I../../../../../devices
-INCLUDES+= -I../../../../../utils
+INCLUDES = -I../../../../../CMSIS/ARM/Include
 INCLUDES+= -I../../../../..
+INCLUDES+= -I../../../../../mcu/apollo3p
+INCLUDES+= -I../../../../../devices
+INCLUDES+= -I../../../bsp
 INCLUDES+= -I../src
+INCLUDES+= -I../../../../../utils
+INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
 
-VPATH = ../../../../../utils
+VPATH = ../src
+VPATH+=:../../../../../utils
 VPATH+=:../../../../../devices
-VPATH+=:../src
 
 SRC = pdm_fft.c
 SRC += am_util_delay.c
@@ -117,9 +117,9 @@ OBJS+= $(ASRC:%.s=$(CONFIG)/%.o)
 DEPS = $(CSRC:%.c=$(CONFIG)/%.d)
 DEPS+= $(ASRC:%.s=$(CONFIG)/%.d)
 
-LIBS = ../../../bsp/gcc/bin/libam_bsp.a
+LIBS = ../../../../../CMSIS/ARM/Lib/ARM/libarm_cortexM4lf_math.a
+LIBS += ../../../bsp/gcc/bin/libam_bsp.a
 LIBS += ../../../../../mcu/apollo3p/hal/gcc/bin/libam_hal.a
-LIBS += ../../../../../CMSIS/ARM/Lib/ARM/libarm_cortexM4lf_math.a
 
 CFLAGS = -mthumb -mcpu=$(CPU) -mfpu=$(FPU) -mfloat-abi=$(FABI)
 CFLAGS+= -ffunction-sections -fdata-sections -fomit-frame-pointer
@@ -166,6 +166,7 @@ $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
 	@echo " Copying $(COMPILERNAME) $@..." ;\
 	$(CP) $(CPFLAGS) $< $@ ;\
 	$(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	@$(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
 
 clean:
 	@echo "Cleaning..." ;\

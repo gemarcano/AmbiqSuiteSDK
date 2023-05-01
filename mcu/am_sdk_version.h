@@ -10,7 +10,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_SDK_VERSION_H
@@ -62,9 +62,15 @@ extern "C"
 // Define the current HAL version.
 //
 #ifndef AM_HAL_VERSION_MAJ
-#define AM_HAL_VERSION_MAJ      2
-#define AM_HAL_VERSION_MIN      4
-#define AM_HAL_VERSION_REV      2
+#if 0
+#define AM_HAL_VERSION_MAJ      4
+#define AM_HAL_VERSION_MIN      0
+#define AM_HAL_VERSION_REV      3
+#else
+#define AM_HAL_VERSION_MAJ      3
+#define AM_HAL_VERSION_MIN      0
+#define AM_HAL_VERSION_REV      0
+#endif
 #endif // AM_HAL_VERSION_MAJ
 
 #ifdef __cplusplus

@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -48,6 +48,13 @@
 #include <stdbool.h>
 #include "am_mcu_apollo.h"
 #include "am_devices_button.h"
+
+#if defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P)
+//
+// For this entire module, part differentiation is strictly API related.
+//
+#define AM_APOLLO4_API
+#endif
 
 //*****************************************************************************
 //
@@ -66,12 +73,15 @@ am_devices_button_init(am_devices_button_t *psButton)
     //
     // Disable the pin to save power.
     //
+#if defined(AM_APOLLO4_API)
+    am_hal_gpio_pinconfig(psButton->ui32GPIONumber, am_hal_gpio_pincfg_disabled);
+#else
 #if AM_APOLLO3_GPIO
     am_hal_gpio_pinconfig(psButton->ui32GPIONumber, g_AM_HAL_GPIO_DISABLE);
 #else // AM_APOLLO3_GPIO
     am_hal_gpio_pin_config(psButton->ui32GPIONumber, AM_HAL_PIN_DISABLE);
 #endif // AM_APOLLO3_GPIO
-
+#endif
 
     //
     // Initialize the state variables.
@@ -129,21 +139,28 @@ am_devices_button_tick(am_devices_button_t *psButton)
     //
     // Enable the button pin.
     //
+#if defined(AM_APOLLO4_API)
+    am_hal_gpio_pinconfig(psButton->ui32GPIONumber, am_hal_gpio_pincfg_input);
+#else
 #if AM_APOLLO3_GPIO
     am_hal_gpio_pinconfig(psButton->ui32GPIONumber, g_AM_HAL_GPIO_INPUT);
 #else // AM_APOLLO3_GPIO
     am_hal_gpio_pin_config(psButton->ui32GPIONumber, AM_HAL_PIN_INPUT);
 #endif // AM_APOLLO3_GPIO
-
+#endif
     //
     // Read the pin state. If the pin is in its normal (unpressed) state, set
     // its "state" counter to zero.
     //
-#if AM_APOLLO3_GPIO
+#if defined(AM_APOLLO4_API)
+    am_hal_gpio_state_read(psButton->ui32GPIONumber, AM_HAL_GPIO_INPUT_READ, &ui32PinState);
+#else
+#if (1 == AM_APOLLO3_GPIO)
     am_hal_gpio_state_read(psButton->ui32GPIONumber, AM_HAL_GPIO_INPUT_READ, &ui32PinState);
 #else // AM_APOLLO3_GPIO
     ui32PinState = am_hal_gpio_input_bit_read(psButton->ui32GPIONumber);
 #endif // AM_APOLLO3_GPIO
+#endif
 
     //
     // Check to see if the button is "pressed" according to our GPIO reading.
@@ -190,11 +207,15 @@ am_devices_button_tick(am_devices_button_t *psButton)
     //
     // Disable the button pin to save power.
     //
+#if defined(AM_APOLLO4_API)
+    am_hal_gpio_pinconfig(psButton->ui32GPIONumber, am_hal_gpio_pincfg_disabled);
+#else
 #if AM_APOLLO3_GPIO
     am_hal_gpio_pinconfig(psButton->ui32GPIONumber, g_AM_HAL_GPIO_DISABLE);
 #else // AM_APOLLO3_GPIO
     am_hal_gpio_pin_config(psButton->ui32GPIONumber, AM_HAL_PIN_DISABLE);
 #endif // AM_APOLLO3_GPIO
+#endif
 }
 
 //*****************************************************************************

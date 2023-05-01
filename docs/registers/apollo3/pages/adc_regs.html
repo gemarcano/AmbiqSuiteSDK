@@ -25,7 +25,7 @@
                             <img alt="Logo" src="../resources/am_logo.png" />
                         </td>
                         <td style="padding-left: 0.5em;">
-                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v2.4.2</span></div>
+                            <div id="projectname">Apollo Register Documentation &#160;<span id="projectnumber">v${version}</span></div>
                         </td>
                     </tr>
                 </tbody>
@@ -499,8 +499,8 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>25:24</td>
                             <td>CLKSEL</td>
                             <td>RW</td>
-                            <td>Select the source and frequency for the ADC clock.  All values not enumerated below are undefined.<br><br>
-                                 OFF                  = 0x0 - Off mode. The HFRC or HFRC_DIV2 clock must be selected for the ADC to function. The ADC controller automatically shuts off the clock in it's low power modes.  When setting ADCEN to '0', the CLKSEL should remain set to one of the two clock selects for proper power down sequencing.<br>
+                            <td>Select the source and frequency for the ADC clock. All values not enumerated below are undefined.<br><br>
+                                 OFF                  = 0x0 - Off mode. The HFRC or HFRC_DIV2 clock must be selected for the ADC to function. The ADC controller automatically shuts off the clock in it's low power modes. When setting ADCEN to '0', the CLKSEL should remain set to one of the two clock selects for proper power down sequencing.<br>
                              HFRC                 = 0x1 - HFRC Core Clock divided by (CORESEL+1)<br>
                              HFRC_DIV2            = 0x2 - HFRC Core Clock / 2 further divided by (CORESEL+1)</td>
                         </tr>
@@ -548,8 +548,8 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>DFIFORDEN</td>
                             <td>RW</td>
                             <td>Destructive FIFO Read Enable. Setting this will enable FIFO pop upon reading the FIFOPR register.<br><br>
-                                 DIS                  = 0x0 - Destructive Reads are prevented.  Reads to the FIFOPR register will not POP an entry off the FIFO.<br>
-                             EN                   = 0x1 - Reads to the FIFOPR registger will automatically pop an entry off the FIFO.</td>
+                                 DIS                  = 0x0 - Destructive Reads are prevented. Reads to the FIFOPR register will not POP an entry off the FIFO.<br>
+                             EN                   = 0x1 - Reads to the FIFOPR register will automatically pop an entry off the FIFO.</td>
                         </tr>
 
                         <tr>
@@ -585,7 +585,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>RW</td>
                             <td>Clock mode register<br><br>
                                  LPCKMODE             = 0x0 - Disable the clock between scans for LPMODE0. Set LPCKMODE to 0x1 while configuring the ADC.<br>
-                             LLCKMODE             = 0x1 - Low Latency Clock Mode.  When set, HFRC and the adc_clk will remain on while in functioning in LPMODE0.</td>
+                             LLCKMODE             = 0x1 - Low Latency Clock Mode. When set, HFRC and the adc_clk will remain on while in functioning in LPMODE0.</td>
                         </tr>
 
                         <tr>
@@ -593,8 +593,8 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>LPMODE</td>
                             <td>RW</td>
                             <td>Select power mode to enter between active scans.<br><br>
-                                 MODE0                = 0x0 - Low Power Mode 0.  Leaves the ADC fully powered between scans with minimum latency between a trigger event and sample data collection.<br>
-                             MODE1                = 0x1 - Low Power Mode 1.  Powers down all circuity and clocks associated with the ADC until the next trigger event.  Between scans, the reference buffer requires up to 50us of delay from a scan trigger event before the conversion will commence while operating in this mode.</td>
+                                 MODE0                = 0x0 - Low Power Mode 0. Leaves the ADC fully powered between scans with minimum latency between a trigger event and sample data collection.<br>
+                             MODE1                = 0x1 - Low Power Mode 1. Powers down all circuity and clocks associated with the ADC until the next trigger event. Between scans, the reference buffer requires up to 50us of delay from a scan trigger event before the conversion will commence while operating in this mode.</td>
                         </tr>
 
                         <tr>
@@ -603,7 +603,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>RW</td>
                             <td>This bit enables Repeating Scan Mode.<br><br>
                                  SINGLE_SCAN          = 0x0 - In Single Scan Mode, the ADC will complete a single scan upon each trigger event.<br>
-                             REPEATING_SCAN       = 0x1 - In Repeating Scan Mode, the ADC will complete it's first scan upon the initial trigger event and all subsequent scans will occur at regular intervals defined by the configuration programmed for the CTTMRA3 internal timer until the timer is disabled or the ADC is disabled.  When disabling the ADC (setting ADCEN to '0'), the RPTEN bit should be cleared.</td>
+                             REPEATING_SCAN       = 0x1 - In Repeating Scan Mode, the ADC will complete it's first scan upon the initial trigger event and all subsequent scans will occur at regular intervals defined by the configuration programmed for the CTTMRA3 internal timer until the timer is disabled or the ADC is disabled. When disabling the ADC (setting ADCEN to '0'), the RPTEN bit should be cleared.</td>
                         </tr>
 
                         <tr>
@@ -618,7 +618,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>0</td>
                             <td>ADCEN</td>
                             <td>RW</td>
-                            <td>This bit enables the ADC module. While the ADC is enabled, the ADCCFG and SLOT Configuration regsiter settings must remain stable and unchanged. All configuration register settings, slot configuration settings and window comparison settings should be written prior to setting the ADCEN bit to '1'.<br><br>
+                            <td>This bit enables the ADC module. While the ADC is enabled, the ADCCFG and SLOT Configuration register settings must remain stable and unchanged. All configuration register settings, slot configuration settings and window comparison settings should be written prior to setting the ADCEN bit to '1'.<br><br>
                                  DIS                  = 0x0 - Disable the ADC module.<br>
                              EN                   = 0x1 - Enable the ADC module.</td>
                         </tr>
@@ -649,7 +649,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>This register indicates the basic power status for the ADC.  For detailed power status, see the power control power status register.  ADC power mode 0 indicates the ADC is in it's full power state and is ready to process scans.  ADC Power mode 1 indicates the ADC enabled and in a low power state.</p>
+                <p>This register indicates the basic power status for the ADC. For detailed power status, see the power control power status register. ADC power mode 0 indicates the ADC is in it's full power state and is ready to process scans. ADC Power mode 1 indicates the ADC enabled and in a low power state.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -3027,7 +3027,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>0</td>
                             <td>SCWLIMEN</td>
                             <td>RW</td>
-                            <td>Scale the window limits compare values per precision mode. When set to 0x0 (default), the values in the 20-bit limits registers will compare directly with the FIFO values regardless of the precision mode the slot is configured to.  When set to 0x1, the compare values will be divided by the difference in precision bits while performing the window limit comparisons.<br><br>
+                            <td>Scale the window limits compare values per precision mode. When set to 0x0 (default), the values in the 20-bit limits registers will compare directly with the FIFO values regardless of the precision mode the slot is configured to. When set to 0x1, the compare values will be divided by the difference in precision bits while performing the window limit comparisons.<br><br>
                                 </td>
                         </tr>
 
@@ -3057,7 +3057,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>The ADC FIFO Register contains the slot number and fifo data for the oldest conversion data in the FIFO.  The COUNT field indicates the total number of valid entries in the FIFO.  A write to this register will pop one of the FIFO entries off the FIFO and decrease the COUNT by 1 if the COUNT is greater than zero.</p>
+                <p>The ADC FIFO Register contains the slot number and FIFO data for the oldest conversion data in the FIFO. The COUNT field indicates the total number of valid entries in the FIFO. A write to this register will pop one of the FIFO entries off the FIFO and decrease the COUNT by 1 if the COUNT is greater than zero.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -3202,7 +3202,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
 
                 </table>
                 <h3>Description:</h3>
-                <p>This is a Pop Read mirrored copy of the ADCFIFO register with the only difference being that reading this register will result in a simultaneous FIFO POP which is also achieved by writing to the ADCFIFO Register.  Note: The DFIFORDEN bit must be set in the CFG register for the the destructive read to be enabled.</p>
+                <p>This is a Pop Read mirrored copy of the ADCFIFO register with the only difference being that reading this register will result in a simultaneous FIFO POP which is also achieved by writing to the ADCFIFO Register. Note: The DFIFORDEN bit must be set in the CFG register for the the destructive read to be enabled.</p>
                 <h3>Example Macro Usage:</h3>
                 <pre style="margin:10px" class="language-pascal"><span style='color:#3f7f59; '>//
 // Register access is all performed through the standard CMSIS structure-based
@@ -3478,7 +3478,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCINC</td>
                             <td>RW</td>
                             <td>Window comparator voltage incursion interrupt.<br><br>
-                                 WCINCINT             = 0x1 - Window comparitor voltage incursion interrupt.</td>
+                                 WCINCINT             = 0x1 - Window comparator voltage incursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -3486,7 +3486,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCEXC</td>
                             <td>RW</td>
                             <td>Window comparator voltage excursion interrupt.<br><br>
-                                 WCEXCINT             = 0x1 - Window comparitor voltage excursion interrupt.</td>
+                                 WCEXCINT             = 0x1 - Window comparator voltage excursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -3678,7 +3678,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCINC</td>
                             <td>RW</td>
                             <td>Window comparator voltage incursion interrupt.<br><br>
-                                 WCINCINT             = 0x1 - Window comparitor voltage incursion interrupt.</td>
+                                 WCINCINT             = 0x1 - Window comparator voltage incursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -3686,7 +3686,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCEXC</td>
                             <td>RW</td>
                             <td>Window comparator voltage excursion interrupt.<br><br>
-                                 WCEXCINT             = 0x1 - Window comparitor voltage excursion interrupt.</td>
+                                 WCEXCINT             = 0x1 - Window comparator voltage excursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -3878,7 +3878,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCINC</td>
                             <td>RW</td>
                             <td>Window comparator voltage incursion interrupt.<br><br>
-                                 WCINCINT             = 0x1 - Window comparitor voltage incursion interrupt.</td>
+                                 WCINCINT             = 0x1 - Window comparator voltage incursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -3886,7 +3886,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCEXC</td>
                             <td>RW</td>
                             <td>Window comparator voltage excursion interrupt.<br><br>
-                                 WCEXCINT             = 0x1 - Window comparitor voltage excursion interrupt.</td>
+                                 WCEXCINT             = 0x1 - Window comparator voltage excursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -4078,7 +4078,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCINC</td>
                             <td>RW</td>
                             <td>Window comparator voltage incursion interrupt.<br><br>
-                                 WCINCINT             = 0x1 - Window comparitor voltage incursion interrupt.</td>
+                                 WCINCINT             = 0x1 - Window comparator voltage incursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -4086,7 +4086,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>WCEXC</td>
                             <td>RW</td>
                             <td>Window comparator voltage excursion interrupt.<br><br>
-                                 WCEXCINT             = 0x1 - Window comparitor voltage excursion interrupt.</td>
+                                 WCEXCINT             = 0x1 - Window comparator voltage excursion interrupt.</td>
                         </tr>
 
                         <tr>
@@ -4569,7 +4569,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
                             <td>9</td>
                             <td>DMADYNPRI</td>
                             <td>RW</td>
-                            <td>Enables dynamic priority based on FIFO fullness.  When FIFO is full, priority is automatically set to HIGH.  Otherwise, DMAPRI is used.<br><br>
+                            <td>Enables dynamic priority based on FIFO fullness. When FIFO is full, priority is automatically set to HIGH. Otherwise, DMAPRI is used.<br><br>
                                  DIS                  = 0x0 - Disable dynamic priority (use DMAPRI setting only)<br>
                              EN                   = 0x1 - Enable dynamic priority</td>
                         </tr>
@@ -5033,7 +5033,7 @@ ADCn(0)-&gt;CFG_b.CLKSEL = ADC_CFG_CLKSEL_HFRC; <span style='color:#3f7f59; '>//
             <small>
                 AmbiqSuite Register Documentation&nbsp;
                 <a href="http://www.ambiqmicro.com">
-                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2019&nbsp&nbsp<br />
+                <img class="footer" src="../resources/ambiqmicro_logo.png" alt="Ambiq Micro"/></a>&nbsp&nbsp Copyright &copy; 2021&nbsp&nbsp<br />
                 This documentation is licensed and distributed under the <a rel="license" href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause License</a>.&nbsp&nbsp<br/>
             </small>
         </div>

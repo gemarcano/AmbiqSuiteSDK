@@ -6,8 +6,8 @@
 //!
 //! Purpose: This example demonstrates how to create arbitrary repeated pattern on
 //! CTimer.  TMR0 A is used to create base timing for the pattern.  TMR0 B
-//! is configured to terminated on TMR0. All timers are configured to run and 
-//! then synchronized off of the global timer enable.  
+//! is configured to terminated on TMR0. All timers are configured to run and
+//! then synchronized off of the global timer enable.
 //!
 //! Printing takes place over the ITM at 1M Baud.
 //!
@@ -20,7 +20,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -85,8 +85,8 @@ initialize_terminate_counter(void)
     //
     // Configure timer A0 output on pin #12.
     //
-    am_hal_ctimer_output_config(0, AM_HAL_CTIMER_TIMERA, TERM_GPIO, 
-                              AM_HAL_CTIMER_OUTPUT_NORMAL, 
+    am_hal_ctimer_output_config(0, AM_HAL_CTIMER_TIMERA, TERM_GPIO,
+                              AM_HAL_CTIMER_OUTPUT_NORMAL,
                               AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA);
 
     //
@@ -116,9 +116,9 @@ initialize_pattern_counter(uint32_t ui32TimerNumber,
     //
     // Set the pattern in the CMPR registers.
     //
-    am_hal_ctimer_compare_set(ui32TimerNumber, ui32TimerSegment, 0, 
+    am_hal_ctimer_compare_set(ui32TimerNumber, ui32TimerSegment, 0,
                             (uint32_t)(ui64Pattern & 0xFFFF));
-    am_hal_ctimer_compare_set(ui32TimerNumber, ui32TimerSegment, 1, 
+    am_hal_ctimer_compare_set(ui32TimerNumber, ui32TimerSegment, 1,
                             (uint32_t)((ui64Pattern >> 16) & 0xFFFF));
     //
     // Set the timer trigger and pattern length.
@@ -130,8 +130,8 @@ initialize_pattern_counter(uint32_t ui32TimerNumber,
     //
     // Configure timer output pin.
     //
-    am_hal_ctimer_output_config(ui32TimerNumber, ui32TimerSegment, ui32OutputPin, 
-                              AM_HAL_CTIMER_OUTPUT_NORMAL, 
+    am_hal_ctimer_output_config(ui32TimerNumber, ui32TimerSegment, ui32OutputPin,
+                              AM_HAL_CTIMER_OUTPUT_NORMAL,
                               AM_HAL_GPIO_PIN_DRIVESTRENGTH_12MA);
 
     //
@@ -210,7 +210,7 @@ main(void)
     //
     // Set B0 CTimer with repeated pattern
     //
-    initialize_pattern_counter(0, AM_HAL_CTIMER_TIMERB, 0x11111111, 
+    initialize_pattern_counter(0, AM_HAL_CTIMER_TIMERB, 0x11111111,
                                31, CTIMER_AUX0_TMRB0TRIG_A0OUT, PATTERN_GPIO,
                                AM_HAL_CTIMER_LFRC_512HZ);
     //

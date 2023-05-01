@@ -11,7 +11,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -96,7 +96,7 @@ void
 amdtpc_init(wsfHandlerId_t handlerId, amdtpRecvCback_t recvCback, amdtpTransCback_t transCback);
 
 void
-amdtpc_start(uint16_t rxHdl, uint16_t ackHdl, uint8_t timerEvt);
+amdtpc_start(uint16_t rxHdl, uint16_t ackHdl, uint16_t txHdl, uint8_t timerEvt);
 
 void
 amdtpc_proc_msg(wsfMsgHdr_t *pMsg);

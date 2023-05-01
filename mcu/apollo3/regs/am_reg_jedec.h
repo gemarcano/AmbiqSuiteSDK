@@ -9,7 +9,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_REG_JEDEC_H
@@ -173,7 +173,7 @@ typedef struct
 
   union
   {
-    __IM  uint32_t CID0;                /*!< 0xF0000FE0 (R/ )  CID0 Register */
+    __IM  uint32_t CID0;                /*!< 0xF0000FF0 (R/ )  CID0 Register */
 
     struct
     {
@@ -183,7 +183,7 @@ typedef struct
 
   union
   {
-    __IM  uint32_t CID1;                /*!< 0xF0000FE4 (R/ )  CID1 Register */
+    __IM  uint32_t CID1;                /*!< 0xF0000FF4 (R/ )  CID1 Register */
 
     struct
     {
@@ -193,7 +193,7 @@ typedef struct
 
   union
   {
-    __IM  uint32_t CID2;                /*!< 0xF0000FE8 (R/ )  CID2 Register */
+    __IM  uint32_t CID2;                /*!< 0xF0000FF8 (R/ )  CID2 Register */
 
     struct
     {
@@ -203,7 +203,7 @@ typedef struct
 
   union
   {
-    __IM  uint32_t CID3;                /*!< 0xF0000FEC (R/ )  CID3 Register */
+    __IM  uint32_t CID3;                /*!< 0xF0000FFC (R/ )  CID3 Register */
 
     struct
     {

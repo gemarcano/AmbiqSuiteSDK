@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_FLASH_H
@@ -98,6 +98,19 @@ extern "C"
 #define AM_HAL_FLASH_TOTAL_SIZE             ( AM_HAL_FLASH_INSTANCE_SIZE * AM_HAL_FLASH_NUM_INSTANCES )
 #define AM_HAL_FLASH_LARGEST_VALID_ADDR     ( AM_HAL_FLASH_ADDR + AM_HAL_FLASH_TOTAL_SIZE - 1 )
 #define AM_HAL_FLASH_APPL_ADDR              0xC000
+
+//
+// Macros to determine whether a given address is a valid internal
+// flash or SRAM address.
+//
+#define ISADDRSRAM(x)       ((x >= AM_HAL_FLASH_SRAM_ADDR)  &&      \
+                             (x <= (AM_HAL_FLASH_SRAM_LARGEST_VALID_ADDR & ~0x3)))
+#if AM_HAL_FLASH_ADDR == 0x0
+#define ISADDRFLASH(x)      (x <= (AM_HAL_FLASH_LARGEST_VALID_ADDR & ~0x3))
+#else
+#define ISADDRFLASH(x)      ((x >= AM_HAL_FLASH_ADDR)       &&      \
+                             (x <= (AM_HAL_FLASH_LARGEST_VALID_ADDR & ~0x3)))
+#endif
 
 //
 // Macros to describe the flash ROW layout.
@@ -288,7 +301,7 @@ extern int      am_hal_flash_erase_main_plus_info(uint32_t ui32InfoKey,
                                                   uint32_t ui32Instance);
 extern int      am_hal_flash_erase_main_plus_info_both_instances(
                                                   uint32_t ui32InfoKey);
-extern void     am_hal_flash_recovery(uint32_t ui32RecoveryKey);
+extern int      am_hal_flash_recovery(uint32_t ui32RecoveryKey);
 
 //
 // This function safely writes to a peripheral or memory address while executing

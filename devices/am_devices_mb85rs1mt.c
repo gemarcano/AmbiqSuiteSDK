@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -78,7 +78,7 @@ am_hal_iom_config_t     g_sIomMb85rs1mtCfg =
 //
 //*****************************************************************************
 static uint32_t
-am_device_command_write(void *pHandle, uint32_t ui32InstrLen, uint32_t ui32Instr,
+am_device_command_write(void *pHandle, uint32_t ui32InstrLen, uint64_t ui64Instr,
                         uint32_t *pData, uint32_t ui32NumBytes)
 {
     am_hal_iom_transfer_t Transaction;
@@ -88,7 +88,11 @@ am_device_command_write(void *pHandle, uint32_t ui32InstrLen, uint32_t ui32Instr
     // Create the transaction.
     //
     Transaction.ui32InstrLen    = ui32InstrLen;
-    Transaction.ui32Instr       = ui32Instr;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui64Instr;
+#else
+    Transaction.ui32Instr       = (uint32_t)ui64Instr;
+#endif
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32TxBuffer   = pData;
@@ -109,7 +113,7 @@ am_device_command_write(void *pHandle, uint32_t ui32InstrLen, uint32_t ui32Instr
 }
 
 static uint32_t
-am_device_command_read(void *pHandle, uint32_t ui32InstrLen, uint32_t ui32Instr,
+am_device_command_read(void *pHandle, uint32_t ui32InstrLen, uint64_t ui64Instr,
                        uint32_t *pData, uint32_t ui32NumBytes)
 {
     am_hal_iom_transfer_t Transaction;
@@ -119,7 +123,11 @@ am_device_command_read(void *pHandle, uint32_t ui32InstrLen, uint32_t ui32Instr,
     // Create the transaction.
     //
     Transaction.ui32InstrLen    = ui32InstrLen;
-    Transaction.ui32Instr       = ui32Instr;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui64Instr;
+#else
+    Transaction.ui32Instr       = (uint32_t)ui64Instr;
+#endif
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32RxBuffer   = pData;
@@ -160,16 +168,38 @@ am_devices_mb85rs1mt_init(uint32_t ui32Module, am_devices_mb85rs1mt_config_t *pD
     am_hal_iom_config_t     stIOMMB85RS1MTSettings;
 
     uint32_t g_CS[AM_REG_IOM_NUM_MODULES] =
+#if !defined(AM_PART_APOLLO4) && !defined(AM_PART_APOLLO4B)
+#if defined(APOLLO3P_EVB_CYGNUS)
+    {
+        0,
+        AM_BSP_IOM1_CS_CHNL,
+        0,
+        AM_BSP_IOM3_CS_CHNL,
+        AM_BSP_IOM4_CS_CHNL,
+        0
+    };
+#elif defined(APOLLO3_EVB_CYGNUS)
+    {
+        0,
+        AM_BSP_IOM1_CS_CHNL,
+        0,
+        AM_BSP_IOM3_CS_CHNL,
+        AM_BSP_IOM4_CS_CHNL,
+        0
+    };
+#else
     {
       AM_BSP_IOM0_CS_CHNL,
       AM_BSP_IOM1_CS_CHNL,
-#ifndef APOLLO3_FPGA
       AM_BSP_IOM2_CS_CHNL,
       AM_BSP_IOM3_CS_CHNL,
       AM_BSP_IOM4_CS_CHNL,
       AM_BSP_IOM5_CS_CHNL,
-#endif
     };
+#endif
+#else
+    {0, 0, 0, 0, 0, 0, 0, 0};
+#endif
 
     uint32_t      ui32Index = 0;
 
@@ -199,11 +229,15 @@ am_devices_mb85rs1mt_init(uint32_t ui32Module, am_devices_mb85rs1mt_config_t *pD
     //
     // Enable fault detection.
     //
+#if defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P)
+    am_hal_fault_capture_enable();
+#else
 #if AM_APOLLO3_MCUCTRL
     am_hal_mcuctrl_control(AM_HAL_MCUCTRL_CONTROL_FAULT_CAPTURE_ENABLE, 0);
 #else // AM_APOLLO3_MCUCTRL
     am_hal_mcuctrl_fault_capture_enable();
 #endif // AM_APOLLO3_MCUCTRL
+#endif
 
     stIOMMB85RS1MTSettings = g_sIomMb85rs1mtCfg;
     stIOMMB85RS1MTSettings.ui32NBTxnBufLength = pDevConfig->ui32NBTxnBufLength;
@@ -427,7 +461,11 @@ am_devices_mb85rs1mt_blocking_write(void *pHandle, uint8_t *pui8TxBuffer,
     //
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32InstrLen    = 1;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = AM_DEVICES_MB85RS1MT_WRITE;
+#else
     Transaction.ui32Instr       = AM_DEVICES_MB85RS1MT_WRITE;
+#endif
     Transaction.ui32NumBytes    = 0;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8TxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -446,7 +484,11 @@ am_devices_mb85rs1mt_blocking_write(void *pHandle, uint8_t *pui8TxBuffer,
     //
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32InstrLen    = 3;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui32WriteAddress & 0x00FFFFFF;
+#else
     Transaction.ui32Instr       = ui32WriteAddress & 0x00FFFFFF;
+#endif
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8TxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -517,7 +559,11 @@ am_devices_mb85rs1mt_nonblocking_write_adv(void *pHandle, uint8_t *pui8TxBuffer,
     //
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32InstrLen    = 1;        // Sending 1 offset byte
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = AM_DEVICES_MB85RS1MT_WRITE_ENABLE;
+#else
     Transaction.ui32Instr       = AM_DEVICES_MB85RS1MT_WRITE_ENABLE;
+#endif
     Transaction.ui32NumBytes    = 0;        // WREN CMD is sent as the offset
     Transaction.pui32TxBuffer   = (uint32_t *)pui8TxBuffer; // Not used for this CMD
     Transaction.bContinue       = false;
@@ -538,7 +584,11 @@ am_devices_mb85rs1mt_nonblocking_write_adv(void *pHandle, uint8_t *pui8TxBuffer,
     //
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32InstrLen    = 1;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = AM_DEVICES_MB85RS1MT_WRITE;
+#else
     Transaction.ui32Instr       = AM_DEVICES_MB85RS1MT_WRITE;
+#endif
     Transaction.ui32NumBytes    = 0;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8TxBuffer;
     Transaction.ui32PauseCondition = 0;
@@ -560,7 +610,11 @@ am_devices_mb85rs1mt_nonblocking_write_adv(void *pHandle, uint8_t *pui8TxBuffer,
         //
         Transaction.eDirection      = AM_HAL_IOM_TX;
         Transaction.ui32InstrLen    = 3;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+        Transaction.ui64Instr       = ui32WriteAddress & 0x00FFFFFF;
+#else
         Transaction.ui32Instr       = ui32WriteAddress & 0x00FFFFFF;
+#endif
         Transaction.ui32NumBytes    = ui32NumBytes;
         Transaction.pui32TxBuffer   = (uint32_t *)pui8TxBuffer;
         Transaction.bContinue       = false;
@@ -714,7 +768,11 @@ am_devices_mb85rs1mt_blocking_read(void *pHandle, uint8_t *pui8RxBuffer,
 
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32InstrLen    = 1;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = AM_DEVICES_MB85RS1MT_READ;
+#else
     Transaction.ui32Instr       = AM_DEVICES_MB85RS1MT_READ;
+#endif
     Transaction.ui32NumBytes    = 0;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -733,7 +791,11 @@ am_devices_mb85rs1mt_blocking_read(void *pHandle, uint8_t *pui8RxBuffer,
     //
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32InstrLen    = 3;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui32ReadAddress & 0x00FFFFFF;
+#else
     Transaction.ui32Instr       = ui32ReadAddress & 0x00FFFFFF;
+#endif
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32RxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -789,7 +851,11 @@ am_devices_mb85rs1mt_nonblocking_read(void *pHandle, uint8_t *pui8RxBuffer,
 
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32InstrLen    = 1;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = AM_DEVICES_MB85RS1MT_READ;
+#else
     Transaction.ui32Instr       = AM_DEVICES_MB85RS1MT_READ;
+#endif
     Transaction.ui32NumBytes    = 0;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -809,7 +875,11 @@ am_devices_mb85rs1mt_nonblocking_read(void *pHandle, uint8_t *pui8RxBuffer,
     Transaction.ui8Priority     = 1;        // High priority for now.
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32InstrLen    = 3;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui32ReadAddress & 0x00FFFFFF;
+#else
     Transaction.ui32Instr       = ui32ReadAddress & 0x00FFFFFF;
+#endif
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32RxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -866,7 +936,11 @@ am_devices_mb85rs1mt_nonblocking_read_hiprio(void *pHandle, uint8_t *pui8RxBuffe
 
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32InstrLen    = 1;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = AM_DEVICES_MB85RS1MT_READ;
+#else
     Transaction.ui32Instr       = AM_DEVICES_MB85RS1MT_READ;
+#endif
     Transaction.ui32NumBytes    = 0;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;
@@ -886,7 +960,11 @@ am_devices_mb85rs1mt_nonblocking_read_hiprio(void *pHandle, uint8_t *pui8RxBuffe
     Transaction.ui8Priority     = 1;        // High priority for now.
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32InstrLen    = 3;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui32ReadAddress & 0x00FFFFFF;
+#else
     Transaction.ui32Instr       = ui32ReadAddress & 0x00FFFFFF;
+#endif
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32RxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32SpiChipSelect = pIom->ui32CS;

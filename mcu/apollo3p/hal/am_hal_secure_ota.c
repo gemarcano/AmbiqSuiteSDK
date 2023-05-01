@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,17 +45,21 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #include <stdint.h>
 #include <stdbool.h>
 #include "am_mcu_apollo.h"
 
+//
 // Local defines
+//
 #define FLASH_INVALID               0xFFFFFFFF
 
+//
 // Internal OTA state information
+//
 typedef struct
 {
     uint32_t flashSize;
@@ -65,7 +69,9 @@ typedef struct
 
 static am_hal_secure_ota_state_t gSOtaState;
 
+//
 // Erase a flash page
+//
 static void
 erase_flash_page(uint32_t ui32ProgamKey, uint32_t ui32Addr)
 {
@@ -117,16 +123,23 @@ uint32_t am_hal_ota_init(uint32_t ui32ProgamKey, uint32_t *pOtaDesc)
     am_hal_mcuctrl_info_get(AM_HAL_MCUCTRL_INFO_DEVICEID, &sDevice);
     gSOtaState.flashSize = sDevice.ui32FlashSize;
 
+    //
     // Validate the flash page
+    //
     if ((otaDescAddr >= gSOtaState.flashSize) ||
         (otaDescAddr & (AM_HAL_FLASH_PAGE_SIZE - 1)))
     {
         return AM_HAL_STATUS_INVALID_ARG;
     }
-    // TODO - check against protected pages
+
+    //
     // Erase the page
+    //
     erase_flash_page(ui32ProgamKey, otaDescAddr);
+
+    //
     // Initialize the OTA Pointer
+    //
     MCUCTRL->OTAPOINTER = otaDescAddr;
     gSOtaState.numOta = 0;
     gSOtaState.otaDescAddr = otaDescAddr;
@@ -154,25 +167,34 @@ uint32_t am_hal_ota_init(uint32_t ui32ProgamKey, uint32_t *pOtaDesc)
 uint32_t am_hal_ota_add(uint32_t ui32ProgamKey, uint8_t imageMagic, uint32_t *pImage)
 {
     uint32_t imageAddr = (uint32_t)pImage;
+
+    //
     // Validate the Image Pointer
+    //
     if ((imageAddr >= gSOtaState.flashSize) ||
         (imageAddr & (AM_HAL_FLASH_PAGE_SIZE - 1)))
     {
         return AM_HAL_STATUS_INVALID_ARG;
     }
+
     if (gSOtaState.numOta == AM_HAL_SECURE_OTA_MAX_OTA)
     {
         return AM_HAL_STATUS_OUT_OF_RANGE;
     }
 
     imageAddr |= AM_HAL_OTA_STATUS_PENDING;
+
+    //
     // Program the OTA Descriptor word
+    //
     am_hal_flash_program_main(ui32ProgamKey,
         &imageAddr,
         ((uint32_t *)gSOtaState.otaDescAddr + gSOtaState.numOta++),
         1);
 
+    //
     // Set appropriate OTA Pointer bits
+    //
     MCUCTRL->OTAPOINTER_b.OTAVALID = 1;
     if (imageMagic == AM_IMAGE_MAGIC_SBL)
     {
@@ -202,7 +224,10 @@ uint32_t am_hal_ota_add(uint32_t ui32ProgamKey, uint8_t imageMagic, uint32_t *pI
 uint32_t am_hal_get_ota_status(uint32_t *pOtaDesc, uint32_t maxOta, am_hal_ota_status_t *pStatus)
 {
     uint32_t numOta = 0;
+
+    //
     // Fill up the return structure
+    //
     while (maxOta--)
     {
         if (pOtaDesc[numOta] == FLASH_INVALID)

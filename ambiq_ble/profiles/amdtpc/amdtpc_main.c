@@ -11,7 +11,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -135,6 +135,7 @@ static struct
     bool_t                  txReady;                // TRUE if ready to send notifications
     uint16_t                attRxHdl;
     uint16_t                attAckHdl;
+    uint16_t                attTxHdl;
     amdtpCb_t               core;
 }
 amdtpcCb;
@@ -259,11 +260,12 @@ amdtpc_conn_close(dmEvt_t *pMsg)
 }
 
 void
-amdtpc_start(uint16_t rxHdl, uint16_t ackHdl, uint8_t timerEvt)
+amdtpc_start(uint16_t rxHdl, uint16_t ackHdl, uint16_t txHdl, uint8_t timerEvt)
 {
     amdtpcCb.txReady = true;
     amdtpcCb.attRxHdl = rxHdl;
     amdtpcCb.attAckHdl = ackHdl;
+    amdtpcCb.attTxHdl = txHdl;
     amdtpcCb.core.timeoutTimer.msg.event = timerEvt;
 
     dmConnId_t connId;
@@ -294,6 +296,7 @@ amdtpc_timeout_timer_expired(wsfMsgHdr_t *pMsg)
     WsfTimerStartMs(&amdtpcCb.core.timeoutTimer, amdtpcCb.core.txTimeoutMs);
 }
 
+extern bool g_requestServerSendStop ;
 /*************************************************************************************************/
 /*!
  *  \fn     amdtpcValueNtf
@@ -328,6 +331,19 @@ amdtpcValueNtf(attEvt_t *pMsg)
     {
         status = AmdtpReceivePkt(&amdtpcCb.core, &amdtpcCb.core.ackPkt, pMsg->valueLen, pMsg->pValue);
     }
+    else if ( pMsg->handle == amdtpcCb.attTxHdl )
+    {
+        if ( g_requestServerSendStop )
+        {
+            // if issuing "Request Server to send command" while receiving notification data, ignore the notification data
+            amdtpcCb.core.txPkt.header.pktType = AMDTP_PKT_TYPE_DATA;
+            status = AMDTP_STATUS_RECEIVE_DONE;
+        }
+        else
+        {
+            status = AmdtpReceivePkt(&amdtpcCb.core, &amdtpcCb.core.txPkt, pMsg->valueLen, pMsg->pValue);
+        }
+    }
 
     if (status == AMDTP_STATUS_RECEIVE_DONE)
     {
@@ -338,6 +354,10 @@ amdtpcValueNtf(attEvt_t *pMsg)
         else if (pMsg->handle == amdtpcCb.attAckHdl)
         {
             pkt = &amdtpcCb.core.ackPkt;
+        }
+        else if ( pMsg->handle == amdtpcCb.attTxHdl )
+        {
+            pkt = &amdtpcCb.core.txPkt;
         }
 
         AmdtpPacketHandler(&amdtpcCb.core, (eAmdtpPktType_t)pkt->header.pktType, pkt->len - AMDTP_CRC_SIZE_IN_PKT, pkt->data);

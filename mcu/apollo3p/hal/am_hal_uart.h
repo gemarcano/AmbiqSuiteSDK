@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 #ifndef AM_HAL_UART_H
@@ -62,6 +62,38 @@ extern "C"
 //
 #define UARTn(n)    ((UART0_Type*)(UART0_BASE + (n * (UART1_BASE - UART0_BASE))))
 //*****************************************************************************
+
+
+
+//*****************************************************************************
+//
+// Control operations.
+//
+//*****************************************************************************
+typedef enum
+{
+    AM_HAL_UART_CONTROL_CLKSEL,
+} am_hal_uart_control_e;
+
+//*****************************************************************************
+//
+// Enum defining module clock speed options
+//
+//*****************************************************************************
+
+typedef enum
+{
+    eUART_CLK_SPEED_DEFAULT = 0,
+    eUART_CLK_SPEED_NOCLK   = UART0_CR_CLKSEL_NOCLK + 1,
+    eUART_CLK_SPEED_24MHZ   = UART0_CR_CLKSEL_24MHZ + 1,
+    eUART_CLK_SPEED_12MHZ   = UART0_CR_CLKSEL_12MHZ + 1,
+    eUART_CLK_SPEED_6MHZ    = UART0_CR_CLKSEL_6MHZ + 1,
+    eUART_CLK_SPEED_3MHZ    = UART0_CR_CLKSEL_3MHZ + 1,
+    eUART_CLK_SPEED_INVALID,
+
+} am_hal_uart_clock_speed_e;
+
+
 
 //*****************************************************************************
 //
@@ -171,8 +203,8 @@ am_hal_uart_transfer_t;
 
 // Flow control
 #define AM_HAL_UART_FLOW_CTRL_NONE          0
-#define AM_HAL_UART_FLOW_CTRL_CTS_ONLY      UART_CR_CTSEN_Msk
-#define AM_HAL_UART_FLOW_CTRL_RTS_ONLY      UART_CR_RTSEN_Msk
+#define AM_HAL_UART_FLOW_CTRL_CTS_ONLY      UART0_CR_CTSEN_Msk
+#define AM_HAL_UART_FLOW_CTRL_RTS_ONLY      UART0_CR_RTSEN_Msk
 #define AM_HAL_UART_FLOW_CTRL_RTS_CTS       (UART0_CR_CTSEN_Msk |   \
                                              UART0_CR_RTSEN_Msk)
 // FIFO enable/disable.
@@ -328,7 +360,6 @@ extern uint32_t am_hal_uart_configure(void *pHandle,
 //*****************************************************************************
 extern uint32_t am_hal_uart_transfer(void *pHandle,
                                      const am_hal_uart_transfer_t *pTransfer);
-
 
 //*****************************************************************************
 //
@@ -654,7 +685,6 @@ extern uint32_t am_hal_uart_interrupt_clear(void *pHandle,
 //! @endcode
 //!
 //! @return AM_HAL_STATUS_SUCCESS or applicable UART errors.
-
 //
 //*****************************************************************************
 extern uint32_t am_hal_uart_interrupt_status_get(void *pHandle,
@@ -705,6 +735,14 @@ am_hal_uart_errors_t;
 //
 //*****************************************************************************
 extern uint32_t am_hal_uart_interrupt_enable_get(void *pHandle, uint32_t *pui32IntMask);
+
+
+//*****************************************************************************
+//
+
+//
+//*****************************************************************************
+extern uint32_t am_hal_uart_control(void *pHandle, am_hal_uart_control_e eControl, void *pArgs) ;
 
 #ifdef __cplusplus
 }

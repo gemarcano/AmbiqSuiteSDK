@@ -2,7 +2,6 @@
 
 /*
     Author : Shay Gal-On, EEMBC
-    Legal : TODO!
 */
 /* Topic : Description
     This file contains configuration constants required to execute on different platforms

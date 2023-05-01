@@ -11,7 +11,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -361,8 +361,8 @@ static void amotaSetup(amotaMsg_t *pMsg)
     AppAdvSetData(APP_SCAN_DATA_DISCOVERABLE, sizeof(amotaScanDataDisc), (uint8_t *) amotaScanDataDisc);
 
   /* set advertising and scan response data for connectable mode */
-  AppAdvSetData(APP_ADV_DATA_CONNECTABLE, 0, NULL);
-  AppAdvSetData(APP_SCAN_DATA_CONNECTABLE, 0, NULL);
+  AppAdvSetData(APP_ADV_DATA_CONNECTABLE, sizeof(amotaAdvDataDisc), (uint8_t *) amotaAdvDataDisc);
+  AppAdvSetData(APP_SCAN_DATA_CONNECTABLE, sizeof(amotaScanDataDisc), (uint8_t *) amotaScanDataDisc);
 
     /* start advertising; automatically set connectable/discoverable mode and bondable mode */
     AppAdvStart(APP_MODE_AUTO_INIT);
@@ -506,6 +506,10 @@ static void amotaProcMsg(amotaMsg_t *pMsg)
 
         case DM_CONN_UPDATE_IND:
             amotas_proc_msg(&pMsg->hdr);
+        break;
+
+        case DM_PHY_UPDATE_IND:
+            APP_TRACE_INFO3("DM_PHY_UPDATE_IND status: %d, RX: %d, TX: %d", pMsg->dm.phyUpdate.status, pMsg->dm.phyUpdate.rxPhy, pMsg->dm.phyUpdate.txPhy);
         break;
 
         case DM_SEC_PAIR_CMPL_IND:

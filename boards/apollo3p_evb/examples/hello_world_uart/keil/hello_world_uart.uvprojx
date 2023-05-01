@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>AM_PACKAGE_BGA AM_PART_APOLLO3P keil</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../../CMSIS/AmbiqMicro/Include;../../../../..;../../../../../CMSIS/ARM/Include;../src;../../../../../devices;../../../../../mcu/apollo3p;../../../../../utils;../../../bsp</IncludePath>
+              <IncludePath>../../../bsp;../../../../../utils;../../../../../mcu/apollo3p;../src;../../../../../CMSIS/AmbiqMicro/Include;../../../../../devices;../../../../../CMSIS/ARM/Include;../../../../..</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -425,14 +425,14 @@
           <GroupName>lib</GroupName>
           <Files>
             <File>
-              <FileName>libam_hal.lib</FileName>
-              <FileType>4</FileType>
-              <FilePath>../../../../../mcu/apollo3p/hal/keil/bin/libam_hal.lib</FilePath>
-            </File>
-            <File>
               <FileName>libam_bsp.lib</FileName>
               <FileType>4</FileType>
               <FilePath>../../../bsp/keil/bin/libam_bsp.lib</FilePath>
+            </File>
+            <File>
+              <FileName>libam_hal.lib</FileName>
+              <FileType>4</FileType>
+              <FilePath>../../../../../mcu/apollo3p/hal/keil/bin/libam_hal.lib</FilePath>
             </File>
           </Files>
         </Group>

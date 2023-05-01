@@ -2,7 +2,7 @@
 #
 # Makefile - Rules for building the libraries, examples and docs.
 #
-# Copyright (c) 2020, Ambiq Micro
+# Copyright (c) 2021, Ambiq Micro, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+# This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 #
 #******************************************************************************
 TARGET := prime
@@ -43,6 +43,12 @@ PROJECT := prime_gcc
 CONFIG := bin
 
 SHELL:=/bin/bash
+
+# Enable printing explicit commands with 'make VERBOSE=1'
+ifneq ($(VERBOSE),1)
+Q:=@
+endif
+
 #### Setup ####
 
 TOOLCHAIN ?= arm-none-eabi
@@ -82,30 +88,31 @@ all clean:
 else
 
 DEFINES = -DPART_$(PART)
-DEFINES+= -DAM_PART_APOLLO3
 DEFINES+= -DAM_PACKAGE_BGA
+DEFINES+= -DAM_PRINTF_BUFSIZE=256
+DEFINES+= -DAM_PART_APOLLO3
 DEFINES+= -Dgcc
 
-INCLUDES = -I../../../../../CMSIS/AmbiqMicro/Include
-INCLUDES+= -I../../../../..
-INCLUDES+= -I../src
+INCLUDES = -I../../../bsp
 INCLUDES+= -I../../../../../devices
-INCLUDES+= -I../../../../../utils
-INCLUDES+= -I../../../bsp
+INCLUDES+= -I../../../../../CMSIS/AmbiqMicro/Include
 INCLUDES+= -I../../../../../CMSIS/ARM/Include
+INCLUDES+= -I../src
 INCLUDES+= -I../../../../../mcu/apollo3
+INCLUDES+= -I../../../../..
+INCLUDES+= -I../../../../../utils
 
-VPATH = ../../../../../utils
-VPATH+=:../../../../../devices
-VPATH+=:../../../../../third_party/prime_mpi/src
+VPATH = ../../../../../devices
 VPATH+=:../src
+VPATH+=:../../../../../utils
+VPATH+=:../../../../../third_party/prime_mpi/src
 
 SRC = prime_mpi.c
 SRC += prime.c
+SRC += am_devices_led.c
 SRC += am_util_delay.c
 SRC += am_util_faultisr.c
 SRC += am_util_stdio.c
-SRC += am_devices_led.c
 SRC += startup_gcc.c
 
 CSRC = $(filter %.c,$(SRC))
@@ -150,25 +157,26 @@ $(CONFIG):
 	@mkdir -p $@
 
 $(CONFIG)/%.o: %.c $(CONFIG)/%.d
-	@echo " Compiling $(COMPILERNAME) $<" ;\
-	$(CC) -c $(CFLAGS) $< -o $@
+	@echo " Compiling $(COMPILERNAME) $<"
+	$(Q) $(CC) -c $(CFLAGS) $< -o $@
 
 $(CONFIG)/%.o: %.s $(CONFIG)/%.d
-	@echo " Assembling $(COMPILERNAME) $<" ;\
-	$(CC) -c $(CFLAGS) $< -o $@
+	@echo " Assembling $(COMPILERNAME) $<"
+	$(Q) $(CC) -c $(CFLAGS) $< -o $@
 
 $(CONFIG)/$(TARGET).axf: $(OBJS) $(LIBS)
-	@echo " Linking $(COMPILERNAME) $@" ;\
-	$(CC) -Wl,-T,$(LINKER_FILE) -o $@ $(OBJS) $(LFLAGS)
+	@echo " Linking $(COMPILERNAME) $@"
+	$(Q) $(CC) -Wl,-T,$(LINKER_FILE) -o $@ $(OBJS) $(LFLAGS)
 
 $(CONFIG)/$(TARGET).bin: $(CONFIG)/$(TARGET).axf
-	@echo " Copying $(COMPILERNAME) $@..." ;\
-	$(CP) $(CPFLAGS) $< $@ ;\
-	$(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	@echo " Copying $(COMPILERNAME) $@..."
+	$(Q) $(CP) $(CPFLAGS) $< $@
+	$(Q) $(OD) $(ODFLAGS) $< > $(CONFIG)/$(TARGET).lst
+	$(Q) $(SIZE) $(OBJS) $(LIBS) $(CONFIG)/$(TARGET).axf >$(CONFIG)/$(TARGET).size
 
 clean:
 	@echo "Cleaning..." ;\
-	$(RM) -f $(OBJS) $(DEPS) \
+	$(Q) $(RM) -f $(OBJS) $(DEPS) \
 	    $(CONFIG)/$(TARGET).bin $(CONFIG)/$(TARGET).axf \
 	    $(CONFIG)/$(TARGET).lst $(CONFIG)/$(TARGET).map
 

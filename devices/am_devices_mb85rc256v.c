@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -78,7 +78,7 @@ am_hal_iom_config_t     g_sIomMb85rc256vCfg =
 //*****************************************************************************
 static uint32_t
 am_device_command_write(void *pHandle, uint8_t ui8DevAddr, uint32_t ui32InstrLen,
-                        uint32_t ui32Instr, bool bCont,
+                        uint64_t ui64Instr, bool bCont,
                         uint32_t *pData, uint32_t ui32NumBytes)
 {
     am_hal_iom_transfer_t Transaction;
@@ -87,7 +87,11 @@ am_device_command_write(void *pHandle, uint8_t ui8DevAddr, uint32_t ui32InstrLen
     // Create the transaction.
     //
     Transaction.ui32InstrLen    = ui32InstrLen;
-    Transaction.ui32Instr       = ui32Instr;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui64Instr;
+#else
+    Transaction.ui32Instr       = (uint32_t)ui64Instr;
+#endif
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32TxBuffer   = pData;
@@ -113,7 +117,7 @@ am_device_command_write(void *pHandle, uint8_t ui8DevAddr, uint32_t ui32InstrLen
 //
 //*****************************************************************************
 static uint32_t
-am_device_command_read(void *pHandle, uint8_t ui8DevAddr, uint32_t ui32InstrLen, uint32_t ui32Instr,
+am_device_command_read(void *pHandle, uint8_t ui8DevAddr, uint32_t ui32InstrLen, uint64_t ui64Instr,
                        bool bCont, uint32_t *pData, uint32_t ui32NumBytes)
 {
     am_hal_iom_transfer_t  Transaction;
@@ -122,7 +126,11 @@ am_device_command_read(void *pHandle, uint8_t ui8DevAddr, uint32_t ui32InstrLen,
     // Create the transaction.
     //
     Transaction.ui32InstrLen    = ui32InstrLen;
-    Transaction.ui32Instr       = ui32Instr;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui64Instr;
+#else
+    Transaction.ui32Instr       = (uint32_t)ui64Instr;
+#endif
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32RxBuffer   = pData;
@@ -184,6 +192,9 @@ am_devices_mb85rc256v_init(uint32_t ui32Module, am_devices_mb85rc256v_config_t *
     //
     // Enable fault detection.
     //
+#if defined(AM_PART_APOLLO4) || defined(AM_PART_APOLLO4B)
+    am_hal_fault_capture_enable();
+#endif
 #if defined (AM_PART_APOLLO3) || defined (AM_PART_APOLLO3P)
 #if AM_APOLLO3_MCUCTRL
     am_hal_mcuctrl_control(AM_HAL_MCUCTRL_CONTROL_FAULT_CAPTURE_ENABLE, 0);
@@ -263,6 +274,11 @@ am_devices_mb85rc256v_term(void *pHandle)
 
     // Free this device handle
     pIom->bOccupied = false;
+
+    //
+    // Configure the IOM pins.
+    //
+    am_bsp_iom_pins_disable(pIom->ui32Module, AM_HAL_IOM_I2C_MODE);
 
     //
     // Return the status.
@@ -385,7 +401,11 @@ am_devices_mb85rc256v_nonblocking_write(void *pHandle, uint8_t *pui8TxBuffer,
     //
     Transaction.eDirection      = AM_HAL_IOM_TX;
     Transaction.ui32InstrLen    = 2;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = ui32WriteAddress & 0x0000FFFF;
+#else
     Transaction.ui32Instr       = ui32WriteAddress & 0x0000FFFF;
+#endif
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32TxBuffer   = (uint32_t *)pui8TxBuffer;
 
@@ -470,7 +490,11 @@ am_devices_mb85rc256v_nonblocking_read(void *pHandle, uint8_t *pui8RxBuffer,
     Transaction.ui8Priority     = 1;        // High priority for now.
     Transaction.eDirection      = AM_HAL_IOM_RX;
     Transaction.ui32InstrLen    = 2;
+#if (defined(AM_PART_APOLLO4B) || defined(AM_PART_APOLLO4P))
+    Transaction.ui64Instr       = (ui32ReadAddress & 0x0000FFFF);
+#else
     Transaction.ui32Instr       = (ui32ReadAddress & 0x0000FFFF);
+#endif
     Transaction.ui32NumBytes    = ui32NumBytes;
     Transaction.pui32RxBuffer   = (uint32_t *)pui8RxBuffer;
     Transaction.uPeerInfo.ui32I2CDevAddr = AM_DEVICES_MB85RC256V_SLAVE_ID;

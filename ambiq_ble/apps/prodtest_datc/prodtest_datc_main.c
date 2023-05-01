@@ -11,7 +11,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -1026,11 +1026,6 @@ static void datcProcMsg(dmEvt_t *pMsg)
       {
         dmConnId_t connId = (dmConnId_t) pMsg->hdr.param;
 
-        /* TODO: Perform OOB Exchange with the peer. */
-
-
-        /* TODO: Fill datsOobCfg peerConfirm and peerRandom with value passed out of band */
-
         if (datcOobCfg != NULL)
         {
           DmSecSetOob(connId, datcOobCfg);
@@ -1061,9 +1056,9 @@ static void datcProcMsg(dmEvt_t *pMsg)
       case DM_VENDOR_SPEC_CMD_CMPL_IND:
       {
         #if defined(AM_PART_APOLLO) || defined(AM_PART_APOLLO2)
-       
+
           uint8_t *param_ptr = &pMsg->vendorSpecCmdCmpl.param[0];
-        
+
           switch (pMsg->vendorSpecCmdCmpl.opcode)
           {
             case 0xFC20: //read at address
@@ -1072,8 +1067,8 @@ static void datcProcMsg(dmEvt_t *pMsg)
 
               BSTREAM_TO_UINT32(read_value, param_ptr);
 
-              APP_TRACE_INFO3("VSC 0x%0x complete status %x param %x", 
-                pMsg->vendorSpecCmdCmpl.opcode, 
+              APP_TRACE_INFO3("VSC 0x%0x complete status %x param %x",
+                pMsg->vendorSpecCmdCmpl.opcode,
                 pMsg->hdr.status,
                 read_value);
             }
@@ -1085,7 +1080,7 @@ static void datcProcMsg(dmEvt_t *pMsg)
                     pMsg->hdr.status);
             break;
           }
-          
+
         #endif
       }
       break;

@@ -2,22 +2,23 @@
 //
 //! @file uart_boot_host.c
 //!
-//! @brief Converts UART Wired transfer commands to SPI for use with SBL SPI testing.
+//! @brief Converts UART Wired transfer commands to SPI or I2C for use with
+//! SBL SPI/I2C testing.
 //!
-//! Purpose: This example running on an intermediate board, along with the standard
-//! uart_wired_update script running on host PC, can be used as a way to
-//! communicate to Apollo3 SBL using SPI mode.
+//! Purpose: This example running on an intermediate board, along with the
+//! standard uart_wired_update script running on host PC, can be used as a
+//! way to communicate with the Apollo SBL (secure boot loader).
 //!
 //! Printing takes place over the ITM at 1M Baud.
 //!
 //! Additional Information:
 //! @verbatim
 //! PIN fly lead connections assumed:
-//!     HOST (this board)                       SLAVE (Apollo3 SBL target)
+//!     HOST (this board)                       SLAVE (Apollo SBL target)
 //!     --------                                --------
 //! Apollo3 SPI or I2C common connections:
-//!     GPIO[2]  GPIO Interrupt (slave to host) GPIO[4]  GPIO interrupt
-//!     GPIO[4]  OVERRIDE pin   (host to slave) GPIO[16] Override pin or n/c
+//!     GPIO[2]  GPIO Interrupt (slave to host) GPIO[4]  GPIO interrupt (SLINT)
+//!     GPIO[16] OVERRIDE pin   (host to slave) GPIO[16] Override pin or n/c
 //!     GPIO[17] Slave reset (host to slave)    Reset Pin or n/c
 //!     GND                                     GND
 //!
@@ -39,11 +40,27 @@
 //! - For I2C, press button2 during reset and hold it until the program begins,
 //!     i.e. you see the "I2C clock = " msg.
 //!   Alternatively the button2 pin can be tied low.
+//! - To specifically force either SPI or I2C mode, define the USE_SPI macro
+//!   appropriately.
 //! - Note that on the Apollo3 EVB, button2 is labelled as 'BTN4', which is
 //!   the button located nearest the end of the board.
 //!   Also on the Apollo3 EVB, BTN4 uses pin 19.  It happens that the header
 //!   pin for pin 19 on the EVB is adjacent to a ground pin, so a jumper can
 //!   be used to assert I2C mode.
+//!
+//! General procedure:
+//! - Update any of the pin defines below as needed for your particular setup.
+//!   Typical ones that may need to be changed are marked with the phrase
+//!   "Platform specific pin".
+//! - Make all of the above connections between the host and the target device.
+//!   This procedure assumes that the optional SLINT and Reset connections
+//!   above are made.
+//! - Compile and load this program onto the host device, e.g. an Apollo3 EVB.
+//! - Start the UART script (e.g. uart_wired_update.py, which can be used for
+//!   loading a binary onto a target device) using the appropriate parameters.
+//! - Press the reset button on the host device.
+//! - This program will take the UART commands and convert them to SPI or I2C
+//!   signals to be used for transmitting data to the target device.
 //!
 //! @endverbatim
 //
@@ -51,7 +68,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -83,7 +100,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -102,11 +119,55 @@
 //
 // USE_SPI: Define to force configuration to output as SPI or I2C.
 // Leave undefined when using a button/pin to determine SPI or I2C mode.
+// By default, it is undefined and uses a pull-up input pin configuration
+// to designate SPI mode.
 //
 //#define USE_SPI                         1   // 0 = I2C, 1 = SPI
 
 //
-// Define the UART module (0 or 1) to be used.
+// Define the host pins that will be used for connecting to
+// corresponding pins on the target.
+//
+// Platform specific pin:
+// TARGET_BOARD_OVERRIDE_PIN is connected to the corresponding
+// 'Override' pin on the slave device. This signal is used to force the
+// target SBL to wait for signaling from the host.
+//
+#ifdef AM_BSP_GPIO_BUTTON0
+#define TARGET_BOARD_OVERRIDE_PIN       AM_BSP_GPIO_BUTTON0
+#else
+#define TARGET_BOARD_OVERRIDE_PIN       16
+#endif
+
+//
+// Platform specific pin:
+// To simplify testing between SPI and I2C, an input pin can be defined
+// to determine at run-time whether SPI or I2C is being tested.
+// This method can only be used if USE_SPI (above) is not defined.
+//
+#ifndef USE_SPI
+#ifdef AM_BSP_GPIO_BUTTON2
+#define USE_SPI_PIN                     AM_BSP_GPIO_BUTTON2 // Labelled BTN4 on the Apollo3 EVB
+#else
+#define USE_SPI_PIN                     19
+#endif
+#endif
+
+//
+// Platform specific pin:
+// Slave interrupt (SLINT) pin is connected to this host pin.
+// This interrupt is an input from the slave device.
+//
+#define BOOTLOADER_HANDSHAKE_PIN        2
+
+//
+// Platform specific pin:
+// DRIVE_SLAVE_RESET_PIN is the pin connected to the nRst pin of the slave.
+//
+#define DRIVE_SLAVE_RESET_PIN           17
+
+//
+// Define the host UART module (0 or 1) to be used.
 // Also define the max packet size
 //
 #define UART_HOST                       0
@@ -118,37 +179,8 @@
 #define MAX_IOS_LRAM_SIZE               120     // LRAM can only accept 120 bytes at a time.
 
 //
-// This definition assumes Host is running on same type of board as target.
-// If that is not case, this definition needs to be adjusted to match the
-// desired pin on target board
+// Host IOS parameters.
 //
-#if 1
-#define TARGET_BOARD_OVERRIDE_PIN       AM_BSP_GPIO_BUTTON0
-#else
-#define TARGET_BOARD_OVERRIDE_PIN       16
-#endif
-
-#ifdef AM_BSP_GPIO_BUTTON2
-#define USE_SPI_PIN                     AM_BSP_GPIO_BUTTON2 // Labelled BTN4 on the Apollo3 EVB
-#else
-#define USE_SPI_PIN                     19
-#endif
-
-//
-// Slave interrupt pin is connected here
-//
-#define BOOTLOADER_HANDSHAKE_PIN        2
-
-//
-// This pin is connected to RESET pin of slave
-//
-#define DRIVE_SLAVE_RESET_PIN           17
-
-//
-// This pin is connected to the 'Override' pin of slave
-//
-#define DRIVE_SLAVE_OVERRIDE_PIN        4
-
 #define IOSOFFSET_WRITE_CMD             0x80
 #define IOSOFFSET_READ_FIFO             0x7F
 #define IOSOFFSET_READ_FIFOCTR          0x7C
@@ -180,8 +212,8 @@ union                                                               \
 
 typedef struct
 {
-    uint32_t                     crc32; // First word
-    uint16_t                     msgType; // am_secboot_wired_msgtype_e
+    uint32_t                     crc32;     // First word
+    uint16_t                     msgType;   // am_secboot_wired_msgtype_e
     uint16_t                     length;
 } am_secboot_wired_msghdr_t;
 
@@ -504,7 +536,10 @@ static bool USE_SPI_get(void)
 
     return ui32Pinval ? true : false;
 #else
-    return (USE_SPI == 1);
+    //
+    // If USE_SPI is defined, return true for SPI or false for I2C.
+    //
+    return (USE_SPI >= 1);
 #endif
 } // USE_SPI_get()
 
@@ -526,8 +561,8 @@ void start_boot_mode(bool bReset)
         //
         // Drive the override pin high and configure the pin.
         //
-        am_hal_gpio_state_write(DRIVE_SLAVE_OVERRIDE_PIN, AM_HAL_GPIO_OUTPUT_SET);
-        am_hal_gpio_pinconfig(DRIVE_SLAVE_OVERRIDE_PIN, g_AM_HAL_GPIO_OUTPUT);
+        am_hal_gpio_state_write(TARGET_BOARD_OVERRIDE_PIN, AM_HAL_GPIO_OUTPUT_SET);
+        am_hal_gpio_pinconfig(TARGET_BOARD_OVERRIDE_PIN, g_AM_HAL_GPIO_OUTPUT);
     }
     else
     {
@@ -539,7 +574,7 @@ void start_boot_mode(bool bReset)
         //
         // Drive the override pin low to force the slave into boot mode.
         //
-        am_hal_gpio_state_write(DRIVE_SLAVE_OVERRIDE_PIN, AM_HAL_GPIO_OUTPUT_CLEAR);
+        am_hal_gpio_state_write(TARGET_BOARD_OVERRIDE_PIN, AM_HAL_GPIO_OUTPUT_CLEAR);
 
         //
         // Short delay.
@@ -656,7 +691,7 @@ int
 main(void)
 {
     bool     bSpi;
-    uint32_t maxSize;
+    uint32_t ui32MaxSize, ui32XferSize, ui32HdrSz;
     uint32_t ui32ByteCnt;
     bool     bIOShdr;
     uint32_t ui32DotCnt = 0;
@@ -671,7 +706,7 @@ main(void)
     // Check the SPI pin
     //
     bSpi = USE_SPI_get();
-    maxSize = bSpi ? MAX_SPI_SIZE: MAX_I2C_SIZE;
+    ui32MaxSize = bSpi ? MAX_SPI_SIZE: MAX_I2C_SIZE;
     //
     // Enable the ITM
     //
@@ -711,7 +746,6 @@ main(void)
     //
     start_boot_mode(true);
 
-#if 1
     //
     // Wait for initial handshake signal to know that IOS interface is alive
     //
@@ -732,38 +766,41 @@ main(void)
     bIosInt = false;
 
     //
-    // Read the "STATUS" response from the IOS.
+    // Read the "STATUS" response from the slave device and
+    // also determine the size of the transfer.
     //
-    iom_slave_read(bSpi, IOSOFFSET_READ_FIFO, (uint32_t*)&g_psReadData, 88);
-#endif
+    ui32HdrSz = sizeof(am_secboot_wired_msghdr_t);      // Size is 8 bytes
+    iom_slave_read(bSpi, IOSOFFSET_READ_FIFO, (uint32_t*)&g_psReadData, ui32HdrSz);
+    ui32XferSize = ((am_secboot_wired_msghdr_t*)&g_psReadData)->length;
+
+    //
+    // Now that we know the size, get the rest of the data
+    //
+    iom_slave_read(bSpi, IOSOFFSET_READ_FIFO,
+                   (uint32_t*)&g_psReadData.bytes[ui32HdrSz],
+                   ui32XferSize - ui32HdrSz);
 
     //
     // Loop forever.
     //
     while (1)
     {
-        //
-        // Disable interrupt while we decide whether we're going to sleep.
-        //
-        //uint32_t ui32IntStatus = am_hal_interrupt_master_disable();
-
         if ( bIosInt == true )
         {
             bIosInt = false;
-            uint32_t iosSize = 0;
 
             //
-            // Read the Data Size from the IOS.
+            // Read the Data Size from the slave device.
             //
-            iom_slave_read(bSpi, IOSOFFSET_READ_FIFOCTR, &iosSize, 2);
-            iosSize = (iosSize > maxSize) ? maxSize : iosSize;
+            iom_slave_read(bSpi, IOSOFFSET_READ_FIFOCTR, &ui32XferSize, 2);
+            ui32XferSize = (ui32XferSize > ui32MaxSize) ? ui32MaxSize : ui32XferSize;
 
-            if ( iosSize > 0 )
+            if ( ui32XferSize > 0 )
             {
                 //
                 // Read the Data from the IOS.
                 //
-                iom_slave_read(bSpi, IOSOFFSET_READ_FIFO, (uint32_t*)&g_psReadData, iosSize);
+                iom_slave_read(bSpi, IOSOFFSET_READ_FIFO, (uint32_t*)&g_psReadData, ui32XferSize);
 
                 //
                 // Write the Data to the UART.
@@ -773,12 +810,12 @@ main(void)
                     {
                         .ui32Direction = AM_HAL_UART_WRITE,
                         .pui8Data = g_psReadData.bytes,
-                        .ui32NumBytes = iosSize,
+                        .ui32NumBytes = ui32XferSize,
                         .ui32TimeoutMs = AM_HAL_UART_WAIT_FOREVER,
                         .pui32BytesTransferred = 0,
                     };
 
-                    //PRT_INFO("\nUART%d: %3d bytes.\n", UART_HOST, iosSize);
+                    //PRT_INFO("\nUART%d: %3d bytes.\n", UART_HOST, ui32XferSize);
 //                  bIOShdr = false;
                     am_hal_uart_transfer(g_pvUART, &sWrite);
                     am_util_delay_ms(1);

@@ -78,7 +78,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>AMA3B1KK-KBR	AmbiqMicro AMA3B1KK-KBR</state>
+                    <state>AMA3B2KK-KBR	AmbiqMicro AMA3B2KK-KBR</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -138,7 +138,7 @@
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>AMA3B1KK-KBR	AmbiqMicro AMA3B1KK-KBR</state>
+                    <state>AMA3B2KK-KBR	AmbiqMicro AMA3B2KK-KBR</state>
                 </option>
                 <option>
                     <name>FPU2</name>
@@ -208,8 +208,8 @@
                 <option>
                     <name>CCDefines</name>
                     <state>iar</state>
-          <state>AM_ASSERT_INVALID_THRESHOLD=0</state>
           <state>AM_PART_APOLLO3P</state>
+          <state>AM_ASSERT_INVALID_THRESHOLD=0</state>
           <state>AM_DEBUG_ASSERT</state>
                 </option>
                 <option>
@@ -335,9 +335,9 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
+          <state>$PROJ_DIR$\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\CMSIS\ARM\Include</state>
-          <state>$PROJ_DIR$\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -603,9 +603,9 @@
                 </option>
                 <option>
                     <name>AUserIncludes</name>
+          <state>$PROJ_DIR$\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\CMSIS\ARM\Include</state>
-          <state>$PROJ_DIR$\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
                 </option>
                 <option>
                     <name>AExtraOptionsCheckV2</name>
@@ -1095,7 +1095,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectEditMenu</name>
-                    <state>AMA3B1KK-KBR	AmbiqMicro AMA3B1KK-KBR</state>
+                    <state>AMA3B2KK-KBR	AmbiqMicro AMA3B2KK-KBR</state>
                 </option>
                 <option>
                     <name>GenLowLevelInterface</name>
@@ -1155,7 +1155,7 @@
                 </option>
                 <option>
                     <name>GFPUDeviceSlave</name>
-                    <state>AMA3B1KK-KBR	AmbiqMicro AMA3B1KK-KBR</state>
+                    <state>AMA3B2KK-KBR	AmbiqMicro AMA3B2KK-KBR</state>
                 </option>
                 <option>
                     <name>FPU2</name>
@@ -1225,8 +1225,8 @@
                 <option>
                     <name>CCDefines</name>
                     <state>iar</state>
-          <state>AM_ASSERT_INVALID_THRESHOLD=0</state>
           <state>AM_PART_APOLLO3P</state>
+          <state>AM_ASSERT_INVALID_THRESHOLD=0</state>
           <state>AM_DEBUG_ASSERT</state>
                 </option>
                 <option>
@@ -1352,9 +1352,9 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
+          <state>$PROJ_DIR$\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
           <state>$PROJ_DIR$\..\..\..\..\mcu\apollo3p</state>
           <state>$PROJ_DIR$\..\..\..\..\CMSIS\ARM\Include</state>
-          <state>$PROJ_DIR$\..\..\..\..\CMSIS\AmbiqMicro\Include</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -2059,6 +2059,9 @@
   </file>
   <file>
     <name>$PROJ_DIR$\..\am_hal_debug.c</name>
+  </file>
+  <file>
+    <name>$PROJ_DIR$\..\am_hal_entropy.c</name>
   </file>
   <file>
     <name>$PROJ_DIR$\..\am_hal_flash.c</name>

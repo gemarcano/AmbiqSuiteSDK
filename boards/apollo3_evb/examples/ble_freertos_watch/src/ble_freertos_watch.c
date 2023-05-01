@@ -10,8 +10,8 @@
 //!
 //! Additional Information:
 //! 1. Printing takes place over the ITM at 1M Baud.
-//! 2. When the example powers up, 
-//!    2.A. it enters advertising mode by default to wait for connection from 
+//! 2. When the example powers up,
+//!    2.A. it enters advertising mode by default to wait for connection from
 //!         smart phone with Time profile, Alert Notification profile and Phone
 //!         Alert Status profile supported.
 //!    2.B. when BTN2 on Apollo3 EVB is short-pressed, if advertising is on, it
@@ -20,7 +20,7 @@
 //!         when scanning stops.
 //!    2.C. During scanning, the device (if discovered) running freertos_fit
 //!         example in this SDK will be connected and scanning will be stopped.
-//!    2.D. Repeat 2.B. and 2.C. above to connect to a new slave device running 
+//!    2.D. Repeat 2.B. and 2.C. above to connect to a new slave device running
 //!         freertos_fit example (max slaves is 3).
 //! 3. when phone (iPhone is used) connects to this example, the services of Time
 //!    profile, Alert Notification profile and Phone Alert Status profile will be
@@ -30,7 +30,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 

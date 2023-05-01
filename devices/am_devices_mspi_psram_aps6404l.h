@@ -8,7 +8,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -115,12 +115,18 @@ typedef struct
 {
     am_hal_mspi_device_e eDeviceConfig;
     am_hal_mspi_clock_e eClockFreq;
-    am_hal_mspi_xipmixed_mode_e eMixedMode;
     uint32_t *pNBTxnBuf;
     uint32_t ui32NBTxnBufLength;
     uint32_t ui32ScramblingStartAddr;
     uint32_t ui32ScramblingEndAddr;
 } am_devices_mspi_psram_config_t;
+
+typedef struct
+{
+    uint32_t ui32Turnaround;
+    uint32_t ui32Rxneg;
+    uint32_t ui32Rxdqsdelay;
+} am_devices_mspi_psram_sdr_timing_config_t;
 
 //*****************************************************************************
 //
@@ -197,6 +203,11 @@ extern uint32_t am_devices_mspi_psram_nonblocking_write(void *pHandle, uint8_t *
                            am_hal_mspi_callback_t pfnCallback,
                            void *pCallbackCtxt);
 
+extern uint32_t am_devices_mspi_psram_sdr_init_timing_check(uint32_t module,
+                                            am_devices_mspi_psram_config_t *pDevCfg,
+                                            am_devices_mspi_psram_sdr_timing_config_t *pDevSdrCfg);
+extern uint32_t am_devices_mspi_psram_apply_sdr_timing(void *pHandle,
+                                        am_devices_mspi_psram_sdr_timing_config_t *pDevSdrCfg);
 #ifdef __cplusplus
 }
 #endif

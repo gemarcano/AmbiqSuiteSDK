@@ -13,7 +13,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -53,10 +53,59 @@
 #include <stdbool.h>
 #include "am_mcu_apollo.h"
 
+//*****************************************************************************
+//
+//  Defines
+//
+//*****************************************************************************
 //
 // Maximum number of checks to memory power status before declaring error.
 //
-#define AM_HAL_PWRCTRL_MAX_WAIT  20
+#define AM_HAL_PWRCTRL_MAX_WAIT     20
+
+//*****************************************************************************
+//
+//  Globals
+//
+//*****************************************************************************
+bool g_bSimobuckTrimsDone = false;
+
+//
+//    Mask of HCPA Enables from the PWRCTRL->DEVPWRSTATUS register mapped to the
+//        PWRCTRL->DEVPWREN register
+//
+#define HCPA_MASK       ( \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOS, PWRCTRL_DEVPWREN_PWRIOS_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRUART0, PWRCTRL_DEVPWREN_PWRUART0_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRUART1, PWRCTRL_DEVPWREN_PWRUART1_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRSCARD, PWRCTRL_DEVPWREN_PWRSCARD_EN))
+
+//
+//    Mask of HCPB Enables from the PWRCTRL->DEVPWRSTATUS register mapped to the
+//        PWRCTRL->DEVPWREN register
+//
+#define HCPB_MASK       ( \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOM0, PWRCTRL_DEVPWREN_PWRIOM0_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOM1, PWRCTRL_DEVPWREN_PWRIOM1_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOM2, PWRCTRL_DEVPWREN_PWRIOM2_EN))
+
+//
+//    Mask of HCPC Enables from the PWRCTRL->DEVPWRSTATUS register mapped to the
+//        PWRCTRL->DEVPWREN register
+//
+#define HCPC_MASK       ( \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOM3, PWRCTRL_DEVPWREN_PWRIOM3_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOM4, PWRCTRL_DEVPWREN_PWRIOM4_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRIOM5, PWRCTRL_DEVPWREN_PWRIOM5_EN))
+
+//
+//    Mask of MSPI Enables from the PWRCTRL->DEVPWRSTATUS register mapped to the
+//        PWRCTRL->DEVPWREN register
+//
+#define MSPI_MASK       ( \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRMSPI0, PWRCTRL_DEVPWREN_PWRMSPI0_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRMSPI1, PWRCTRL_DEVPWREN_PWRMSPI1_EN) | \
+    _VAL2FLD(PWRCTRL_DEVPWREN_PWRMSPI2, PWRCTRL_DEVPWREN_PWRMSPI2_EN))
 
 //
 // Define the peripheral control structure.
@@ -67,6 +116,7 @@ const struct
     uint32_t      ui32PeriphStatus;
     uint32_t      ui32PeriphEvent;
 }
+
 am_hal_pwrctrl_peripheral_control[AM_HAL_PWRCTRL_PERIPH_MAX] =
 {
     {0, 0, 0},                                  //  AM_HAL_PWRCTRL_PERIPH_NONE
@@ -120,7 +170,6 @@ am_hal_pwrctrl_peripheral_control[AM_HAL_PWRCTRL_PERIPH_MAX] =
      _VAL2FLD(PWRCTRL_DEVPWREVENTEN_BLELEVEN, PWRCTRL_DEVPWREVENTEN_BLELEVEN_EN)}   //  AM_HAL_PWRCTRL_PERIPH_BLEL
 };
 
-
 //
 // Define the memory control structure.
 //
@@ -133,6 +182,7 @@ const struct
     uint32_t      ui32StatusMask;
     uint32_t      ui32PwdSlpEnable;
 }
+
 am_hal_pwrctrl_memory_control[AM_HAL_PWRCTRL_MEM_MAX] =
 {
     {0, 0, 0, 0, 0, 0},
@@ -249,7 +299,6 @@ am_hal_pwrctrl_memory_control[AM_HAL_PWRCTRL_MEM_MAX] =
 uint32_t
 am_hal_pwrctrl_periph_enable(am_hal_pwrctrl_periph_e ePeripheral)
 {
-
     //
     // Enable power control for the given device.
     //
@@ -257,12 +306,11 @@ am_hal_pwrctrl_periph_enable(am_hal_pwrctrl_periph_e ePeripheral)
     PWRCTRL->DEVPWREN |= am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable;
     AM_CRITICAL_END
 
-
     for (uint32_t wait_usecs = 0; wait_usecs < AM_HAL_PWRCTRL_MAX_WAIT; wait_usecs += 10)
     {
         am_hal_flash_delay(FLASH_CYCLES_US(10));
 
-        if ( (PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) > 0)
+        if ((PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) > 0)
         {
             break;
         }
@@ -271,15 +319,72 @@ am_hal_pwrctrl_periph_enable(am_hal_pwrctrl_periph_e ePeripheral)
     //
     // Check the device status.
     //
-    if ( (PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) > 0 )
+    if ((PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) > 0)
     {
         return AM_HAL_STATUS_SUCCESS;
     }
     else
     {
+        //
+        // IF the Power Enable fails, make sure the DEVPWREN is Low
+        //
+        AM_CRITICAL_BEGIN
+        PWRCTRL->DEVPWREN &= ~am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable;
+        AM_CRITICAL_END
+
         return AM_HAL_STATUS_FAIL;
     }
+} // am_hal_pwrctrl_periph_enable()
 
+// ****************************************************************************
+//
+//  am_hal_pwrctrl_periph_disable_msk_check()
+//  Function checks the PWRCTRL->DEVPWREN since the PWRCTRL->DEVPWRSTATUS
+//        register alone cannot tell the user if a peripheral is enabled when
+//        and HCPx register is being used.
+//
+// ****************************************************************************
+static uint32_t
+pwrctrl_periph_disable_msk_check(am_hal_pwrctrl_periph_e ePeripheral)
+{
+    uint32_t retVal = AM_HAL_STATUS_FAIL;
+    uint32_t HCPxMSPIxMask = PWRCTRL->DEVPWREN;
+
+    switch (am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus)
+    {
+        case (PWRCTRL_DEVPWRSTATUS_HCPA_Msk):
+            if (((HCPxMSPIxMask & HCPA_MASK) > 0) && ((HCPxMSPIxMask & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable) == 0))
+            {
+                retVal = AM_HAL_STATUS_SUCCESS;
+            }
+            break;
+
+        case (PWRCTRL_DEVPWRSTATUS_HCPB_Msk):
+            if (((HCPxMSPIxMask & HCPB_MASK) > 0) && ((HCPxMSPIxMask & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable) == 0))
+            {
+                retVal = AM_HAL_STATUS_SUCCESS;
+            }
+            break;
+
+        case (PWRCTRL_DEVPWRSTATUS_HCPC_Msk):
+            if (((HCPxMSPIxMask & HCPC_MASK) > 0) && ((HCPxMSPIxMask & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable) == 0))
+            {
+                retVal = AM_HAL_STATUS_SUCCESS;
+            }
+            break;
+
+        case (PWRCTRL_DEVPWRSTATUS_PWRMSPI_Msk):
+            if (((HCPxMSPIxMask & MSPI_MASK) > 0) && ((HCPxMSPIxMask & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable) == 0))
+            {
+                retVal = AM_HAL_STATUS_SUCCESS;
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return retVal;
 }
 
 // ****************************************************************************
@@ -302,7 +407,7 @@ am_hal_pwrctrl_periph_disable(am_hal_pwrctrl_periph_e ePeripheral)
     {
         am_hal_flash_delay(FLASH_CYCLES_US(10));
 
-        if ( (PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) == 0 )
+        if ((PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) == 0)
         {
             break;
         }
@@ -311,94 +416,47 @@ am_hal_pwrctrl_periph_disable(am_hal_pwrctrl_periph_e ePeripheral)
     //
     // Check the device status.
     //
-    if ( ( PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) == 0 )
+    if ((PWRCTRL->DEVPWRSTATUS & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus) == 0)
     {
         return AM_HAL_STATUS_SUCCESS;
     }
     else
     {
-        return AM_HAL_STATUS_FAIL;
+        return pwrctrl_periph_disable_msk_check(ePeripheral);
     }
-}
+
+} // am_hal_pwrctrl_periph_disable()
 
 //*****************************************************************************
 //
-//! @brief Determine whether a peripheral is currently enabled.
-//!
-//! @param ePeripheral - The peripheral to enable.
-//! @param pui32Enabled - Pointer to a ui32 that will return as 1 or 0.
-//!
-//! This function determines to the caller whether a given peripheral is
-//! currently enabled or disabled.
-//!
-//! @return status - generic or interface specific status.
+// am_hal_pwrctrl_periph_enabled()
+// This function determines to the caller whether a given peripheral is
+// currently enabled or disabled.
 //
 //*****************************************************************************
 uint32_t
 am_hal_pwrctrl_periph_enabled(am_hal_pwrctrl_periph_e ePeripheral,
                               uint32_t *pui32Enabled)
 {
-    uint32_t ui32Mask = 0;
+    uint32_t ui32Mask = am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphStatus;
     uint32_t ui32Enabled = 0;
 
-    if ( pui32Enabled == NULL )
+    if (pui32Enabled == NULL)
     {
         return AM_HAL_STATUS_INVALID_ARG;
     }
 
-    switch ( ePeripheral )
-    {
-        case AM_HAL_PWRCTRL_PERIPH_NONE:
-        case AM_HAL_PWRCTRL_PERIPH_SCARD:
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_IOS:
-        case AM_HAL_PWRCTRL_PERIPH_UART0:
-        case AM_HAL_PWRCTRL_PERIPH_UART1:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_HCPA_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_IOM0:
-        case AM_HAL_PWRCTRL_PERIPH_IOM1:
-        case AM_HAL_PWRCTRL_PERIPH_IOM2:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_HCPB_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_IOM3:
-        case AM_HAL_PWRCTRL_PERIPH_IOM4:
-        case AM_HAL_PWRCTRL_PERIPH_IOM5:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_HCPC_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_ADC:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_PWRADC_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_MSPI0:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_PWRMSPI_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_MSPI1:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_PWRMSPI_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_MSPI2:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_PWRMSPI_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_PDM:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_PWRPDM_Msk;
-            break;
-        case AM_HAL_PWRCTRL_PERIPH_BLEL:
-            ui32Mask = PWRCTRL_DEVPWRSTATUS_BLEL_Msk;
-            break;
-        default:
-            return AM_HAL_STATUS_FAIL;
-    }
-
-    if ( ui32Mask != 0 )
+    if (ui32Mask != 0)
     {
         ui32Enabled = PWRCTRL->DEVPWRSTATUS & ui32Mask ? 1 : 0;
+        ui32Enabled = ui32Enabled && (PWRCTRL->DEVPWREN & am_hal_pwrctrl_peripheral_control[ePeripheral].ui32PeriphEnable);
     }
 
     *pui32Enabled = ui32Enabled;
 
     return AM_HAL_STATUS_SUCCESS;
-}
 
-
+} // am_hal_pwrctrl_periph_enabled()
 
 // ****************************************************************************
 //
@@ -463,7 +521,8 @@ am_hal_pwrctrl_memory_enable(am_hal_pwrctrl_mem_e eMemConfig)
     {
         return AM_HAL_STATUS_FAIL;
     }
-}
+
+} // am_hal_pwrctrl_memory_enable()
 
 // ****************************************************************************
 //
@@ -485,7 +544,8 @@ am_hal_pwrctrl_memory_deepsleep_powerdown(am_hal_pwrctrl_mem_e eMemConfig)
     PWRCTRL->MEMPWDINSLEEP |= am_hal_pwrctrl_memory_control[eMemConfig].ui32PwdSlpEnable;
 
     return AM_HAL_STATUS_SUCCESS;
-}
+
+} // am_hal_pwrctrl_memory_deepsleep_powerdown()
 
 // ****************************************************************************
 //
@@ -507,7 +567,47 @@ am_hal_pwrctrl_memory_deepsleep_retain(am_hal_pwrctrl_mem_e eMemConfig)
     PWRCTRL->MEMPWDINSLEEP &= ~am_hal_pwrctrl_memory_control[eMemConfig].ui32PwdSlpEnable;
 
     return AM_HAL_STATUS_SUCCESS;
-}
+
+} // am_hal_pwrctrl_memory_deepsleep_retain()
+
+// ****************************************************************************
+//  simobuck_updates()
+// ****************************************************************************
+static void
+simobuck_updates(void)
+{
+    //
+    // Adjust the SIMOBUCK LP settings.
+    //
+    if ( APOLLO3_GE_B0 )
+    {
+        if ( !g_bSimobuckTrimsDone )
+        {
+            uint32_t ui32LPTRIM;
+            g_bSimobuckTrimsDone = true;
+            ui32LPTRIM = MCUCTRL->SIMOBUCK1_b.SIMOBUCKMEMLPTRIM;
+            ui32LPTRIM = ui32LPTRIM > 12 ? ui32LPTRIM - 12 : 0;
+            MCUCTRL->SIMOBUCK1_b.SIMOBUCKMEMLPTRIM = ui32LPTRIM;
+            MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELPLOWTONTRIM   = 8;
+            MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELPHIGHTONTRIM  = 5;
+            MCUCTRL->SIMOBUCK4_b.SIMOBUCKMEMLPLOWTONTRIM    = 8;
+            MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPHIGHTONTRIM   = 6;
+            MCUCTRL->SIMOBUCK4_b.SIMOBUCKCOMP2LPEN          = 1;
+            MCUCTRL->SIMOBUCK4_b.SIMOBUCKCOMP2TIMEOUTEN     = 0;
+            MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELEAKAGETRIM    = 3;
+            MCUCTRL->SIMOBUCK2_b.SIMOBUCKTONGENTRIM         = 31;
+        }
+    }
+
+    //
+    // Adjust the SIMOBUCK Timeout settings.
+    //
+    if ( APOLLO3_GE_A1 )
+    {
+        MCUCTRL->SIMOBUCK4_b.SIMOBUCKCOMP2TIMEOUTEN = 0;
+    }
+
+} // simobuck_updates()
 
 // ****************************************************************************
 //
@@ -523,7 +623,7 @@ am_hal_pwrctrl_low_power_init(void)
     //
     // Take a snapshot of the reset status, if not done already
     //
-    if (!gAmHalResetStatus)
+    if ( !gAmHalResetStatus )
     {
         gAmHalResetStatus = RSTGEN->STAT;
     }
@@ -531,25 +631,7 @@ am_hal_pwrctrl_low_power_init(void)
     //
     // Adjust the SIMOBUCK LP settings.
     //
-    if (APOLLO3_GE_B0)
-    {
-        MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELPHIGHTONTRIM  = 2;
-        MCUCTRL->SIMOBUCK2_b.SIMOBUCKCORELPLOWTONTRIM   = 3;
-        MCUCTRL->SIMOBUCK3_b.SIMOBUCKCORELPHIGHTOFFTRIM = 5;
-        MCUCTRL->SIMOBUCK3_b.SIMOBUCKCORELPLOWTOFFTRIM  = 2;
-        MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPHIGHTOFFTRIM  = 6;
-        MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPLOWTOFFTRIM   = 1;
-        MCUCTRL->SIMOBUCK3_b.SIMOBUCKMEMLPHIGHTONTRIM   = 3;
-        MCUCTRL->SIMOBUCK4_b.SIMOBUCKMEMLPLOWTONTRIM    = 3;
-    }
-
-    //
-    // Adjust the SIMOBUCK Timeout settings.
-    //
-    if (APOLLO3_GE_A1)
-    {
-        MCUCTRL->SIMOBUCK4_b.SIMOBUCKCOMP2TIMEOUTEN = 0;
-    }
+    simobuck_updates();
 
     //
     // Configure cache for low power and performance.
@@ -561,6 +643,8 @@ am_hal_pwrctrl_low_power_init(void)
     //
     if ( PWRCTRL->DEVPWRSTATUS_b.BLEL == 0)
     {
+        am_hal_pwrctrl_blebuck_trim();
+
         //
         // First request the BLE feature and check that it was available and acknowledged.
         //
@@ -568,8 +652,8 @@ am_hal_pwrctrl_low_power_init(void)
         ui32Status = am_hal_flash_delay_status_check(10000,
                         (uint32_t)&MCUCTRL->FEATUREENABLE,
                         (MCUCTRL_FEATUREENABLE_BLEAVAIL_Msk |
-                          MCUCTRL_FEATUREENABLE_BLEACK_Msk  |
-                          MCUCTRL_FEATUREENABLE_BLEREQ_Msk),
+                         MCUCTRL_FEATUREENABLE_BLEACK_Msk   |
+                         MCUCTRL_FEATUREENABLE_BLEREQ_Msk),
                         (MCUCTRL_FEATUREENABLE_BLEAVAIL_Msk |
                          MCUCTRL_FEATUREENABLE_BLEACK_Msk   |
                          MCUCTRL_FEATUREENABLE_BLEREQ_Msk),
@@ -595,8 +679,13 @@ am_hal_pwrctrl_low_power_init(void)
     }
 
     return AM_HAL_STATUS_SUCCESS;
-}
+} // am_hal_pwrctrl_low_power_init()
 
+// ****************************************************************************
+//
+//  am_hal_pwrctrl_blebuck_trim()
+//
+// ****************************************************************************
 void am_hal_pwrctrl_blebuck_trim(void)
 {
   //
@@ -610,8 +699,7 @@ void am_hal_pwrctrl_blebuck_trim(void)
     CLKGEN->BLEBUCKTONADJ_b.TONADJUSTEN = CLKGEN_BLEBUCKTONADJ_TONADJUSTEN_DIS;
     AM_CRITICAL_END
   }
-
-}
+} // am_hal_pwrctrl_blebuck_trim()
 
 //*****************************************************************************
 //

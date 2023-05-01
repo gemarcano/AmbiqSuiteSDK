@@ -11,7 +11,7 @@
 
 //*****************************************************************************
 //
-// Copyright (c) 2020, Ambiq Micro
+// Copyright (c) 2021, Ambiq Micro, Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 //
-// This is part of revision 2.4.2 of the AmbiqSuite Development Package.
+// This is part of revision release_sdk_3_0_0-742e5ac27c of the AmbiqSuite Development Package.
 //
 //*****************************************************************************
 
@@ -262,6 +262,7 @@ static const attcDiscCfg_t amdtpcDiscCfgList[] =
 #ifdef MEASURE_THROUGHPUT
 wsfTimer_t measTpTimer;
 int gTotalDataBytesRecev = 0;
+static bool measTpStarted = false;
 #endif
 
 /*************************************************************************************************/
@@ -631,6 +632,7 @@ void AmdtpcConnOpen(uint8_t idx)
 }
 
 bool sendDataContinuously = false;
+bool g_requestServerSendStop = false;
 void AmdtpcSendTestData(void)
 {
     static uint8_t counter = 0;
@@ -659,6 +661,7 @@ void AmdtpcRequestServerSend(void)
 {
     uint8_t data[4] = {0};
     eAmdtpStatus_t status;
+    g_requestServerSendStop = false;
 
     data[0] = 1;
     status = AmdtpcSendPacket(AMDTP_PKT_TYPE_DATA, false, true, data, sizeof(data));
@@ -673,6 +676,8 @@ void AmdtpcRequestServerSendStop(void)
     uint8_t data[4] = {0};
     eAmdtpStatus_t status;
 
+    g_requestServerSendStop = true;
+
     data[0] = 2;
     status = AmdtpcSendPacket(AMDTP_PKT_TYPE_DATA, false, true, data, sizeof(data));
     if (status != AMDTP_STATUS_SUCCESS)
@@ -683,9 +688,6 @@ void AmdtpcRequestServerSendStop(void)
 
 void amdtpDtpRecvCback(uint8_t * buf, uint16_t len)
 {
-#ifdef MEASURE_THROUGHPUT
-    static bool measTpStarted = false;
-#endif
     // reception callback
     // print the received data
 #if 0
@@ -798,7 +800,7 @@ static void amdtpcDiscCback(dmConnId_t connId, uint8_t status)
 
     case APP_DISC_CFG_CMPL:
       AppDiscComplete(connId, status);
-      amdtpc_start(pAmdtpcHdlList[AMDTP_RX_HDL_IDX], pAmdtpcHdlList[AMDTP_ACK_HDL_IDX], AMDTP_TIMER_IND);
+      amdtpc_start(pAmdtpcHdlList[AMDTP_RX_HDL_IDX], pAmdtpcHdlList[AMDTP_ACK_HDL_IDX], pAmdtpcHdlList[AMDTP_TX_DATA_HDL_IDX], AMDTP_TIMER_IND);
       break;
 
     case APP_DISC_CFG_CONN_START:
@@ -813,9 +815,17 @@ static void amdtpcDiscCback(dmConnId_t connId, uint8_t status)
 #ifdef MEASURE_THROUGHPUT
 static void showThroughput(void)
 {
-    APP_TRACE_INFO1("throughput : %d Bytes/s\n", gTotalDataBytesRecev);
-    gTotalDataBytesRecev = 0;
-    WsfTimerStartSec(&measTpTimer, 1);
+    if ( gTotalDataBytesRecev > 0 )
+    {
+        APP_TRACE_INFO1("throughput : %d Bytes/s\n", gTotalDataBytesRecev);
+        gTotalDataBytesRecev = 0;
+        WsfTimerStartSec(&measTpTimer, 1);
+    }
+    else if ( gTotalDataBytesRecev == 0 )
+    {
+        measTpStarted = false;
+        WsfTimerStop(&measTpTimer);
+    }
 }
 #endif
 
@@ -894,6 +904,10 @@ static void amdtpcProcMsg(dmEvt_t *pMsg)
       uiEvent = APP_UI_CONN_CLOSE;
       break;
 
+    case DM_PHY_UPDATE_IND:
+      APP_TRACE_INFO3("DM_PHY_UPDATE_IND status: %d, RX: %d, TX: %d", pMsg->phyUpdate.status, pMsg->phyUpdate.rxPhy, pMsg->phyUpdate.txPhy);
+      break;
+
     case DM_SEC_PAIR_CMPL_IND:
       uiEvent = APP_UI_SEC_PAIR_CMPL;
       break;
@@ -914,9 +928,6 @@ static void amdtpcProcMsg(dmEvt_t *pMsg)
       if (pMsg->authReq.oob)
       {
         dmConnId_t connId = (dmConnId_t) pMsg->hdr.param;
-
-        /* TODO: Perform OOB Exchange with the peer. */
-        /* TODO: Fill datsOobCfg peerConfirm and peerRandom with value passed out of band */
 
         if (amdtpcOobCfg != NULL)
         {
@@ -941,9 +952,9 @@ static void amdtpcProcMsg(dmEvt_t *pMsg)
     case DM_VENDOR_SPEC_CMD_CMPL_IND:
       {
         #if defined(AM_PART_APOLLO) || defined(AM_PART_APOLLO2)
-       
+
           uint8_t *param_ptr = &pMsg->vendorSpecCmdCmpl.param[0];
-        
+
           switch (pMsg->vendorSpecCmdCmpl.opcode)
           {
             case 0xFC20: //read at address
@@ -952,8 +963,8 @@ static void amdtpcProcMsg(dmEvt_t *pMsg)
 
               BSTREAM_TO_UINT32(read_value, param_ptr);
 
-              APP_TRACE_INFO3("VSC 0x%0x complete status %x param %x", 
-                pMsg->vendorSpecCmdCmpl.opcode, 
+              APP_TRACE_INFO3("VSC 0x%0x complete status %x param %x",
+                pMsg->vendorSpecCmdCmpl.opcode,
                 pMsg->hdr.status,
                 read_value);
             }
@@ -964,11 +975,11 @@ static void amdtpcProcMsg(dmEvt_t *pMsg)
                     pMsg->hdr.status);
             break;
           }
-          
+
         #endif
       }
       break;
-      
+
     default:
       break;
   }
