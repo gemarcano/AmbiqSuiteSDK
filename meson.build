@@ -852,6 +852,7 @@ boards = [
   { 'path': 'boards_sfe/artemis_thing_plus', 'name': 'ambiq_a_tp'},
   { 'path': 'boards_sfe/artemis_module', 'name': 'ambiq_module'},
   { 'path': 'boards_sfe/artemis_dk', 'name': 'ambiq_dk'},
+  { 'path': 'boards_sfe/artemis_micromod/', 'name': 'ambiq_micromod'},
 ]
 
 # For boards_sfe, they are all very similar, so leverage some looping to set up
