@@ -5,10 +5,7 @@ for their RedBoard and Artemis Apollo3 module. This fork adds support for
 building the SDK using meson.
 
 # Current SDK Version
-2.4.2
-
-There are newer SDK versions available upstream for the Apollo3 (3.0.0 appears
-to be the latest).
+3.0.0 (possibly the last version supporting the Apollo3 MCUs)
 
 # Getting Started
 
@@ -37,53 +34,9 @@ The following is an example on how to install the library:
 ```
 git clone --recursive https://github.com/gemarcano/AmbiqSuiteSDK
 cd AmbiqSuiteSDK
-git checkout meson
-git submodule update
+git submodule update --init --recursive
 mkdir build
 cd build
-meson setup --prefix [custom-prefix] --cross-file ../redboard_artemis --buildtype release ../
-meson compile
+meson setup --prefix [custom-prefix] --cross-file ../artemis --buildtype release
 meson install
 ```
-
-# Advanced Usage
-All the convenient functionality that we've added to the AmbiqSuiteSDK comes
-from our [SparkFun AmbiqSuite Apollo3
-BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs). That repo
-contains more [detailed documentation for advanced
-usage](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs#advanced-usage).
-
-# Repository Structure
-In addition to including the [SparkFun
-BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs)This repo
-catalogs information about the AmbiqSuite SDK. Various branches serve different
-purposes:
-
-### Branch Purposes
-
-Pattern | Use | Addtl. info
----|---|---
-master | contains the most up-to-date version of the SDK along with all patches |
-mirror | mirrors latest SDK available from AmbiqMicro |
-\*-archive | provides an archive of the SDK as released by AmbiqMicro at each version |
-\*-patch-\*description| provides a version of the SDK patched beyond AmbiqMicro release
-
-
-# Submodules
-Git submodules can be used to reuse code between repositories. Some special
-precautions can be necessary when working with them -- most notably the need to
-clone the contents of submodules explicitly. Here's how to do that:
-
-- If you've already cloned a repo
-  - ```git submodule update --init --recursive```
-- If you are about to clone the repo
-  - ```git clone --recursive <project url>```
-
-Maintainers of this repo may also need to keep submodules updated.
-
-Here are some more documents about submodules.
-- [Working with Submodules by GitHub](https://github.blog/2016-02-01-working-with-submodules/)
-- [Git Submodules by gitaarik](https://gist.github.com/gitaarik/8735255)
-
-This repo includes the following git submodules:
-- [SparkFun_Apollo3_AmbiqSuite_BSPs](https://github.com/sparkfun/SparkFun_Apollo3_AmbiqSuite_BSPs) : provides board definitions and examples for SparkFun Apollo3 boards
