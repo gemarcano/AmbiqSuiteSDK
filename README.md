@@ -27,19 +27,24 @@ Applications using this library must provide a cross file with a `[constant]`
 entry for the `prefix` variable, used by Meson's `pkgconf` support to determine
 where to find the pkgconf information.
 
-## Building the Library
-
-The following is an example on how to install the library:
+## Fetching the Library
 
 ```
 git clone --recursive https://github.com/gemarcano/AmbiqSuiteSDK
-cd AmbiqSuiteSDK
-git submodule update --init --recursive
+```
+
+## Building the Library
+
+From the repository directory:
+```
 mkdir build
 cd build
-meson setup --prefix [custom-prefix] --cross-file ../artemis --buildtype release
-meson install
+meson setup --prefix [custom-install-prefix] --cross-file ../artemis --buildtype release
+meson compile
 ```
+
+A custom install prefix is strongly encouraged, to prevent installing the
+library into `/usr/local` or other host folders.
 
 The meson build system builds a library and creates an associated pkgconfig
 configuration file for all of the Sparkfun Artemis boards in the `boards_sfe`
@@ -51,3 +56,43 @@ directory. Currently, these libraries are:
  - `libambiq_dk.a` for the Artemis Development Kit
  - `libambiq_module.a` for the Artemis Module
  - `libambiq_rba_atp.a` for the RedBoard Artemis All-the-Pins
+
+## Installing
+
+From the `build` directory:
+```
+meson install
+```
+
+This will install the library in the `[custom-install-prefix]` provided during
+setup.
+
+One additional recommended step is to copy the `artemis` cross-file from the
+root of the repository to `$HOME/.local/share/meson/cross/`. This will make it
+so that the cross-file can be used from any meson project merely by adding
+`--cross-file artemis`.
+
+## How to use
+
+### Meson
+
+The recommended approach is to create a meson project and use the `--prefix`
+and updating the `pkg_config_libdir` to point to a cross-file to the prefix
+where this library was installed. If using the `artemis` cross-file from this
+repository, it exposes a variable in the `[constants]` cross-file section that
+can be overwritten in a second cross-file. This variable is aptly named
+`prefix`. This secondary cross-file might look like:
+
+```
+[constants]
+prefix = '[install-prefix-absolute-path]'
+```
+
+Replace `[install-prefix-absolute-path]` with the absolute path to the prefix
+specified when setting up the AmbiqSuiteSDK build.
+
+### Manually
+
+More generally, this project generates pkgconfig files that can be used to
+figure out what compilation and linking flags are necessary. These files are
+installed in the `[prefix]/lib/pkgconfig/libambiq*.pc` files.
