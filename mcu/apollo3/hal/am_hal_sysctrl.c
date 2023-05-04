@@ -100,6 +100,8 @@ am_hal_sysctrl_sleep(bool bSleepDeep)
     if ( (bSleepDeep == AM_HAL_SYSCTRL_SLEEP_DEEP)    &&
          (MCUCTRL->TPIUCTRL_b.ENABLE == MCUCTRL_TPIUCTRL_ENABLE_DIS) )
     {
+        // ERRATA ERR028: VDDC/VDDF brownout during deepsleep/wake transition
+        // in buck mode
 
         //
         // Retrieve the reset generator status bits
