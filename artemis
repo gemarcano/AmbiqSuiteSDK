@@ -13,7 +13,7 @@ endian = 'little'
 c = arch + 'gcc'
 cpp = arch + 'g++'
 strip = arch + 'strip'
-pkgconfig = 'pkgconf'
+pkg-config = 'pkgconf'
 objcopy = arch + 'objcopy'
 
 [properties]
