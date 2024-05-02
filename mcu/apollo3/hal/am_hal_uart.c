@@ -904,8 +904,8 @@ static uint32_t
 read_timeout(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
              uint32_t *pui32NumBytesRead, uint32_t ui32TimeoutMs)
 {
-    uint32_t ui32Status, ui32BytesRead, ui32RemainingBytes,
-             ui32TimeSpent, i;
+    uint32_t ui32Status, ui32BytesRead, ui32RemainingBytes, i;
+	uint64_t time_spent_us = 0;
 
     //
     // If we don't have a timeout, just pass this directly to the nonblocking
@@ -919,14 +919,13 @@ read_timeout(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
 
     i = 0;
     ui32RemainingBytes = ui32NumBytes;
-    ui32TimeSpent = 0;
 
     //
     // Loop until we're done reading. This will either be because we hit a
     // timeout, or we got the right number of bytes. If the caller specified
     // "wait forever", then don't check the timeout.
     //
-    while (ui32RemainingBytes && (ui32TimeSpent < ui32TimeoutMs))
+    while (ui32RemainingBytes && (time_spent_us/1000 < ui32TimeoutMs))
     {
         //
         // Read as much as we can.
@@ -960,7 +959,7 @@ read_timeout(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
 
             if (ui32TimeoutMs != AM_HAL_UART_WAIT_FOREVER)
             {
-                ui32TimeSpent++;
+                time_spent_us++;
             }
         }
     }
@@ -983,12 +982,11 @@ static uint32_t
 write_timeout(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
               uint32_t *pui32NumBytesWritten, uint32_t ui32TimeoutMs)
 {
-    uint32_t ui32Status, ui32BytesWritten, ui32RemainingBytes,
-             ui32TimeSpent, i;
+    uint32_t ui32Status, ui32BytesWritten, ui32RemainingBytes, i;
+	uint64_t time_spent_us = 0;
 
     i = 0;
     ui32RemainingBytes = ui32NumBytes;
-    ui32TimeSpent = 0;
 
     //
     // If we don't have a timeout, just pass this directly to the nonblocking
@@ -1005,7 +1003,7 @@ write_timeout(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
     // timeout, or we sent the right number of bytes. If the caller specified
     // "wait forever", then don't check the timeout.
     //
-    while (ui32RemainingBytes && (ui32TimeSpent < ui32TimeoutMs))
+    while (ui32RemainingBytes && (time_spent_us/1000 < ui32TimeoutMs))
     {
         //
         // Write as much as we can.
@@ -1039,7 +1037,7 @@ write_timeout(void *pHandle, uint8_t *pui8Data, uint32_t ui32NumBytes,
 
             if (ui32TimeoutMs != AM_HAL_UART_WAIT_FOREVER)
             {
-                ui32TimeSpent++;
+                time_spent_us++;
             }
         }
     }
