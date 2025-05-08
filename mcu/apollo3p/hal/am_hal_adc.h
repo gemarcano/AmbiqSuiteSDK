@@ -51,6 +51,8 @@
 #ifndef AM_HAL_ADC_H
 #define AM_HAL_ADC_H
 
+#include <stdint.h>
+
 //*****************************************************************************
 //
 // CMSIS-style macro for handling a variable IOM module number.

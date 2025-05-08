@@ -51,6 +51,8 @@
 #ifndef AM_HAL_SYSCTRL_H
 #define AM_HAL_SYSCTRL_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C"
 {
