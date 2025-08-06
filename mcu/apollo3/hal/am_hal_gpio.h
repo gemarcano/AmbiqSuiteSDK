@@ -477,7 +477,7 @@ extern const am_hal_gpio_pincfg_t g_AM_HAL_GPIO_OUTPUT_WITH_READ;
 //
 //*****************************************************************************
 typedef void (*am_hal_gpio_handler_t)(void);
-typedef void (*am_hal_gpio_handler_adv_t)(void *);
+typedef void (*am_hal_gpio_handler_adv_t)(volatile void *);
 
 //*****************************************************************************
 //

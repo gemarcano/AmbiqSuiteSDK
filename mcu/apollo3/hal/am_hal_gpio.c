@@ -335,8 +335,8 @@ g_ui8NCEtable[AM_HAL_GPIO_MAX_PADS][4] =
 // Array of function pointers for handling GPIO interrupts.
 //
 //*****************************************************************************
-static am_hal_gpio_handler_t gpio_ppfnHandlers[AM_HAL_GPIO_MAX_PADS];
-static void                  *gpio_pHandlerCtxt[AM_HAL_GPIO_MAX_PADS];
+static volatile am_hal_gpio_handler_t gpio_ppfnHandlers[AM_HAL_GPIO_MAX_PADS];
+static volatile void *gpio_pHandlerCtxt[AM_HAL_GPIO_MAX_PADS];
 
 //*****************************************************************************
 //
