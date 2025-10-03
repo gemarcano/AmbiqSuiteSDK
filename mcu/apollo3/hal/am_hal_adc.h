@@ -51,6 +51,8 @@
 #ifndef AM_HAL_ADC_H
 #define AM_HAL_ADC_H
 
+#include "am_hal_sysctrl.h"
+
 #include <stdint.h>
 
 //*****************************************************************************
