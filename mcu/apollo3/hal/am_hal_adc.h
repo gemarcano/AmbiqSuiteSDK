@@ -54,6 +54,7 @@
 #include "am_hal_sysctrl.h"
 
 #include <stdint.h>
+#include <stdbool.h>
 
 //*****************************************************************************
 //
