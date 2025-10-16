@@ -52,6 +52,8 @@
 #ifndef AM_HAL_GPIO_H
 #define AM_HAL_GPIO_H   1
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C"
 {
